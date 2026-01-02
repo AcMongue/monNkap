@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Supprimer objectif - FinTrack{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-exclamation-triangle"></i> Confirmer la suppression
+                </h4>
+            </div>
+            <div class="card-body">
+                <p>Êtes-vous sûr de vouloir supprimer cet objectif ?</p>
+                
+                <div class="alert alert-warning">
+                    <strong>{{ goal.title }}</strong><br>
+                    Montant cible : {{ goal.target_amount }} FCFA<br>
+                    Montant épargné : {{ goal.current_amount }} FCFA<br>
+                    Date limite : {{ goal.deadline|date:"d/m/Y" }}
+                </div>
+                
+                <p class="text-danger small">
+                    <i class="bi bi-exclamation-circle"></i> 
+                    Cette action supprimera également toutes les contributions associées.
+                </p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Oui, supprimer
+                        </button>
+                        <a href="{% url 'goals:list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Annuler
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

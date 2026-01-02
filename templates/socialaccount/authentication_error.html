@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Erreur d'authentification - FinTrack{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-lg border-danger">
+            <div class="card-body p-5 text-center">
+                <div class="mb-4">
+                    <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 4rem;"></i>
+                </div>
+                
+                <h2 class="fw-bold mb-3">Erreur d'authentification</h2>
+                
+                <div class="alert alert-danger text-start">
+                    <strong>Une erreur s'est produite lors de la connexion avec {{ provider.name }}</strong>
+                    <br><br>
+                    {% if error %}
+                        {{ error }}
+                    {% else %}
+                        Nous n'avons pas pu vous connecter avec votre compte social. 
+                        Veuillez réessayer ou utiliser une autre méthode de connexion.
+                    {% endif %}
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <a href="{% url 'accounts:login' %}" class="btn btn-gradient-primary">
+                        <i class="bi bi-arrow-left-circle"></i> Retour à la connexion
+                    </a>
+                    <a href="{% url 'landing' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-house"></i> Retour à l'accueil
+                    </a>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="text-start">
+                    <h6 class="fw-bold mb-3">Que faire ?</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Vérifiez que vous avez autorisé l'accès à votre email
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Essayez de vous connecter avec un autre compte
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Créez un compte avec email et mot de passe
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}Nouvelle Dépense - {{ group.name }} - FinTrack{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow-lg">
+            <div class="card-header bg-white border-0 pt-4 pb-3">
+                <div class="d-flex align-items-center">
+                    <a href="{% url 'groups:expense_list' group.pk %}" class="btn btn-outline-primary me-3">
+                        <i class="bi bi-arrow-left"></i>
+                    </a>
+                    <div>
+                        <h4 class="mb-1 gradient-text">
+                            <i class="bi bi-receipt"></i> Nouvelle Dépense de Groupe
+                        </h4>
+                        <p class="mb-0 text-muted">{{ group.name }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-body p-4">
+                <!-- Info -->
+                <div class="alert alert-info d-flex align-items-start mb-4">
+                    <i class="bi bi-lightbulb-fill me-3 mt-1"></i>
+                    <div>
+                        <strong>Partage automatique :</strong>
+                        <p class="mb-0 small">Le montant sera divisé équitablement entre les {{ group.members.count }} membre(s) du groupe. Vous serez marqué comme ayant déjà payé votre part.</p>
+                    </div>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Catégorie -->
+                    <div class="mb-4">
+                        <label for="{{ form.category.id_for_label }}" class="form-label">
+                            <i class="bi bi-tag me-2"></i>Catégorie *
+                        </label>
+                        {{ form.category }}
+                        {% if form.category.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.category.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="mb-4">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">
+                            <i class="bi bi-pencil me-2"></i>Description *
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.description.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <small class="text-muted d-block mt-1">
+                            Ex: Courses du mois, Électricité, Restaurant, etc.
+                        </small>
+                    </div>
+                    
+                    <!-- Montant -->
+                    <div class="mb-4">
+                        <label for="{{ form.amount.id_for_label }}" class="form-label">
+                            <i class="bi bi-currency-exchange me-2"></i>Montant Total *
+                        </label>
+                        <div class="input-group">
+                            {{ form.amount }}
+                            <span class="input-group-text">FCFA</span>
+                        </div>
+                        {% if form.amount.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.amount.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <small class="text-muted d-block mt-2">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Chaque membre devra payer <strong id="perPerson">0</strong> FCFA
+                        </small>
+                    </div>
+                    
+                    <!-- Date -->
+                    <div class="mb-4">
+                        <label for="{{ form.date.id_for_label }}" class="form-label">
+                            <i class="bi bi-calendar me-2"></i>Date *
+                        </label>
+                        {{ form.date }}
+                        {% if form.date.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.date.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Résumé -->
+                    <div class="card bg-light border-0 mb-4">
+                        <div class="card-body">
+                            <h6 class="mb-3"><i class="bi bi-calculator me-2"></i>Résumé du Partage</h6>
+                            <div class="row g-2 text-center">
+                                <div class="col-4">
+                                    <div class="p-2 bg-white rounded">
+                                        <h4 class="text-primary mb-0">{{ group.members.count }}</h4>
+                                        <small class="text-muted">Membres</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-2 bg-white rounded">
+                                        <h4 class="text-success mb-0" id="totalAmount">0</h4>
+                                        <small class="text-muted">Total (F)</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-2 bg-white rounded">
+                                        <h4 class="text-info mb-0" id="shareAmount">0</h4>
+                                        <small class="text-muted">Par Personne</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Boutons -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-gradient-primary btn-lg">
+                            <i class="bi bi-check-circle me-2"></i>Enregistrer la Dépense
+                        </button>
+                        <a href="{% url 'groups:expense_list' group.pk %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-2"></i>Annuler
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Calculer la part par personne en temps réel
+    const amountInput = document.getElementById('{{ form.amount.id_for_label }}');
+    const memberCount = {{ group.members.count }};
+    
+    function updateShare() {
+        const total = parseFloat(amountInput.value) || 0;
+        const share = total / memberCount;
+        
+        document.getElementById('perPerson').textContent = Math.round(share).toLocaleString();
+        document.getElementById('totalAmount').textContent = Math.round(total).toLocaleString();
+        document.getElementById('shareAmount').textContent = Math.round(share).toLocaleString();
+    }
+    
+    amountInput.addEventListener('input', updateShare);
+    updateShare(); // Initial calculation
+</script>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Supprimer l'objectif - {{ savings_goal.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <!-- En-tête -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'groups:list' %}">Groupes</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'groups:detail' pk=group.pk %}">{{ group.name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'groups:savings_detail' pk=savings_goal.pk %}">{{ savings_goal.title }}</a></li>
+                    <li class="breadcrumb-item active">Supprimer</li>
+                </ol>
+            </nav>
+
+            <div class="card glass-card border-danger">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 4rem;"></i>
+                        <h3 class="mt-3">Confirmer la suppression</h3>
+                    </div>
+
+                    <div class="alert alert-danger">
+                        <h6 class="alert-heading">
+                            <i class="bi bi-exclamation-circle me-2"></i>Attention !
+                        </h6>
+                        <p class="mb-0">
+                            Vous êtes sur le point de supprimer l'objectif d'épargne 
+                            <strong>"{{ savings_goal.title }}"</strong>.
+                        </p>
+                    </div>
+
+                    <!-- Informations sur l'objectif -->
+                    <div class="card bg-light border-0 mb-4">
+                        <div class="card-body">
+                            <h6 class="mb-3">Récapitulatif de l'objectif :</h6>
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <i class="bi bi-piggy-bank text-muted me-2"></i>
+                                    <strong>Titre :</strong> {{ savings_goal.title }}
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-cash-stack text-muted me-2"></i>
+                                    <strong>Montant épargné :</strong> {{ savings_goal.current_amount|floatformat:0 }} FCFA
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-bullseye text-muted me-2"></i>
+                                    <strong>Objectif :</strong> {{ savings_goal.target_amount|floatformat:0 }} FCFA
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-clock-history text-muted me-2"></i>
+                                    <strong>Contributions :</strong> {{ savings_goal.contributions.count }}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Cette action est <strong>irréversible</strong>. Toutes les contributions 
+                        associées seront également supprimées.
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="bi bi-trash me-2"></i>Oui, supprimer définitivement
+                            </button>
+                            <a href="{% url 'groups:savings_detail' pk=savings_goal.pk %}" 
+                               class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Non, revenir en arrière
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Statistiques dépenses - FinTrack{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="bi bi-graph-up me-2"></i> Statistiques des dépenses</h1>
+            <p>Analysez vos habitudes de consommation</p>
+        </div>
+        <a href="{% url 'expenses:list' %}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left me-2"></i> Retour aux dépenses
+        </a>
+    </div>
+</div>
+
+<!-- Total général -->
+<div class="stat-card stat-danger mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h6>Total des dépenses</h6>
+            <h2 class="mb-0">{{ total_expenses|floatformat:0 }} FCFA</h2>
+            <small>Toutes catégories confondues</small>
+        </div>
+        <div class="stat-icon">
+            <i class="bi bi-cash-stack"></i>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Dépenses par catégorie -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-pie-chart text-primary"></i> Répartition par catégorie
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if expenses_by_category %}
+                    {% for category in expenses_by_category %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>
+                                <i class="bi {{ category.category__icon|default:'bi-tag' }}" style="color: {{ category.category__color|default:'#6c757d' }}"></i>
+                                {{ category.category__name|default:"Non catégorisé" }}
+                            </span>
+                            <div>
+                                <strong class="text-danger">{{ category.total|floatformat:0 }} FCFA</strong>
+                                <span class="badge bg-secondary ms-2">{{ category.count }}</span>
+                            </div>
+                        </div>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar" 
+                                 role="progressbar" 
+                                 style="width: {% widthratio category.total total_expenses 100 %}%; background-color: {{ category.category__color|default:'#6c757d' }}"
+                                 aria-valuenow="{% widthratio category.total total_expenses 100 %}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100"></div>
+                        </div>
+                        <small class="text-muted">{{ category.count }} dépense{{ category.count|pluralize }} • {% widthratio category.total total_expenses 100 %}%</small>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center my-4">Aucune donnée disponible</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Évolution mensuelle -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-calendar3 text-success"></i> Évolution mensuelle (6 derniers mois)
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if expenses_by_month %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Mois</th>
+                                <th>Montant</th>
+                                <th>Dépenses</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in expenses_by_month %}
+                            <tr>
+                                <td>{{ item.month|date:"F Y" }}</td>
+                                <td><strong class="text-danger">{{ item.total|floatformat:0 }} FCFA</strong></td>
+                                <td><span class="badge bg-secondary">{{ item.count }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                    <p class="text-muted text-center my-4">Aucune donnée disponible</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

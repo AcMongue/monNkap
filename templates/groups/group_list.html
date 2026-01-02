@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Mes groupes - FinTrack{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="bi bi-people me-2"></i> Mes groupes</h1>
+            <p>Collaborez et partagez vos objectifs financiers</p>
+        </div>
+        <div>
+            <a href="{% url 'groups:join' %}" class="btn btn-gradient-success me-2">
+                <i class="bi bi-box-arrow-in-right me-2"></i> Rejoindre
+            </a>
+            <a href="{% url 'groups:create' %}" class="btn btn-gradient-primary">
+                <i class="bi bi-plus-circle me-2"></i> Nouveau groupe
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Filtres -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Statut</label>
+                <select name="status" class="form-select">
+                    <option value="">Tous les groupes</option>
+                    <option value="active" {% if selected_status == 'active' %}selected{% endif %}>Actifs</option>
+                    <option value="completed" {% if selected_status == 'completed' %}selected{% endif %}>Complétés</option>
+                    <option value="cancelled" {% if selected_status == 'cancelled' %}selected{% endif %}>Annulés</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-gradient-primary w-100">Filtrer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Liste des groupes -->
+<div class="row">
+    {% if groups %}
+        {% for group in groups %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="mb-0">{{ group.name }}</h5>
+                        <span class="badge 
+                            {% if group.status == 'active' %}bg-primary
+                            {% elif group.status == 'completed' %}bg-success
+                            {% else %}bg-secondary{% endif %}">
+                            {% if group.status == 'active' %}Actif
+                            {% elif group.status == 'completed' %}Complété
+                            {% else %}Annulé{% endif %}
+                        </span>
+                    </div>
+                    
+                    <p class="text-muted small">{{ group.description|truncatewords:15 }}</p>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="small text-muted">Progression</span>
+                            <span class="small fw-bold text-info">{{ group.get_progress_percentage|floatformat:0 }}%</span>
+                        </div>
+                        <div class="progress" style="height: 12px;">
+                            <div class="progress-bar bg-info" 
+                                 role="progressbar" 
+                                 style="width: {{ group.get_progress_percentage }}%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-1">
+                            <small class="text-muted">{{ group.current_amount|floatformat:0 }} FCFA</small>
+                            <small class="text-muted">{{ group.target_amount|floatformat:0 }} FCFA</small>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">
+                                <i class="bi bi-person"></i> {{ group.creator.username }}
+                            </small>
+                            <br>
+                            <small class="text-muted">
+                                <i class="bi bi-calendar"></i> {{ group.deadline|date:"d/m/Y" }}
+                            </small>
+                            {% if group.is_overdue %}
+                            <br><small class="text-danger"><i class="bi bi-exclamation-triangle"></i> En retard</small>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <a href="{% url 'groups:detail' group.pk %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center my-5">
+                <i class="bi bi-people display-1 text-muted"></i>
+                <p class="text-muted mt-3 mb-4">Aucun groupe trouvé</p>
+                <a href="{% url 'groups:create' %}" class="btn btn-gradient-primary">
+                    <i class="bi bi-plus-circle"></i> Créer mon premier groupe
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

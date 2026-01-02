@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Ajouter une contribution - FinTrack{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-plus-circle text-success"></i> Ajouter une contribution
+                </h4>
+                <p class="mb-0 text-muted small mt-2">Objectif : {{ goal.title }}</p>
+            </div>
+            <div class="card-body">
+                <!-- Progression actuelle -->
+                <div class="mb-4 p-3 rounded" style="background: rgba(0,0,0,0.05);">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Progression actuelle</span>
+                        <strong class="text-success">{{ goal.get_progress_percentage|floatformat:0 }}%</strong>
+                    </div>
+                    <div class="progress mb-2" style="height: 10px;">
+                        <div class="progress-bar bg-success" 
+                             role="progressbar" 
+                             style="width: {{ goal.get_progress_percentage }}%"></div>
+                    </div>
+                    <div class="d-flex justify-content-between small text-muted">
+                        <span>{{ goal.current_amount|floatformat:0 }} FCFA</span>
+                        <span>{{ goal.target_amount|floatformat:0 }} FCFA</span>
+                    </div>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.amount.id_for_label }}" class="form-label">Montant de la contribution (FCFA) *</label>
+                        {{ form.amount }}
+                        <small class="text-muted d-block mt-1">
+                            Restant à atteindre : {{ goal.get_remaining_amount|floatformat:0 }} FCFA
+                        </small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.date.id_for_label }}" class="form-label">Date *</label>
+                        {{ form.date }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.note.id_for_label }}" class="form-label">Note (optionnel)</label>
+                        {{ form.note }}
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-gradient-success">
+                            <i class="bi bi-check-circle"></i> Ajouter la contribution
+                        </button>
+                        <a href="{% url 'goals:detail' goal.pk %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Annuler
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

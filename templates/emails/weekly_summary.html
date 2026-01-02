@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #1A1A1A; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #0066FF 0%, #00C853 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #fff; padding: 30px; border: 1px solid #E9ECEF; }
+        .summary-box { background: #F0F4FF; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #0066FF; }
+        .positive { color: #00C853; font-weight: bold; }
+        .negative { color: #FF3D00; font-weight: bold; }
+        .button { display: inline-block; background: #0066FF; color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; margin: 20px 0; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+        .activity-item { padding: 10px; border-bottom: 1px solid #E9ECEF; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="margin: 0;">📈 Résumé Hebdomadaire</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">{{ data.week_range }}</p>
+        </div>
+        <div class="content">
+            <h2>Bonjour {{ user.username }} ! 👋</h2>
+            
+            <p>Voici votre activité financière de la semaine :</p>
+            
+            <div class="summary-box">
+                <h3 style="margin-top: 0;">💰 Activité de la semaine</h3>
+                <p><strong>Transactions effectuées :</strong> {{ data.transactions_count }}</p>
+                <p><strong>Revenus :</strong> <span class="positive">+{{ data.week_income|floatformat:0 }} FCFA</span></p>
+                <p><strong>Dépenses :</strong> <span class="negative">-{{ data.week_expenses|floatformat:0 }} FCFA</span></p>
+                <p><strong>Variation solde :</strong> <span class="{% if data.balance_change >= 0 %}positive{% else %}negative{% endif %}">{{ data.balance_change|floatformat:0 }} FCFA</span></p>
+            </div>
+            
+            {% if data.recent_transactions %}
+            <div class="summary-box">
+                <h3 style="margin-top: 0;">📝 Dernières transactions</h3>
+                {% for transaction in data.recent_transactions %}
+                <div class="activity-item">
+                    <strong>{{ transaction.category }}</strong> - {{ transaction.amount|floatformat:0 }} FCFA
+                    <br><small style="color: #666;">{{ transaction.date|date:"d/m/Y" }}</small>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% if data.goals_progress %}
+            <div class="summary-box">
+                <h3 style="margin-top: 0;">🎯 Progression des objectifs</h3>
+                {% for goal in data.goals_progress %}
+                <p>
+                    <strong>{{ goal.title }}</strong>: {{ goal.progress }}%
+                    {% if goal.nearly_achieved %}<span style="color: #00C853;">✨ Presque atteint !</span>{% endif %}
+                </p>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% if data.group_activity %}
+            <div class="summary-box">
+                <h3 style="margin-top: 0;">👥 Activité en groupe</h3>
+                <p><strong>Groupes actifs :</strong> {{ data.active_groups_count }}</p>
+                <p><strong>Dépenses partagées :</strong> {{ data.group_expenses|floatformat:0 }} FCFA</p>
+            </div>
+            {% endif %}
+            
+            <p style="padding: 15px; background: #E8F5E9; border-radius: 8px;">
+                💡 <strong>Conseil de la semaine :</strong><br>
+                {{ data.weekly_tip }}
+            </p>
+            
+            <p style="text-align: center;">
+                <a href="{{ protocol }}://{{ domain }}/dashboard/home/" class="button">
+                    📊 Voir mon tableau de bord
+                </a>
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 FinTrack. Tous droits réservés.</p>
+            <p>Vous recevez ce résumé automatiquement chaque semaine.</p>
+            <p><a href="{{ protocol }}://{{ domain }}/accounts/profile/" style="color: #666;">Gérer mes préférences email</a></p>
+        </div>
+    </div>
+</body>
+</html>

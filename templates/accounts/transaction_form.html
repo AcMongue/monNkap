@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - FinTrack{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'accounts:wallet' %}">Portefeuille</a></li>
+                    <li class="breadcrumb-item active">{{ title }}</li>
+                </ol>
+            </nav>
+
+            <div class="card glass-card">
+                <div class="card-body p-4">
+                    <h3 class="mb-4">
+                        <i class="bi bi-plus-circle text-primary me-2"></i>
+                        {{ title }}
+                    </h3>
+                    
+                    <!-- Disclaimer honnêteté -->
+                    <div class="border-0 mb-4 p-3 rounded" style="background: linear-gradient(135deg, rgba(0, 184, 212, 0.08) 0%, rgba(0, 184, 212, 0.04) 100%); border-left: 3px solid #00B8D4 !important;">
+                        <div class="d-flex align-items-center gap-2">
+                            <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #00B8D4 0%, #0097A7 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="bi bi-pencil-square text-white" style="font-size: 0.9rem;"></i>
+                            </div>
+                            <div>
+                                <strong class="d-block mb-1" style="font-size: 0.9rem; color: #0097A7;">Saisie des montants</strong>
+                                <small class="text-muted">
+                                    Entrez les <strong>montants réels</strong>. La qualité de votre suivi dépend de l'exactitude de vos données.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Explication de l'impact -->
+                    <div class="card bg-light border-0 mb-4">
+                        <div class="card-body">
+                            <h6 class="mb-3"><i class="bi bi-lightbulb me-2"></i>Impact de cette transaction :</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-success bg-opacity-10 rounded">
+                                        <strong class="text-success"><i class="bi bi-arrow-down-circle me-1"></i> Entrée</strong>
+                                        <small class="d-block mt-1">
+                                            ✓ Augmente votre solde total<br>
+                                            ✓ Augmente le solde disponible<br>
+                                            ✓ Vous pouvez ensuite l'allouer
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-danger bg-opacity-10 rounded">
+                                        <strong class="text-danger"><i class="bi bi-arrow-up-circle me-1"></i> Sortie</strong>
+                                        <small class="d-block mt-1">
+                                            ✓ Diminue votre solde total<br>
+                                            ✓ Diminue le solde disponible<br>
+                                            ✓ Enregistre une dépense
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Solde actuel -->
+                    <div class="alert alert-primary mb-4">
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <small class="text-muted d-block">Solde Total</small>
+                                <strong class="fs-5">{{ wallet.total_balance|floatformat:0 }}</strong>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted d-block">Disponible</small>
+                                <strong class="fs-5 text-success">{{ wallet.available_balance|floatformat:0 }}</strong>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted d-block">Alloué</small>
+                                <strong class="fs-5 text-warning">{{ wallet.get_allocated_amount|floatformat:0 }}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <!-- Type de transaction -->
+                        <div class="mb-3">
+                            <label for="{{ form.transaction_type.id_for_label }}" class="form-label">
+                                <i class="bi bi-arrow-left-right me-1"></i>Type de transaction *
+                            </label>
+                            {{ form.transaction_type }}
+                            {% if form.transaction_type.errors %}
+                            <div class="text-danger small mt-1">{{ form.transaction_type.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Montant -->
+                        <div class="mb-3">
+                            <label for="{{ form.amount.id_for_label }}" class="form-label">
+                                <i class="bi bi-currency-dollar me-1"></i>Montant (FCFA) *
+                            </label>
+                            {{ form.amount }}
+                            {% if form.amount.errors %}
+                            <div class="text-danger small mt-1">{{ form.amount.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Catégorie -->
+                        <div class="mb-3">
+                            <label for="{{ form.category.id_for_label }}" class="form-label">
+                                <i class="bi bi-tag me-1"></i>Catégorie
+                            </label>
+                            {{ form.category }}
+                            {% if form.category.errors %}
+                            <div class="text-danger small mt-1">{{ form.category.errors }}</div>
+                            {% endif %}
+                            <small class="text-muted">Ex: Salaire, Freelance, Courses, Loyer...</small>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                <i class="bi bi-text-left me-1"></i>Description *
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                            <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Date -->
+                        <div class="mb-4">
+                            <label for="{{ form.date.id_for_label }}" class="form-label">
+                                <i class="bi bi-calendar3 me-1"></i>Date *
+                            </label>
+                            {{ form.date }}
+                            {% if form.date.errors %}
+                            <div class="text-danger small mt-1">{{ form.date.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Boutons -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle me-2"></i>Enregistrer
+                            </button>
+                            <a href="{% url 'accounts:wallet' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-2"></i>Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Simulation de l'impact -->
+            <div class="card glass-card mt-3">
+                <div class="card-body">
+                    <h6 class="mb-3"><i class="bi bi-calculator me-2"></i>Simulateur d'impact</h6>
+                    <div id="simulationResult" class="alert alert-info">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Sélectionnez le type et entrez un montant pour voir l'impact
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Simulateur d'impact en temps réel
+document.addEventListener('DOMContentLoaded', function() {
+    const typeField = document.querySelector('[name="transaction_type"]');
+    const amountField = document.querySelector('[name="amount"]');
+    const simulationDiv = document.getElementById('simulationResult');
+    
+    const currentTotal = {{ wallet.total_balance|default:0 }};
+    const currentAvailable = {{ wallet.available_balance|default:0 }};
+    const currentAllocated = {{ wallet.get_allocated_amount|default:0 }};
+
+    function updateSimulation() {
+        const type = typeField ? typeField.value : '';
+        const amount = parseFloat(amountField ? amountField.value : 0) || 0;
+        
+        if (!type || amount <= 0) {
+            simulationDiv.className = 'alert alert-info';
+            simulationDiv.innerHTML = `
+                <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Sélectionnez le type et entrez un montant pour voir l'impact
+                </small>
+            `;
+            return;
+        }
+
+        let newTotal, newAvailable;
+        let icon, colorClass, operation;
+        
+        if (type === 'income') {
+            newTotal = currentTotal + amount;
+            newAvailable = currentAvailable + amount;
+            icon = 'arrow-down-circle';
+            colorClass = 'alert-success';
+            operation = '+';
+        } else {
+            newTotal = currentTotal - amount;
+            newAvailable = currentAvailable - amount;
+            icon = 'arrow-up-circle';
+            colorClass = 'alert-danger';
+            operation = '-';
+        }
+
+        simulationDiv.className = `alert ${colorClass}`;
+        simulationDiv.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <strong><i class="bi bi-${icon} me-1"></i> 
+                        ${type === 'income' ? 'Entrée' : 'Sortie'} de ${amount.toLocaleString('fr-FR')} FCFA
+                    </strong>
+                </div>
+                <div class="badge bg-dark">Simulation</div>
+            </div>
+            <hr>
+            <div class="row text-center small">
+                <div class="col-4">
+                    <div class="text-muted">Solde Total</div>
+                    <div class="fw-bold">${currentTotal.toLocaleString('fr-FR')}</div>
+                    <div class="text-muted">${operation} ${amount.toLocaleString('fr-FR')}</div>
+                    <div class="fw-bold fs-6 mt-1">→ ${newTotal.toLocaleString('fr-FR')}</div>
+                </div>
+                <div class="col-4">
+                    <div class="text-muted">Disponible</div>
+                    <div class="fw-bold">${currentAvailable.toLocaleString('fr-FR')}</div>
+                    <div class="text-muted">${operation} ${amount.toLocaleString('fr-FR')}</div>
+                    <div class="fw-bold fs-6 mt-1">→ ${newAvailable.toLocaleString('fr-FR')}</div>
+                </div>
+                <div class="col-4">
+                    <div class="text-muted">Alloué</div>
+                    <div class="fw-bold">${currentAllocated.toLocaleString('fr-FR')}</div>
+                    <div class="text-muted">inchangé</div>
+                    <div class="fw-bold fs-6 mt-1">→ ${currentAllocated.toLocaleString('fr-FR')}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    if (typeField && amountField) {
+        typeField.addEventListener('change', updateSimulation);
+        amountField.addEventListener('input', updateSimulation);
+    }
+});
+</script>
+{% endblock %}

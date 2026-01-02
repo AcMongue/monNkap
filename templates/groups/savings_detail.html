@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ savings_goal.title }} - {{ group.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- En-tête -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'groups:list' %}">Groupes</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'groups:detail' pk=group.pk %}">{{ group.name }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'groups:savings_list' group_pk=group.pk %}">Épargne</a></li>
+            <li class="breadcrumb-item active">{{ savings_goal.title }}</li>
+        </ol>
+    </nav>
+
+    <!-- En-tête avec actions -->
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h2>
+                <i class="bi bi-piggy-bank-fill text-primary me-2"></i>
+                {{ savings_goal.title }}
+            </h2>
+            <p class="text-muted mb-0">{{ savings_goal.description }}</p>
+        </div>
+        <div class="d-flex gap-2">
+            {% if savings_goal.status == 'active' %}
+            <a href="{% url 'groups:savings_contribute' pk=savings_goal.pk %}" class="btn btn-success">
+                <i class="bi bi-wallet2 me-2"></i>Gérer la Caisse
+            </a>
+            {% endif %}
+            {% if membership.role == 'admin' %}
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="bi bi-gear"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="{% url 'groups:savings_edit' pk=savings_goal.pk %}">
+                        <i class="bi bi-pencil me-2"></i>Modifier
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="{% url 'groups:savings_delete' pk=savings_goal.pk %}">
+                        <i class="bi bi-trash me-2"></i>Supprimer
+                    </a></li>
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Cartes d'information -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card glass-card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-bullseye fs-1 text-primary mb-2"></i>
+                    <h6 class="text-muted mb-1">Objectif</h6>
+                    <h4 class="mb-0">{{ savings_goal.target_amount|floatformat:0 }} FCFA</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card glass-card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-cash-stack fs-1 text-success mb-2"></i>
+                    <h6 class="text-muted mb-1">En Caisse</h6>
+                    <h4 class="mb-0">{{ savings_goal.current_amount|floatformat:0 }} FCFA</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card glass-card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-hourglass-split fs-1 text-warning mb-2"></i>
+                    <h6 class="text-muted mb-1">Restant</h6>
+                    <h4 class="mb-0">{{ savings_goal.get_remaining_amount|floatformat:0 }} FCFA</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card glass-card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-calendar-check fs-1 text-info mb-2"></i>
+                    <h6 class="text-muted mb-1">Échéance</h6>
+                    <h5 class="mb-0">{{ savings_goal.deadline|date:"d/m/Y" }}</h5>
+                    {% if savings_goal.is_overdue %}
+                    <span class="badge bg-danger mt-1">En retard</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progression -->
+    <div class="card glass-card mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between mb-2">
+                <h5 class="card-title mb-0">Progression</h5>
+                <span class="badge bg-success fs-6">{{ savings_goal.get_progress_percentage|floatformat:1 }}%</span>
+            </div>
+            <div class="progress" style="height: 25px;">
+                <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" 
+                     role="progressbar" 
+                     style="width: {{ savings_goal.get_progress_percentage }}%"
+                     aria-valuenow="{{ savings_goal.get_progress_percentage }}"
+                     aria-valuemin="0" 
+                     aria-valuemax="100">
+                    <strong>{{ savings_goal.get_progress_percentage|floatformat:1 }}%</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Statistiques par membre -->
+        <div class="col-lg-4 mb-4">
+            <div class="card glass-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="bi bi-people-fill me-2"></i>Transactions par Membre
+                    </h5>
+                    {% if member_stats %}
+                    <div class="list-group list-group-flush">
+                        {% for stat in member_stats %}
+                        <div class="list-group-item bg-transparent border-0 px-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="bi bi-person-circle text-primary me-2"></i>
+                                    <strong>{{ stat.user__username }}</strong>
+                                    <small class="text-muted d-block ms-4">{{ stat.count }} transaction{{ stat.count|pluralize }}</small>
+                                </div>
+                                <span class="badge bg-success">{{ stat.total|floatformat:0 }} FCFA</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center py-3">Aucune transaction pour le moment</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Historique des contributions -->
+        <div class="col-lg-8">
+            <div class="card glass-card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="bi bi-clock-history me-2"></i>Historique des Transactions
+                    </h5>
+                    {% if contributions %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Membre</th>
+                                    <th>Type</th>
+                                    <th>Montant</th>
+                                    <th>Note</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for contribution in contributions %}
+                                <tr>
+                                    <td>
+                                        <i class="bi bi-calendar3 text-muted me-1"></i>
+                                        {{ contribution.date|date:"d/m/Y" }}
+                                    </td>
+                                    <td>
+                                        <i class="bi bi-person-fill text-primary me-1"></i>
+                                        {{ contribution.user.username }}
+                                    </td>
+                                    <td>
+                                        {% if contribution.transaction_type == 'deposit' %}
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-arrow-down-circle me-1"></i>Dépôt
+                                        </span>
+                                        {% else %}
+                                        <span class="badge bg-danger">
+                                            <i class="bi bi-arrow-up-circle me-1"></i>Retrait
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <strong class="{% if contribution.transaction_type == 'deposit' %}text-success{% else %}text-danger{% endif %}">
+                                            {% if contribution.transaction_type == 'deposit' %}+{% else %}-{% endif %}{{ contribution.amount|floatformat:0 }} FCFA
+                                        </strong>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            {{ contribution.note|default:"—" }}
+                                        </small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-inbox display-1 text-muted"></i>
+                        <p class="text-muted mt-3">Aucune transaction enregistrée</p>
+                        {% if savings_goal.status == 'active' %}
+                        <a href="{% url 'groups:savings_contribute' pk=savings_goal.pk %}" class="btn btn-success">
+                            <i class="bi bi-wallet2 me-2"></i>Première Transaction
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

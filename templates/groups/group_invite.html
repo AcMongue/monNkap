@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Inviter des Membres - {{ group.name }} - FinTrack{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-white border-0 pt-4 pb-3">
+                    <div class="d-flex align-items-center">
+                        <a href="{% url 'groups:detail' group.pk %}" class="btn btn-outline-primary me-3">
+                            <i class="bi bi-arrow-left"></i>
+                        </a>
+                        <div>
+                            <h4 class="mb-1 gradient-text">Inviter des Membres</h4>
+                            <p class="text-muted mb-0">{{ group.name }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    <!-- Code d'Invitation -->
+                    <div class="mb-5">
+                        <h5 class="mb-3">
+                            <i class="bi bi-key-fill me-2 text-primary"></i>
+                            Code d'Invitation
+                        </h5>
+                        <div class="alert alert-primary d-flex align-items-center justify-content-between p-4">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-hash me-3" style="font-size: 2rem;"></i>
+                                <div>
+                                    <small class="text-muted d-block mb-1">Code à partager</small>
+                                    <h2 class="mb-0 fw-bold" style="letter-spacing: 5px; font-family: 'Courier New', monospace;">
+                                        {{ group.invite_code }}
+                                    </h2>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-lg" onclick="copyCode()" id="copyCodeBtn">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Les membres peuvent utiliser ce code pour rejoindre le groupe via la page "Rejoindre un Groupe"
+                        </small>
+                    </div>
+
+                    <!-- Lien d'Invitation Direct -->
+                    <div class="mb-4">
+                        <h5 class="mb-3">
+                            <i class="bi bi-link-45deg me-2 text-success"></i>
+                            Lien d'Invitation Direct
+                        </h5>
+                        <div class="alert alert-success d-flex align-items-center justify-content-between p-4">
+                            <div class="flex-grow-1 me-3">
+                                <small class="text-muted d-block mb-2">Lien à partager</small>
+                                <div class="input-group">
+                                    <input 
+                                        type="text" 
+                                        class="form-control" 
+                                        id="inviteUrl" 
+                                        value="{{ invite_url }}" 
+                                        readonly
+                                        style="font-family: 'Courier New', monospace; font-size: 0.9rem;">
+                                </div>
+                            </div>
+                            <button class="btn btn-success btn-lg" onclick="copyUrl()" id="copyUrlBtn">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Ce lien permet d'accéder directement au formulaire avec le code pré-rempli
+                        </small>
+                    </div>
+
+                    <!-- Instructions de Partage -->
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-share-fill me-2"></i>
+                                Comment partager l'invitation ?
+                            </h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-start">
+                                        <i class="bi bi-1-circle-fill text-primary me-2 mt-1"></i>
+                                        <div>
+                                            <strong>Par Message</strong>
+                                            <p class="text-muted small mb-0">Partagez le code d'invitation par WhatsApp, SMS ou email</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-start">
+                                        <i class="bi bi-2-circle-fill text-primary me-2 mt-1"></i>
+                                        <div>
+                                            <strong>Par Lien Direct</strong>
+                                            <p class="text-muted small mb-0">Envoyez le lien complet pour un accès instantané</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-start">
+                                        <i class="bi bi-3-circle-fill text-primary me-2 mt-1"></i>
+                                        <div>
+                                            <strong>En Personne</strong>
+                                            <p class="text-muted small mb-0">Montrez le code à vos proches pour qu'ils le saisissent</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-start">
+                                        <i class="bi bi-4-circle-fill text-primary me-2 mt-1"></i>
+                                        <div>
+                                            <strong>Sur Réseaux Sociaux</strong>
+                                            <p class="text-muted small mb-0">Publiez le lien pour inviter plusieurs personnes</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Boutons d'Action Rapide -->
+                    <div class="mt-4">
+                        <h6 class="text-muted mb-3">Actions Rapides</h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary" onclick="shareWhatsApp()">
+                                <i class="bi bi-whatsapp me-2"></i>Partager via WhatsApp
+                            </button>
+                            <button class="btn btn-outline-primary" onclick="shareEmail()">
+                                <i class="bi bi-envelope-fill me-2"></i>Partager par Email
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function copyCode() {
+        const code = "{{ group.invite_code }}";
+        navigator.clipboard.writeText(code).then(() => {
+            const btn = document.getElementById('copyCodeBtn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-check-lg"></i>';
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-success');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-primary');
+            }, 2000);
+        });
+    }
+
+    function copyUrl() {
+        const url = document.getElementById('inviteUrl').value;
+        navigator.clipboard.writeText(url).then(() => {
+            const btn = document.getElementById('copyUrlBtn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-check-lg"></i>';
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-success');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+            }, 2000);
+        });
+    }
+
+    function shareWhatsApp() {
+        const text = `Rejoignez mon groupe "{{ group.name }}" sur FinTrack!\n\nCode: {{ group.invite_code }}\nOu utilisez ce lien: {{ invite_url }}`;
+        const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+        window.open(url, '_blank');
+    }
+
+    function shareEmail() {
+        const subject = `Invitation - Groupe {{ group.name }}`;
+        const body = `Bonjour,\n\nVous êtes invité(e) à rejoindre le groupe "{{ group.name }}" sur FinTrack.\n\nVous pouvez rejoindre de deux façons:\n\n1. Utiliser le code d'invitation: {{ group.invite_code }}\n   Rendez-vous sur l'application et cliquez sur "Rejoindre un Groupe"\n\n2. Utiliser le lien direct: {{ invite_url }}\n\nÀ bientôt!\n`;
+        window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
+</script>
+
+<style>
+    .btn-lg {
+        border-radius: 12px;
+        padding: 0.75rem 1.25rem;
+    }
+    
+    .alert {
+        border-radius: 15px;
+        border: none;
+    }
+    
+    .input-group .form-control {
+        border-radius: 10px;
+        border: 2px solid rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}

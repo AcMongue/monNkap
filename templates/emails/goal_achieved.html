@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #1A1A1A; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #00C853 0%, #00A344 100%); color: white; padding: 40px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #fff; padding: 30px; border: 1px solid #E9ECEF; }
+        .celebration { font-size: 60px; text-align: center; margin: 20px 0; }
+        .stats { background: #F0F4FF; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .button { display: inline-block; background: #00C853; color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; margin: 20px 0; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="margin: 0;">🎉 Félicitations !</h1>
+        </div>
+        <div class="content">
+            <div class="celebration">🎯✨</div>
+            
+            <h2 style="text-align: center; color: #00C853;">Objectif atteint : {{ goal.title }}</h2>
+            
+            <p style="text-align: center; font-size: 18px;">
+                Bravo {{ user.username }} ! Vous avez atteint votre objectif d'épargne.
+            </p>
+            
+            <div class="stats">
+                <h3 style="margin-top: 0;">📊 Détails de l'objectif</h3>
+                <p><strong>Titre :</strong> {{ goal.title }}</p>
+                <p><strong>Montant cible :</strong> {{ goal.target_amount|floatformat:0 }} FCFA</p>
+                <p><strong>Montant atteint :</strong> {{ goal.current_amount|floatformat:0 }} FCFA</p>
+                <p><strong>Progression :</strong> 100% ✅</p>
+                {% if goal.deadline %}
+                <p><strong>Date limite :</strong> {{ goal.deadline|date:"d/m/Y" }}</p>
+                {% endif %}
+            </div>
+            
+            <p>
+                C'est une excellente nouvelle ! Votre discipline financière porte ses fruits. 
+                Continuez sur cette lancée en définissant de nouveaux objectifs.
+            </p>
+            
+            <p style="text-align: center;">
+                <a href="{{ protocol }}://{{ domain }}/goals/" class="button">
+                    🎯 Voir mes objectifs
+                </a>
+            </p>
+            
+            <p style="margin-top: 30px; padding: 15px; background: #E8F5E9; border-radius: 8px;">
+                💡 <strong>Conseil :</strong> Maintenant que vous avez atteint cet objectif, pensez à :
+                <br>• Définir un nouvel objectif plus ambitieux
+                <br>• Réinvestir votre épargne intelligemment
+                <br>• Célébrer votre réussite (avec modération 😊)
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 FinTrack. Tous droits réservés.</p>
+        </div>
+    </div>
+</body>
+</html>

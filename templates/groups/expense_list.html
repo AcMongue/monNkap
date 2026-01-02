@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}Dépenses - {{ group.name }} - FinTrack{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h1 class="text-white fw-bold">
+            <i class="bi bi-receipt"></i> Dépenses du Groupe
+        </h1>
+        <p class="text-white-50">{{ group.name }}</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="{% url 'groups:expense_create' group.pk %}" class="btn btn-gradient-success">
+            <i class="bi bi-plus-circle"></i> Nouvelle Dépense
+        </a>
+        <a href="{% url 'groups:detail' group.pk %}" class="btn btn-outline-light">
+            <i class="bi bi-arrow-left"></i> Retour au Groupe
+        </a>
+    </div>
+</div>
+
+<!-- Statistiques -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <h6 class="text-white-50 mb-2">Total Dépenses</h6>
+            <h3 class="mb-0">{{ total_expenses|floatformat:0 }} FCFA</h3>
+            <small class="text-white-50">Groupe complet</small>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card bg-gradient text-white" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <h6 class="text-white-50 mb-2">J'ai Payé</h6>
+            <h3 class="mb-0">{{ my_paid|floatformat:0 }} FCFA</h3>
+            <small class="text-white-50">Mes avances</small>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card bg-gradient text-white" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <h6 class="text-white-50 mb-2">Ma Part</h6>
+            <h3 class="mb-0">{{ my_share|floatformat:0 }} FCFA</h3>
+            <small class="text-white-50">Part équitable</small>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card bg-gradient text-white" 
+             style="background: linear-gradient(135deg, {% if my_balance >= 0 %}#43e97b, #38f9d7{% else %}#ff6b6b, #ee5a6f{% endif %});">
+            <h6 class="text-white-50 mb-2">Mon Solde</h6>
+            <h3 class="mb-0">{{ my_balance|floatformat:0 }} FCFA</h3>
+            <small class="text-white-50">
+                {% if my_balance > 0 %}
+                    On me doit
+                {% elif my_balance < 0 %}
+                    Je dois
+                {% else %}
+                    Équilibré
+                {% endif %}
+            </small>
+        </div>
+    </div>
+</div>
+
+<!-- Explications -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-info d-flex align-items-start">
+            <i class="bi bi-info-circle-fill me-3 mt-1"></i>
+            <div>
+                <strong>Comment ça marche ?</strong>
+                <p class="mb-0">Lorsqu'un membre ajoute une dépense, le montant est automatiquement divisé équitablement entre tous les membres du groupe. Chacun peut voir sa part et marquer quand il a remboursé.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Liste des dépenses -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-lg">
+            <div class="card-header bg-white border-0">
+                <h5 class="mb-0">
+                    <i class="bi bi-list-ul text-primary me-2"></i>
+                    Historique des Dépenses
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if expenses %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Catégorie</th>
+                                <th>Payé par</th>
+                                <th class="text-end">Montant</th>
+                                <th class="text-end">Ma Part</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for expense in expenses %}
+                            <tr onclick="window.location='{% url 'groups:expense_detail' expense.pk %}'" style="cursor: pointer;">
+                                <td>{{ expense.date|date:"d/m/Y" }}</td>
+                                <td>
+                                    <strong>{{ expense.description }}</strong>
+                                </td>
+                                <td>
+                                    <i class="bi {{ expense.category.icon }}" style="color: {{ expense.category.color }};"></i>
+                                    {{ expense.category.name }}
+                                </td>
+                                <td>
+                                    <span class="badge {% if expense.paid_by == request.user %}bg-success{% else %}bg-secondary{% endif %}">
+                                        {{ expense.paid_by.username }}
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <strong>{{ expense.amount|floatformat:0 }} FCFA</strong>
+                                </td>
+                                <td class="text-end">
+                                    <span class="text-muted">{{ expense.get_split_per_member|floatformat:0 }} FCFA</span>
+                                </td>
+                                <td class="text-center">
+                                    <a href="{% url 'groups:expense_detail' expense.pk %}" 
+                                       class="btn btn-sm btn-outline-primary"
+                                       onclick="event.stopPropagation();">
+                                        <i class="bi bi-eye"></i> Détails
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox" style="font-size: 4rem; color: #ddd;"></i>
+                    <p class="text-muted mt-3">Aucune dépense enregistrée pour ce groupe</p>
+                    <a href="{% url 'groups:expense_create' group.pk %}" class="btn btn-gradient-primary mt-2">
+                        <i class="bi bi-plus-circle"></i> Ajouter la première dépense
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

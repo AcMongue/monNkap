@@ -1,0 +1,1 @@
+web: gunicorn monnkap.wsgi --log-file -

@@ -1,0 +1,345 @@
+{% extends 'base.html' %}
+
+{% block title %}Tableau de bord - FinTrack{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <h1>
+        <i class="bi bi-house-door me-2"></i> Tableau de bord
+    </h1>
+    <p>Bienvenue, {{ user.profile.get_full_name }} !</p>
+</div>
+
+<!-- Disclaimer reminder -->
+<div class="card border-0 mb-4" style="background: linear-gradient(135deg, rgba(0, 102, 255, 0.05) 0%, rgba(0, 200, 83, 0.03) 100%);">
+    <div class="card-body py-3">
+        <div class="d-flex align-items-center justify-content-between gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #0066FF 0%, #00C853 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <i class="bi bi-lightbulb-fill text-white" style="font-size: 1.1rem;"></i>
+                </div>
+                <div>
+                    <strong class="d-block mb-1" style="font-size: 0.95rem;">Rappel</strong>
+                    <small class="text-muted">
+                        Vérifiez régulièrement vos soldes réels. 
+                        <a href="{% url 'accounts:wallet' %}" class="text-decoration-none fw-semibold" style="color: #0066FF;">Mon portefeuille →</a>
+                    </small>
+                </div>
+            </div>
+            <button class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#infoModal" style="background: rgba(0, 102, 255, 0.1); color: #0066FF; border: none;">
+                <i class="bi bi-info-circle me-1"></i>Aide
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Cartes de statistiques -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card stat-danger">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6>Dépenses ce mois</h6>
+                    <h3 class="mb-0">{{ total_monthly_expenses|floatformat:0 }} FCFA</h3>
+                    <small>Ce mois-ci</small>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-credit-card"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card stat-success">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6>Épargne objectifs</h6>
+                    <h3 class="mb-0">{{ total_goals_saved|floatformat:0 }} FCFA</h3>
+                    <small>Économisé</small>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-bullseye"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card stat-info">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6>Membres de groupes</h6>
+                    <h3 class="mb-0">{{ total_group_members }}</h3>
+                    <small>Collaborateurs</small>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card stat-warning">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6>Objectifs complétés</h6>
+                    <h3 class="mb-0">{{ completed_goals_count }}</h3>
+                    <small>Atteints</small>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Dépenses récentes -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-receipt text-danger"></i> Dépenses récentes
+                </h5>
+                <a href="{% url 'expenses:list' %}" class="btn btn-sm btn-outline-primary">Voir tout</a>
+            </div>
+            <div class="card-body">
+                {% if recent_expenses %}
+                    {% for expense in recent_expenses %}
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="bi {{ expense.category.icon|default:'bi-tag' }} fs-4" style="color: {{ expense.category.color|default:'#6c757d' }}"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">{{ expense.description }}</h6>
+                                <small class="text-muted">{{ expense.date|date:"d/m/Y" }} • {{ expense.get_category_name }}</small>
+                            </div>
+                        </div>
+                        <strong class="text-danger">{{ expense.amount|floatformat:0 }} FCFA</strong>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center my-4">Aucune dépense enregistrée</p>
+                    <div class="text-center">
+                        <a href="{% url 'expenses:create' %}" class="btn btn-gradient-primary">
+                            <i class="bi bi-plus-circle"></i> Ajouter une dépense
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Dépenses par catégorie -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-pie-chart text-primary"></i> Dépenses par catégorie (ce mois)
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if expenses_by_category %}
+                    {% for category in expenses_by_category %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>
+                                <i class="bi {{ category.category__icon|default:'bi-tag' }}" style="color: {{ category.category__color|default:'#6c757d' }}"></i>
+                                {{ category.category__name|default:"Non catégorisé" }}
+                            </span>
+                            <strong>{{ category.total|floatformat:0 }} FCFA</strong>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar" 
+                                 role="progressbar" 
+                                 style="width: {% widthratio category.total total_monthly_expenses 100 %}%; background-color: {{ category.category__color|default:'#6c757d' }}"
+                                 aria-valuenow="{% widthratio category.total total_monthly_expenses 100 %}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center my-4">Aucune dépense ce mois</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Objectifs actifs -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-bullseye text-success"></i> Mes objectifs
+                </h5>
+                <a href="{% url 'goals:list' %}" class="btn btn-sm btn-outline-primary">Voir tout</a>
+            </div>
+            <div class="card-body">
+                {% if active_goals %}
+                    {% for goal in active_goals %}
+                    <div class="mb-3 pb-3 border-bottom">
+                        <div class="d-flex justify-content-between mb-2">
+                            <h6 class="mb-0">{{ goal.title }}</h6>
+                            <small class="text-muted">{{ goal.deadline|date:"d/m/Y" }}</small>
+                        </div>
+                        <div class="progress mb-1" style="height: 10px;">
+                            <div class="progress-bar bg-success" 
+                                 role="progressbar" 
+                                 style="width: {{ goal.get_progress_percentage }}%"
+                                 aria-valuenow="{{ goal.get_progress_percentage }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100"></div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">{{ goal.current_amount|floatformat:0 }} / {{ goal.target_amount|floatformat:0 }} FCFA</small>
+                            <small class="text-success fw-bold">{{ goal.get_progress_percentage|floatformat:0 }}%</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center my-4">Aucun objectif actif</p>
+                    <div class="text-center">
+                        <a href="{% url 'goals:create' %}" class="btn btn-gradient-success">
+                            <i class="bi bi-plus-circle"></i> Créer un objectif
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Groupes actifs -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-people text-info"></i> Mes groupes
+                </h5>
+                <a href="{% url 'groups:list' %}" class="btn btn-sm btn-outline-primary">Voir tout</a>
+            </div>
+            <div class="card-body">
+                {% if user_groups %}
+                    {% for group in user_groups %}
+                    <div class="mb-3 pb-3 border-bottom">
+                        <div class="d-flex justify-content-between mb-2">
+                            <h6 class="mb-0">{{ group.name }}</h6>
+                            <small class="text-muted">{{ group.deadline|date:"d/m/Y" }}</small>
+                        </div>
+                        <div class="progress mb-1" style="height: 10px;">
+                            <div class="progress-bar bg-info" 
+                                 role="progressbar" 
+                                 style="width: {{ group.get_progress_percentage }}%"
+                                 aria-valuenow="{{ group.get_progress_percentage }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100"></div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">{{ group.current_amount|floatformat:0 }} / {{ group.target_amount|floatformat:0 }} FCFA</small>
+                            <small class="text-info fw-bold">{{ group.get_progress_percentage|floatformat:0 }}%</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center my-4">Aucun groupe rejoint</p>
+                    <div class="text-center">
+                        <a href="{% url 'groups:create' %}" class="btn btn-gradient-primary">
+                            <i class="bi bi-plus-circle"></i> Créer un groupe
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal d'information -->
+<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="infoModalLabel">
+                    <i class="bi bi-info-circle-fill text-primary me-2"></i>
+                    À propos de MonNkap
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6 class="mb-3">MonNkap est un outil de planification personnelle</h6>
+                <p class="small mb-3">
+                    <strong>Ce que MonNkap fait :</strong>
+                </p>
+                <ul class="small mb-3">
+                    <li>✓ Vous aide à <strong>planifier</strong> vos finances</li>
+                    <li>✓ Organise vos <strong>objectifs d'épargne</strong></li>
+                    <li>✓ Suit vos <strong>dépenses déclarées</strong></li>
+                    <li>✓ Fournit des <strong>statistiques visuelles</strong></li>
+                </ul>
+                
+                <p class="small mb-3">
+                    <strong>Ce que MonNkap ne fait PAS :</strong>
+                </p>
+                <ul class="small mb-3">
+                    <li>✗ N'est <strong>pas un compte bancaire</strong></li>
+                    <li>✗ Ne peut <strong>pas vérifier</strong> vos soldes réels</li>
+                    <li>✗ Ne <strong>contrôle pas</strong> vos dépenses réelles</li>
+                    <li>✗ N'empêche <strong>pas de dépenser</strong> l'argent alloué</li>
+                </ul>
+                
+                <div class="alert alert-warning small mb-0">
+                    <strong>Important :</strong> L'efficacité de MonNkap dépend de votre rigueur à :
+                    <ul class="mb-0 mt-2">
+                        <li>Entrer les <strong>montants réels</strong></li>
+                        <li>Vérifier régulièrement vos <strong>comptes bancaires</strong></li>
+                        <li>Ne pas dépenser l'argent <strong>alloué à vos objectifs</strong></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">J'ai compris</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions rapides -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="mb-3">
+                    <i class="bi bi-lightning-charge text-warning"></i> Actions rapides
+                </h5>
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'expenses:create' %}" class="btn btn-outline-danger w-100">
+                            <i class="bi bi-plus-circle"></i> Nouvelle dépense
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'goals:create' %}" class="btn btn-outline-success w-100">
+                            <i class="bi bi-bullseye"></i> Nouvel objectif
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'groups:create' %}" class="btn btn-outline-info w-100">
+                            <i class="bi bi-people"></i> Nouveau groupe
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'dashboard:statistics' %}" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-graph-up"></i> Voir les statistiques
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

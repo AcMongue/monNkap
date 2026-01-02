@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #1A1A1A; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #0066FF 0%, #00C853 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #fff; padding: 30px; border: 1px solid #E9ECEF; }
+        .stat-box { background: #F0F4FF; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #0066FF; }
+        .positive { color: #00C853; font-weight: bold; }
+        .negative { color: #FF3D00; font-weight: bold; }
+        .button { display: inline-block; background: #0066FF; color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; margin: 20px 0; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="margin: 0;">📊 Rapport Mensuel</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">{{ stats.month }}</p>
+        </div>
+        <div class="content">
+            <h2>Bonjour {{ user.username }} ! 👋</h2>
+            
+            <p>Voici votre bilan financier du mois écoulé :</p>
+            
+            <div class="stat-box">
+                <h3 style="margin-top: 0;">💰 Vue d'ensemble</h3>
+                <p><strong>Revenus totaux :</strong> <span class="positive">+{{ stats.total_income|floatformat:0 }} FCFA</span></p>
+                <p><strong>Dépenses totales :</strong> <span class="negative">-{{ stats.total_expenses|floatformat:0 }} FCFA</span></p>
+                <p><strong>Solde net :</strong> <span class="{% if stats.net_balance >= 0 %}positive{% else %}negative{% endif %}">{{ stats.net_balance|floatformat:0 }} FCFA</span></p>
+            </div>
+            
+            <div class="stat-box">
+                <h3 style="margin-top: 0;">🎯 Objectifs</h3>
+                <p><strong>Objectifs actifs :</strong> {{ stats.active_goals }}</p>
+                <p><strong>Objectifs atteints ce mois :</strong> {{ stats.achieved_goals }} 🎉</p>
+                <p><strong>Total épargné :</strong> {{ stats.total_saved|floatformat:0 }} FCFA</p>
+            </div>
+            
+            <div class="stat-box">
+                <h3 style="margin-top: 0;">📈 Top 3 Catégories de dépenses</h3>
+                {% for category in stats.top_categories %}
+                <p><strong>{{ forloop.counter }}. {{ category.name }} :</strong> {{ category.amount|floatformat:0 }} FCFA</p>
+                {% endfor %}
+            </div>
+            
+            <div class="stat-box">
+                <h3 style="margin-top: 0;">👥 Activité collaborative</h3>
+                <p><strong>Groupes actifs :</strong> {{ stats.active_groups }}</p>
+                <p><strong>Transactions en groupe :</strong> {{ stats.group_transactions }}</p>
+            </div>
+            
+            {% if stats.net_balance >= 0 %}
+            <p style="padding: 15px; background: #E8F5E9; border-radius: 8px;">
+                ✅ <strong>Excellent !</strong> Votre solde est positif ce mois-ci. Continuez sur cette lancée !
+            </p>
+            {% else %}
+            <p style="padding: 15px; background: #FFEBEE; border-radius: 8px;">
+                ⚠️ <strong>Attention :</strong> Vos dépenses ont dépassé vos revenus. Revoyez votre budget pour le mois prochain.
+            </p>
+            {% endif %}
+            
+            <p style="text-align: center;">
+                <a href="{{ protocol }}://{{ domain }}/dashboard/statistics/" class="button">
+                    📊 Voir toutes mes statistiques
+                </a>
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 FinTrack. Tous droits réservés.</p>
+            <p>Vous recevez ce rapport automatiquement chaque mois.</p>
+        </div>
+    </div>
+</body>
+</html>

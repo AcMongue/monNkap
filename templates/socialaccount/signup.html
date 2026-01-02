@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Finaliser l'inscription - FinTrack{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-lg">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <div class="logo-circle mb-3">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <h2 class="fw-bold">Bienvenue sur MonNkap !</h2>
+                    <p class="text-muted">Complétez votre profil pour continuer</p>
+                </div>
+
+                {% if account %}
+                <div class="alert alert-info mb-4">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Vous êtes connecté avec <strong>{{ account.get_provider.name }}</strong>
+                    <br><small>{{ account.extra_data.email }}</small>
+                </div>
+                {% endif %}
+
+                <form method="post" action="{% url 'socialaccount_signup' %}">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors.0 }}
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.username.id_for_label }}" class="form-label">
+                            <i class="bi bi-person"></i> Nom d'utilisateur *
+                        </label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="text-danger small">{{ form.username.errors.0 }}</div>
+                        {% else %}
+                            <small class="text-muted">
+                                Choisissez un nom d'utilisateur unique pour votre compte
+                            </small>
+                        {% endif %}
+                    </div>
+
+                    {% if form.email %}
+                    <div class="mb-3">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">
+                            <i class="bi bi-envelope"></i> Email *
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-danger small">{{ form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="terms" required>
+                            <label class="form-check-label small" for="terms">
+                                J'accepte les <a href="#" class="text-decoration-none">conditions d'utilisation</a>
+                                et la <a href="#" class="text-decoration-none">politique de confidentialité</a>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-gradient-primary w-100 py-2 mb-3">
+                        <i class="bi bi-check-circle"></i> Finaliser mon inscription
+                    </button>
+
+                    <div class="text-center">
+                        <a href="{% url 'landing' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-x-circle"></i> Annuler
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Styliser les champs du formulaire django-allauth */
+    #id_username,
+    #id_email {
+        display: block;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: var(--text-primary);
+        background-color: var(--bg-primary);
+        background-clip: padding-box;
+        border: 2px solid var(--border-color);
+        border-radius: 10px;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    #id_username:focus,
+    #id_email:focus {
+        color: var(--text-primary);
+        background-color: var(--bg-primary);
+        border-color: var(--primary-color);
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(0, 102, 255, 0.1);
+    }
+
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 0.25rem 0 0 0;
+    }
+
+    .errorlist li {
+        color: var(--danger-color);
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}

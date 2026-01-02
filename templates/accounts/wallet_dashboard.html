@@ -1,0 +1,353 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mon Portefeuille - FinTrack{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="page-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="bi bi-wallet2 me-2"></i>Mon Portefeuille</h1>
+                <p>Gérez votre argent et allouez-le à vos objectifs</p>
+            </div>
+            <a href="{% url 'accounts:add_transaction' %}" class="btn btn-gradient-primary">
+                <i class="bi bi-plus-circle me-2"></i>Nouvelle Transaction
+            </a>
+        </div>
+    </div>
+    
+    <!-- Disclaimer important -->
+    <div class="card border-0 mb-4" style="background: linear-gradient(135deg, rgba(0, 102, 255, 0.08) 0%, rgba(0, 184, 212, 0.05) 100%); border-left: 4px solid #0066FF !important;">
+        <div class="card-body">
+            <div class="d-flex align-items-start gap-3">
+                <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #0066FF 0%, #00B8D4 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <i class="bi bi-shield-check fs-4 text-white"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="mb-2 fw-bold" style="color: #0066FF;">Mode de fonctionnement de MonNkap</h6>
+                    <p class="mb-2 small text-muted">
+                        MonNkap est un <strong>outil de planification personnelle</strong>, pas un compte bancaire. 
+                        Pour une gestion efficace :
+                    </p>
+                    <div class="row g-2 mt-2">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill text-success" style="font-size: 1rem; margin-top: 2px;"></i>
+                                <small>Déclarez vos <strong>montants réels</strong></small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill text-success" style="font-size: 1rem; margin-top: 2px;"></i>
+                                <small>Vérifiez vos <strong>comptes bancaires</strong></small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill text-success" style="font-size: 1rem; margin-top: 2px;"></i>
+                                <small>Mettez à jour <strong>dès que vous dépensez</strong></small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill text-success" style="font-size: 1rem; margin-top: 2px;"></i>
+                                <small>Respectez vos <strong>allocations</strong></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info explicative -->
+    <div class="alert alert-info mb-4 border-0" style="background: linear-gradient(135deg, rgba(0, 184, 212, 0.1) 0%, rgba(0, 184, 212, 0.05) 100%);">
+        <div class="row align-items-center">
+            <div class="col-md-10">
+                <h6 class="mb-2 fw-bold"><i class="bi bi-info-circle me-2"></i>Comment ça marche ?</h6>
+                <div class="d-flex gap-4">
+                    <div>
+                        <span class="badge bg-success mb-1">1</span>
+                        <small class="d-block">Ajoutez vos <strong>entrées d'argent</strong></small>
+                    </div>
+                    <div>
+                        <span class="badge bg-danger mb-1">2</span>
+                        <small class="d-block">Vos <strong>dépenses</strong> se synchronisent auto</small>
+                    </div>
+                    <div>
+                        <span class="badge bg-primary mb-1">3</span>
+                        <small class="d-block">Allouez à vos <strong>objectifs</strong></small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 text-end">
+                <i class="bi bi-diagram-3-fill text-info" style="font-size: 3rem; opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cartes de solde -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card stat-success">
+                <div class="text-center">
+                    <div class="stat-icon mx-auto mb-3">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
+                    <h6>Solde Total</h6>
+                    <h2 class="mb-1">{{ wallet.total_balance|floatformat:0 }} FCFA</h2>
+                    <small>Entrées - Sorties</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card stat-primary" style="border-width: 2px;">
+                <div class="text-center">
+                    <div class="stat-icon mx-auto mb-3">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <h6>💰 Disponible</h6>
+                    <h2 class="mb-1">{{ wallet.available_balance|floatformat:0 }} FCFA</h2>
+                    <span class="badge bg-primary">Libre pour allocation</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card stat-warning">
+                <div class="text-center">
+                    <div class="stat-icon mx-auto mb-3">
+                        <i class="bi bi-piggy-bank"></i>
+                    </div>
+                    <h6>Alloué aux Objectifs</h6>
+                    <h2 class="mb-1">{{ wallet.get_allocated_amount|floatformat:0 }} FCFA</h2>
+                    <small>Réservé</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphique de répartition visuelle -->
+    <div class="card glass-card mb-4">
+        <div class="card-body">
+            <h6 class="mb-3"><i class="bi bi-pie-chart-fill me-2"></i>Répartition de votre argent</h6>
+            <div class="row g-2">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="flex-grow-1">
+                            <small class="text-muted">Disponible</small>
+                            <div class="progress" style="height: 25px;">
+                                {% widthratio wallet.available_balance wallet.total_balance 100 as available_percent %}
+                                <div class="progress-bar bg-primary" style="width: {{ available_percent }}%">
+                                    <strong>{{ available_percent }}%</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <strong class="ms-3 text-primary">{{ wallet.available_balance|floatformat:0 }}</strong>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="flex-grow-1">
+                            <small class="text-muted">Alloué</small>
+                            <div class="progress" style="height: 25px;">
+                                {% widthratio wallet.get_allocated_amount wallet.total_balance 100 as allocated_percent %}
+                                <div class="progress-bar bg-warning" style="width: {{ allocated_percent }}%">
+                                    <strong>{{ allocated_percent }}%</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <strong class="ms-3 text-warning">{{ wallet.get_allocated_amount|floatformat:0 }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques Entrées/Sorties -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card glass-card border-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <small class="text-muted d-flex align-items-center">
+                                <i class="bi bi-arrow-down-circle me-1"></i> Total Entrées
+                            </small>
+                            <h3 class="mb-0 text-success">+{{ total_income|floatformat:0 }} FCFA</h3>
+                        </div>
+                        <div class="badge bg-success">
+                            <i class="bi bi-plus-circle me-1"></i> Revenus
+                        </div>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-success" style="width: 100%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card glass-card border-danger">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <small class="text-muted d-flex align-items-center">
+                                <i class="bi bi-arrow-up-circle me-1"></i> Total Sorties
+                            </small>
+                            <h3 class="mb-0 text-danger">-{{ total_expense|floatformat:0 }} FCFA</h3>
+                        </div>
+                        <div class="badge bg-danger">
+                            <i class="bi bi-dash-circle me-1"></i> Dépenses
+                        </div>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-danger" style="width: 100%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bilan Net -->
+    <div class="card glass-card mb-4 border-info">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h6 class="mb-2"><i class="bi bi-graph-up-arrow me-2"></i>Bilan Net (Entrées - Sorties)</h6>
+                    <div class="d-flex align-items-center gap-3">
+                        <div>
+                            <small class="text-muted">Entrées</small>
+                            <div class="text-success fw-bold">{{ total_income|floatformat:0 }}</div>
+                        </div>
+                        <i class="bi bi-dash-lg text-muted"></i>
+                        <div>
+                            <small class="text-muted">Sorties</small>
+                            <div class="text-danger fw-bold">{{ total_expense|floatformat:0 }}</div>
+                        </div>
+                        <i class="bi bi-arrow-right text-muted"></i>
+                        <div>
+                            <small class="text-muted">Résultat</small>
+                            <div class="{% if wallet.total_balance >= 0 %}text-success{% else %}text-danger{% endif %} fw-bold fs-5">
+                                {{ wallet.total_balance|floatformat:0 }} FCFA
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-end">
+                    {% if wallet.total_balance >= 0 %}
+                    <i class="bi bi-emoji-smile fs-1 text-success"></i>
+                    <div class="text-success fw-bold">Positif ✓</div>
+                    {% else %}
+                    <i class="bi bi-emoji-frown fs-1 text-danger"></i>
+                    <div class="text-danger fw-bold">Négatif ⚠</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Répartition par objectifs -->
+        <div class="col-lg-6 mb-4">
+            <div class="card glass-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">
+                        <i class="bi bi-pie-chart-fill me-2"></i>Répartition par Objectifs
+                    </h5>
+                    
+                    {% if goal_allocations %}
+                        {% for item in goal_allocations %}
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <div>
+                                    <strong>{{ item.goal.title }}</strong>
+                                    <br>
+                                    <small class="text-muted">
+                                        {{ item.allocated|floatformat:0 }} / {{ item.goal.target_amount|floatformat:0 }} FCFA
+                                    </small>
+                                </div>
+                                <a href="{% url 'accounts:allocate_to_goal' goal_pk=item.goal.pk %}" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-plus"></i> Allouer
+                                </a>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-success" 
+                                     role="progressbar" 
+                                     style="width: {{ item.percentage }}%">
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-piggy-bank display-1 text-muted"></i>
+                            <p class="text-muted mt-3">Aucune allocation pour le moment</p>
+                            <a href="{% url 'goals:create' %}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-2"></i>Créer un Objectif
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Transactions récentes -->
+        <div class="col-lg-6">
+            <div class="card glass-card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="bi bi-clock-history me-2"></i>Transactions Récentes
+                    </h5>
+                    
+                    {% if recent_transactions %}
+                        <div class="list-group list-group-flush">
+                            {% for transaction in recent_transactions %}
+                            <div class="list-group-item bg-transparent border-0 px-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center">
+                                            {% if transaction.transaction_type == 'income' %}
+                                            <i class="bi bi-arrow-down-circle text-success fs-4 me-2"></i>
+                                            {% else %}
+                                            <i class="bi bi-arrow-up-circle text-danger fs-4 me-2"></i>
+                                            {% endif %}
+                                            <div>
+                                                <strong>{{ transaction.description }}</strong>
+                                                {% if transaction.expense %}
+                                                <span class="badge bg-primary-subtle text-primary ms-2">
+                                                    <i class="bi bi-receipt"></i> Dépense catégorisée
+                                                </span>
+                                                {% endif %}
+                                                <br>
+                                                <small class="text-muted">
+                                                    {{ transaction.date|date:"d/m/Y" }}
+                                                    {% if transaction.category %}
+                                                    • <i class="{{ transaction.category.icon }} me-1"></i>{{ transaction.category.name }}
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <strong class="{% if transaction.transaction_type == 'income' %}text-success{% else %}text-danger{% endif %} ms-3">
+                                        {% if transaction.transaction_type == 'income' %}+{% else %}-{% endif %}{{ transaction.amount|floatformat:0 }} FCFA
+                                    </strong>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-inbox display-1 text-muted"></i>
+                            <p class="text-muted mt-3">Aucune transaction</p>
+                            <a href="{% url 'accounts:add_transaction' %}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-2"></i>Première Transaction
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

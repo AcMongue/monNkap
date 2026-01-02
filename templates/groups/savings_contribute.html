@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - {{ group.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <!-- En-tête -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'groups:list' %}">Groupes</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'groups:detail' pk=group.pk %}">{{ group.name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'groups:savings_detail' pk=savings_goal.pk %}">{{ savings_goal.title }}</a></li>
+                    <li class="breadcrumb-item active">Contribuer</li>
+                </ol>
+            </nav>
+
+            <div class="card glass-card">
+                <div class="card-body p-4">
+                    <h3 class="mb-4 text-center">
+                        <i class="bi bi-wallet2 text-success me-2"></i>
+                        {{ title }}
+                    </h3>
+
+                    <!-- Résumé de l'objectif -->
+                    <div class="card bg-light border-0 mb-4">
+                        <div class="card-body">
+                            <h6 class="mb-3">💰 Caisse Commune</h6>
+                            <div class="row g-2 text-center">
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Objectif</small>
+                                    <strong>{{ savings_goal.target_amount|floatformat:0 }}</strong>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted d-block">En Caisse</small>
+                                    <strong class="text-success">{{ savings_goal.current_amount|floatformat:0 }}</strong>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Restant</small>
+                                    <strong class="text-warning">{{ savings_goal.get_remaining_amount|floatformat:0 }}</strong>
+                                </div>
+                            </div>
+                            <div class="progress mt-3" style="height: 10px;">
+                                <div class="progress-bar bg-success progress-bar-striped" 
+                                     role="progressbar" 
+                                     style="width: {{ savings_goal.get_progress_percentage }}%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <!-- Type de transaction -->
+                        <div class="mb-3">
+                            <label for="{{ form.transaction_type.id_for_label }}" class="form-label">
+                                <i class="bi bi-arrow-left-right me-1"></i>Type de transaction *
+                            </label>
+                            {{ form.transaction_type }}
+                            {% if form.transaction_type.errors %}
+                            <div class="text-danger small mt-1">{{ form.transaction_type.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Montant -->
+                        <div class="mb-3">
+                            <label for="{{ form.amount.id_for_label }}" class="form-label">
+                                <i class="bi bi-currency-dollar me-1"></i>Montant (FCFA) *
+                            </label>
+                            {{ form.amount }}
+                            {% if form.amount.errors %}
+                            <div class="text-danger small mt-1">{{ form.amount.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Note -->
+                        <div class="mb-3">
+                            <label for="{{ form.note.id_for_label }}" class="form-label">
+                                <i class="bi bi-sticky me-1"></i>Note (optionnel)
+                            </label>
+                            {{ form.note }}
+                            {% if form.note.errors %}
+                            <div class="text-danger small mt-1">{{ form.note.errors }}</div>
+                            {% endif %}
+                            <small class="text-muted">Ex: Épargne de décembre, Contribution mensuelle...</small>
+                        </div>
+
+                        <!-- Date -->
+                        <div class="mb-4">
+                            <label for="{{ form.date.id_for_label }}" class="form-label">
+                                <i class="bi bi-calendar3 me-1"></i>Date *
+                            </label>
+                            {{ form.date }}
+                            {% if form.date.errors %}
+                            <div class="text-danger small mt-1">{{ form.date.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Info -->
+                        <div class="alert alert-info d-flex align-items-center mb-4">
+                            <i class="bi bi-info-circle fs-4 me-3"></i>
+                            <div>
+                                <strong>Dépôt:</strong> Ajoute de l'argent dans la caisse commune.<br>
+                                <strong>Retrait:</strong> Retire de l'argent pour une dépense commune (visible par tous).
+                            </div>
+                        </div>
+
+                        <!-- Boutons d'action -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle me-2"></i>Valider la Transaction
+                            </button>
+                            <a href="{% url 'groups:savings_detail' pk=savings_goal.pk %}" 
+                               class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-2"></i>Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

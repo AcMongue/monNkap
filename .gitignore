@@ -1,0 +1,46 @@
+# Python
+*.py[cod]
+*$py.class
+*.so
+.Python
+__pycache__/
+*.pyc
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# Environment
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation (garder seulement README.md)
+INSTALLATION.md
+QUICKSTART.md
+SECURITY.md
+DESIGN_IMPROVEMENTS.md
+PRESENTATION_COMMERCIALE.md
+GOOGLE_OAUTH_SETUP.md
+ARCHITECTURE_FINANCIERE.md
+DEPLOYMENT.md
+RENDER_DEPLOY.md

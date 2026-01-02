@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ group.name }} - FinTrack{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h1 class="text-white fw-bold">
+            <i class="bi bi-people"></i> {{ group.name }}
+        </h1>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="{% url 'groups:expense_list' group.pk %}" class="btn btn-light">
+            <i class="bi bi-receipt"></i> Dépenses Groupe
+        </a>
+        <a href="{% url 'groups:savings_list' group_pk=group.pk %}" class="btn btn-light">
+            <i class="bi bi-piggy-bank"></i> Épargne Groupe
+        </a>
+        <a href="{% url 'groups:invite' group.pk %}" class="btn btn-gradient-success">
+            <i class="bi bi-person-plus-fill"></i> Inviter des Membres
+        </a>
+        <a href="{% url 'groups:contribute' group.pk %}" class="btn btn-light">
+            <i class="bi bi-plus-circle"></i> Contribuer
+        </a>
+        {% if membership.role == 'admin' %}
+        <a href="{% url 'groups:update' group.pk %}" class="btn btn-outline-light">
+            <i class="bi bi-pencil"></i> Modifier
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    <!-- Informations du groupe -->
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h4>{{ group.name }}</h4>
+                        <p class="text-muted">{{ group.description }}</p>
+                        <small class="text-muted">
+                            <i class="bi bi-person text-primary"></i> Créé par <strong>{{ group.creator.username }}</strong>
+                        </small>
+                    </div>
+                    <span class="badge 
+                        {% if group.status == 'active' %}bg-primary
+                        {% elif group.status == 'completed' %}bg-success
+                        {% else %}bg-secondary{% endif %} fs-6">
+                        {% if group.status == 'active' %}Actif
+                        {% elif group.status == 'completed' %}Complété
+                        {% else %}Annulé{% endif %}
+                    </span>
+                </div>
+                
+                <div class="progress mb-3" style="height: 20px;">
+                    <div class="progress-bar bg-info" 
+                         role="progressbar" 
+                         style="width: {{ group.get_progress_percentage }}%">
+                        {{ group.get_progress_percentage|floatformat:0 }}%
+                    </div>
+                </div>
+                
+                <div class="row text-center mb-3">
+                    <div class="col-md-4">
+                        <div class="p-3 rounded" style="background: rgba(0,0,0,0.05);">
+                            <h5 class="text-success mb-1">{{ group.current_amount|floatformat:0 }} FCFA</h5>
+                            <small class="text-muted">Montant collecté</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 rounded" style="background: rgba(0,0,0,0.05);">
+                            <h5 class="text-primary mb-1">{{ group.target_amount|floatformat:0 }} FCFA</h5>
+                            <small class="text-muted">Montant cible</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 rounded" style="background: rgba(0,0,0,0.05);">
+                            <h5 class="text-danger mb-1">{{ group.get_remaining_amount|floatformat:0 }} FCFA</h5>
+                            <small class="text-muted">Montant restant</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <i class="bi bi-calendar text-primary"></i> 
+                        <strong>Date limite :</strong> {{ group.deadline|date:"d/m/Y" }}
+                    </div>
+                    {% if group.is_overdue %}
+                    <span class="text-danger">
+                        <i class="bi bi-exclamation-triangle"></i> En retard
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contributions récentes -->
+        <div class="card mt-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-clock-history"></i> Contributions récentes
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if contributions %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Membre</th>
+                                <th>Date</th>
+                                <th>Montant</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for contribution in contributions %}
+                            <tr>
+                                <td>{{ contribution.user.username }}</td>
+                                <td>{{ contribution.date|date:"d/m/Y" }}</td>
+                                <td><strong class="text-success">{{ contribution.amount|floatformat:0 }} FCFA</strong></td>
+                                <td>
+                                    <span class="badge {% if contribution.payment_status == 'paid' %}bg-success{% elif contribution.payment_status == 'pending' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                        {{ contribution.get_payment_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center my-4">Aucune contribution enregistrée</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Membres et actions -->
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Membres ({{ members.count }})</h5>
+                {% if membership.role == 'admin' %}
+                <a href="{% url 'groups:add_member' group.pk %}" 
+                   class="btn btn-sm btn-gradient-primary"
+                   data-bs-toggle="tooltip" 
+                   data-bs-placement="left" 
+                   title="Rechercher et ajouter un membre par nom d'utilisateur">
+                    <i class="bi bi-person-plus"></i>
+                </a>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if membership.role == 'admin' %}
+                <div class="alert alert-info alert-sm p-2 mb-3">
+                    <small>
+                        <i class="bi bi-info-circle me-1"></i>
+                        Cliquez sur <i class="bi bi-person-plus"></i> pour rechercher un utilisateur par son nom
+                    </small>
+                </div>
+                {% endif %}
+                {% for member in members %}
+                <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                    <div>
+                        <strong>{{ member.user.username }}</strong>
+                        {% if member.role == 'admin' %}
+                        <span class="badge bg-primary badge-sm">Admin</span>
+                        {% endif %}
+                    </div>
+                    <small class="text-muted">{{ member.joined_at|date:"d/m/Y" }}</small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="card mb-3">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Statistiques par membre</h5>
+            </div>
+            <div class="card-body">
+                {% if member_stats %}
+                    {% for stat in member_stats %}
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between">
+                            <span class="small">{{ stat.user__username }}</span>
+                            <strong class="small text-info">{{ stat.total|floatformat:0 }} FCFA</strong>
+                        </div>
+                        <div class="progress" style="height: 5px;">
+                            <div class="progress-bar bg-info" 
+                                 style="width: {% widthratio stat.total member_stats.0.total 100 %}%"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center small">Aucune statistique disponible</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'groups:contribute' group.pk %}" class="btn btn-gradient-primary">
+                        <i class="bi bi-plus-circle"></i> Contribuer
+                    </a>
+                    {% if membership.role == 'admin' %}
+                    <a href="{% url 'groups:add_member' group.pk %}" class="btn btn-outline-primary">
+                        <i class="bi bi-person-plus"></i> Ajouter un membre
+                    </a>
+                    <a href="{% url 'groups:update' group.pk %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-pencil"></i> Modifier
+                    </a>
+                    {% endif %}
+                    {% if group.creator == request.user %}
+                    <a href="{% url 'groups:delete' group.pk %}" class="btn btn-outline-danger">
+                        <i class="bi bi-trash"></i> Supprimer
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'groups:list' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialiser les tooltips Bootstrap
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
+{% endblock %}

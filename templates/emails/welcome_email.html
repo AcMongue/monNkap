@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #1A1A1A; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #0066FF 0%, #00C853 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #fff; padding: 30px; border: 1px solid #E9ECEF; }
+        .button { display: inline-block; background: #0066FF; color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; margin: 20px 0; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+        .feature { background: #F0F4FF; padding: 15px; border-radius: 8px; margin: 10px 0; }
+        .emoji { font-size: 24px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="margin: 0;">💰 Bienvenue sur FinTrack !</h1>
+        </div>
+        <div class="content">
+            <h2>Bonjour {{ user.username }} ! 👋</h2>
+            
+            <p>Nous sommes ravis de vous accueillir sur <strong>FinTrack</strong>, votre nouvelle plateforme de gestion financière intelligente.</p>
+            
+            <p>Votre compte a été créé avec succès. Vous pouvez maintenant profiter de toutes nos fonctionnalités :</p>
+            
+            <div class="feature">
+                <span class="emoji">📊</span>
+                <strong>Suivi en temps réel</strong><br>
+                Visualisez vos revenus et dépenses instantanément
+            </div>
+            
+            <div class="feature">
+                <span class="emoji">🎯</span>
+                <strong>Objectifs d'épargne</strong><br>
+                Définissez et atteignez vos objectifs financiers
+            </div>
+            
+            <div class="feature">
+                <span class="emoji">👥</span>
+                <strong>Gestion collaborative</strong><br>
+                Gérez vos finances en groupe avec famille et amis
+            </div>
+            
+            <div class="feature">
+                <span class="emoji">📈</span>
+                <strong>Statistiques détaillées</strong><br>
+                Analysez vos habitudes avec des graphiques interactifs
+            </div>
+            
+            <p style="text-align: center; margin-top: 30px;">
+                <a href="{{ protocol }}://{{ domain }}/dashboard/home/" class="button">
+                    🚀 Commencer à gérer mes finances
+                </a>
+            </p>
+            
+            <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #E9ECEF;">
+                <strong>Besoin d'aide ?</strong><br>
+                Consultez notre centre d'aide ou contactez notre support à support@fintrack.com
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 FinTrack. Tous droits réservés.</p>
+            <p>Vous recevez cet email car vous vous êtes inscrit sur FinTrack.</p>
+        </div>
+    </div>
+</body>
+</html>

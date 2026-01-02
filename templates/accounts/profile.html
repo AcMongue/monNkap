@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}Mon Profil - FinTrack{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                {% if user.profile.avatar %}
+                    <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+                {% else %}
+                    <div class="rounded-circle bg-gradient-primary text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 120px; height: 120px;">
+                        <i class="bi bi-person" style="font-size: 3rem;"></i>
+                    </div>
+                {% endif %}
+                
+                <h4>{{ user.profile.get_full_name }}</h4>
+                <p class="text-muted">@{{ user.username }}</p>
+                
+                <hr>
+                
+                <div class="text-start">
+                    <p class="mb-2">
+                        <i class="bi bi-envelope text-primary"></i> {{ user.email }}
+                    </p>
+                    {% if user.profile.phone_number %}
+                    <p class="mb-2">
+                        <i class="bi bi-telephone text-success"></i> {{ user.profile.phone_number }}
+                    </p>
+                    {% endif %}
+                    {% if user.profile.date_of_birth %}
+                    <p class="mb-2">
+                        <i class="bi bi-calendar text-info"></i> {{ user.profile.date_of_birth|date:"d/m/Y" }}
+                    </p>
+                    {% endif %}
+                    <p class="mb-0">
+                        <i class="bi bi-clock text-secondary"></i> Membre depuis {{ user.date_joined|date:"F Y" }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-pencil-square text-primary"></i> Modifier mon profil
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <h5 class="mb-3">Informations personnelles</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ user_form.username.id_for_label }}" class="form-label">Nom d'utilisateur</label>
+                            {{ user_form.username }}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ user_form.email.id_for_label }}" class="form-label">Email</label>
+                            {{ user_form.email }}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ user_form.first_name.id_for_label }}" class="form-label">Prénom</label>
+                            {{ user_form.first_name }}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ user_form.last_name.id_for_label }}" class="form-label">Nom</label>
+                            {{ user_form.last_name }}
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h5 class="mb-3">Informations supplémentaires</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ profile_form.phone_number.id_for_label }}" class="form-label">Téléphone</label>
+                            {{ profile_form.phone_number }}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ profile_form.date_of_birth.id_for_label }}" class="form-label">Date de naissance</label>
+                            {{ profile_form.date_of_birth }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ profile_form.avatar.id_for_label }}" class="form-label">Photo de profil</label>
+                        {{ profile_form.avatar }}
+                    </div>
+                    
+                    <hr>
+                    
+                    <h5 class="mb-3">
+                        <i class="bi bi-palette text-primary"></i> Préférences d'affichage
+                    </h5>
+                    
+                    <div class="mb-3">
+                        <label for="{{ profile_form.theme_preference.id_for_label }}" class="form-label">Thème de l'interface</label>
+                        {{ profile_form.theme_preference }}
+                        <div class="form-text">
+                            <i class="bi bi-info-circle"></i> Choisissez votre thème préféré ou laissez l'application suivre les préférences de votre système
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-gradient-primary">
+                            <i class="bi bi-check-circle"></i> Enregistrer les modifications
+                        </button>
+                        <a href="{% url 'dashboard:home' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Annuler
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

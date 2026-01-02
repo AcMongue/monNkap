@@ -1,0 +1,382 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Statistiques Avancées - FinTrack{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <h1><i class="bi bi-graph-up-arrow me-2"></i> Statistiques Avancées</h1>
+    <p>Analyses détaillées de vos finances pour l'année {{ current_year }}</p>
+</div>
+
+<!-- KPIs Principaux -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card stat-primary">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6>Total Dépenses {{ current_year }}</h6>
+                    <h3 class="mb-0">{{ total_expenses_year|floatformat:0 }} F</h3>
+                    <small>{{ total_expenses_count }} transactions</small>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card stat-danger">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6>Moyenne Mensuelle</h6>
+                    <h3 class="mb-0">{{ avg_monthly_expense|floatformat:0 }} F</h3>
+                    <small>sur 12 mois</small>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-calculator"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card stat-warning">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6>Mois Plus Dépensier</h6>
+                    <h3 class="mb-0">{{ most_expensive_amount|floatformat:0 }} F</h3>
+                    <small>{{ most_expensive_month }}</small>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card stat-success">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6>Contributions Groupes</h6>
+                    <h3 class="mb-0">{{ total_contributions|floatformat:0 }} F</h3>
+                    <small>année {{ current_year }}</small>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Graphiques Principaux -->
+<div class="row g-4 mb-4">
+    <!-- Évolution Mensuelle -->
+    <div class="col-lg-8">
+        <div class="card shadow-lg">
+            <div class="card-header bg-white border-0">
+                <h5 class="mb-0">
+                    <i class="bi bi-graph-up text-primary me-2"></i>
+                    Évolution des Dépenses (12 derniers mois)
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="monthlyExpensesChart" height="80"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Répartition par Catégorie -->
+    <div class="col-lg-4">
+        <div class="card shadow-lg">
+            <div class="card-header bg-white border-0">
+                <h5 class="mb-0">
+                    <i class="bi bi-pie-chart text-success me-2"></i>
+                    Par Catégorie {{ current_year }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="categoryPieChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Comparaison et Tendances -->
+<div class="row g-4 mb-4">
+    <!-- Comparaison Dépenses vs Contributions -->
+    <div class="col-lg-6">
+        <div class="card shadow-lg">
+            <div class="card-header bg-white border-0">
+                <h5 class="mb-0">
+                    <i class="bi bi-bar-chart text-info me-2"></i>
+                    Dépenses vs Contributions (6 mois)
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="comparisonChart" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Évolution Hebdomadaire -->
+    <div class="col-lg-6">
+        <div class="card shadow-lg">
+            <div class="card-header bg-white border-0">
+                <h5 class="mb-0">
+                    <i class="bi bi-calendar-week text-warning me-2"></i>
+                    Tendance Hebdomadaire (8 semaines)
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="weeklyChart" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Détails et Analyses -->
+<div class="row g-4 mb-4">
+    <!-- Top Catégories -->
+    <div class="col-lg-6">
+        <div class="card shadow-lg">
+            <div class="card-header bg-white border-0">
+                <h5 class="mb-0">
+                    <i class="bi bi-award text-primary me-2"></i>
+                    Analyse par Catégorie
+                </h5>
+            </div>
+            <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+                {% for category in expenses_by_category %}
+                <div class="mb-3 pb-3 border-bottom">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle me-3" 
+                                 style="width: 40px; height: 40px; background: {{ category.category__color }}20; display: flex; align-items: center; justify-content: center;">
+                                <i class="bi {{ category.category__icon }}" style="color: {{ category.category__color }};"></i>
+                            </div>
+                            <div>
+                                <strong>{{ category.category__name }}</strong>
+                                <br><small class="text-muted">{{ category.count }} transactions</small>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <strong class="gradient-text">{{ category.total|floatformat:0 }} F</strong>
+                            <br><small class="text-muted">Moy: {{ category.avg|floatformat:0 }} F</small>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center py-4">Aucune dépense enregistrée</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Top 5 Dépenses + Objectifs -->
+    <div class="col-lg-6">
+        <!-- Top 5 Dépenses -->
+        <div class="card shadow-lg mb-4">
+            <div class="card-header bg-white border-0">
+                <h5 class="mb-0">
+                    <i class="bi bi-trophy text-warning me-2"></i>
+                    Top 5 Dépenses {{ current_year }}
+                </h5>
+            </div>
+            <div class="card-body">
+                {% for expense in top_expenses %}
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                    <div class="d-flex align-items-center flex-grow-1">
+                        <div class="badge-rank badge-{{ forloop.counter }}">
+                            {{ forloop.counter }}
+                        </div>
+                        <div class="ms-3">
+                            <strong>{{ expense.description }}</strong>
+                            <br><small class="text-muted">
+                                <i class="bi {{ expense.category.icon }}" style="color: {{ expense.category.color }};"></i>
+                                {{ expense.category.name }} - {{ expense.date|date:"d M Y" }}
+                            </small>
+                        </div>
+                    </div>
+                    <strong class="text-danger">{{ expense.amount|floatformat:0 }} F</strong>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center py-3">Aucune dépense</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Statistiques Objectifs -->
+        <div class="card shadow-lg">
+            <div class="card-header bg-white border-0">
+                <h5 class="mb-0">
+                    <i class="bi bi-bullseye text-success me-2"></i>
+                    Progression Objectifs
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center g-3">
+                    <div class="col-6">
+                        <div class="p-3 rounded" style="background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);">
+                            <h3 class="gradient-text mb-1">{{ goals_stats.active }}</h3>
+                            <small class="text-muted">Actifs</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 rounded" style="background: linear-gradient(135deg, #43e97b20 0%, #38f9d720 100%);">
+                            <h3 class="text-success mb-1">{{ goals_stats.completed }}</h3>
+                            <small class="text-muted">Atteints</small>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="p-3 rounded" style="background: linear-gradient(135deg, #4facfe20 0%, #00f2fe20 100%);">
+                            <h3 class="text-info mb-1">{{ avg_goal_progress|floatformat:1 }}%</h3>
+                            <small class="text-muted">Progression Moyenne</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    Chart.defaults.font.family = "'Segoe UI', sans-serif";
+    Chart.defaults.color = '#495057';
+    
+    // Graphique mensuel
+    new Chart(document.getElementById('monthlyExpensesChart'), {
+        type: 'line',
+        data: {
+            labels: {{ months_labels|safe }},
+            datasets: [{
+                label: 'Dépenses (FCFA)',
+                data: {{ months_data|safe }},
+                borderColor: 'rgb(102, 126, 234)',
+                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 5,
+                pointHoverRadius: 7
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { callback: value => value.toLocaleString() + ' F' }
+                }
+            }
+        }
+    });
+    
+    // Graphique catégories
+    new Chart(document.getElementById('categoryPieChart'), {
+        type: 'doughnut',
+        data: {
+            labels: {{ category_labels|safe }},
+            datasets: [{
+                data: {{ category_data|safe }},
+                backgroundColor: {{ category_colors|safe }},
+                borderWidth: 3,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ctx.label + ': ' + ctx.parsed.toLocaleString() + ' F'
+                    }
+                }
+            }
+        }
+    });
+    
+    // Comparaison
+    new Chart(document.getElementById('comparisonChart'), {
+        type: 'bar',
+        data: {
+            labels: {{ comparison_labels|safe }},
+            datasets: [
+                {
+                    label: 'Dépenses Personnelles',
+                    data: {{ comparison_expenses|safe }},
+                    backgroundColor: 'rgba(240, 147, 251, 0.8)',
+                    borderRadius: 8
+                },
+                {
+                    label: 'Contributions Groupes',
+                    data: {{ comparison_contributions|safe }},
+                    backgroundColor: 'rgba(79, 172, 254, 0.8)',
+                    borderRadius: 8
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { callback: value => value.toLocaleString() + ' F' }
+                }
+            }
+        }
+    });
+    
+    // Hebdomadaire
+    new Chart(document.getElementById('weeklyChart'), {
+        type: 'line',
+        data: {
+            labels: {{ week_labels|safe }},
+            datasets: [{
+                label: 'Dépenses',
+                data: {{ week_data|safe }},
+                borderColor: 'rgb(255, 193, 61)',
+                backgroundColor: 'rgba(255, 193, 61, 0.2)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { callback: value => value.toLocaleString() + ' F' }
+                }
+            }
+        }
+    });
+</script>
+
+<style>
+    .badge-rank {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-weight: bold;
+        color: white;
+    }
+    .badge-1 { background: linear-gradient(135deg, #FFD700, #FFA500); }
+    .badge-2 { background: linear-gradient(135deg, #C0C0C0, #A8A8A8); }
+    .badge-3 { background: linear-gradient(135deg, #CD7F32, #8B4513); }
+    .badge-4 { background: linear-gradient(135deg, #667eea, #764ba2); }
+    .badge-5 { background: linear-gradient(135deg, #f093fb, #f5576c); }
+</style>
+{% endblock %}
