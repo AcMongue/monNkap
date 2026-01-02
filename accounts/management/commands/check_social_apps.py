@@ -1,13 +1,19 @@
 from django.core.management.base import BaseCommand
 from allauth.socialaccount.models import SocialApp
 from django.contrib.sites.models import Site
+from django.core.cache import cache
 
 
 class Command(BaseCommand):
     help = 'Vérifie et affiche toutes les applications sociales et sites'
 
     def handle(self, *args, **options):
-        self.stdout.write("=== SITES ===")
+        # Vider le cache
+        self.stdout.write("Vidage du cache...")
+        cache.clear()
+        self.stdout.write(self.style.SUCCESS("✓ Cache vidé!"))
+        
+        self.stdout.write("\n=== SITES ===")
         sites = Site.objects.all()
         for site in sites:
             self.stdout.write(f"ID: {site.id}, Domain: {site.domain}, Name: {site.name}")
@@ -32,3 +38,5 @@ class Command(BaseCommand):
                 self.stdout.write(f"Suppression de l'app ID {app.id}")
                 app.delete()
             self.stdout.write(self.style.SUCCESS("✓ Doublons supprimés!"))
+        else:
+            self.stdout.write(self.style.SUCCESS(f"\n✓ Configuration correcte: {google_apps.count()} application Google"))
