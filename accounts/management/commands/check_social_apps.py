@@ -8,10 +8,13 @@ class Command(BaseCommand):
     help = 'Vérifie et affiche toutes les applications sociales et sites'
 
     def handle(self, *args, **options):
-        # Vider le cache
-        self.stdout.write("Vidage du cache...")
-        cache.clear()
-        self.stdout.write(self.style.SUCCESS("✓ Cache vidé!"))
+        # Vider le cache (ignorer si erreur)
+        try:
+            self.stdout.write("Vidage du cache...")
+            cache.clear()
+            self.stdout.write(self.style.SUCCESS("✓ Cache vidé!"))
+        except Exception as e:
+            self.stdout.write(self.style.WARNING(f"⚠️ Cache non disponible: {e}"))
         
         self.stdout.write("\n=== SITES ===")
         sites = Site.objects.all()
