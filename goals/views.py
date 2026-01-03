@@ -5,6 +5,7 @@ from django.db.models import Sum
 from .models import Goal, Contribution
 from .forms import GoalForm, ContributionForm
 from accounts.emails import send_goal_achieved_email
+from accounts.motivation_messages import get_savings_message
 
 
 @login_required
@@ -140,6 +141,10 @@ def contribution_create_view(request, goal_pk):
                 messages.success(request, f'🎉 Félicitations ! Objectif "{goal.title}" atteint !')
             else:
                 messages.success(request, f'Contribution de {contribution.amount} FCFA ajoutée!')
+            
+            # Message de motivation pour l'épargne
+            motivation = get_savings_message()
+            messages.info(request, f"{motivation['icon']} {motivation['message']}")
             
             return redirect('goals:detail', pk=goal_pk)
         else:

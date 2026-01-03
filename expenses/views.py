@@ -6,6 +6,7 @@ from django.db.models.functions import TruncMonth
 from datetime import datetime
 from .models import Expense, Category
 from .forms import ExpenseForm, CategoryForm
+from accounts.motivation_messages import get_expense_message
 
 
 @login_required
@@ -57,15 +58,24 @@ def expense_create_view(request):
             expense.user = request.user
             expense.save()
             messages.success(request, 'Dépense ajoutée avec succès!')
+            
+            # Message de motivation
+            motivation = get_expense_message(expense.amount)
+            messages.info(request, f"{motivation['icon']} {motivation['message']}")
+            
             return redirect('expenses:list')
         else:
             messages.error(request, 'Erreur lors de l\'ajout de la dépense.')
     else:
         form = ExpenseForm()
     
+    # Récupérer les catégories existantes pour les suggestions
+    existing_categories = Category.objects.all().order_by('name')
+    
     return render(request, 'expenses/expense_form.html', {
         'form': form,
-        'title': 'Ajouter une dépense'
+        'title': 'Ajouter une dépense',
+        'existing_categories': existing_categories
     })
 
 
@@ -87,10 +97,14 @@ def expense_update_view(request, pk):
     else:
         form = ExpenseForm(instance=expense)
     
+    # Récupérer les catégories existantes pour les suggestions
+    existing_categories = Category.objects.all().order_by('name')
+    
     return render(request, 'expenses/expense_form.html', {
         'form': form,
         'title': 'Modifier la dépense',
-        'expense': expense
+        'expense': expense,
+        'existing_categories': existing_categories
     })
 
 

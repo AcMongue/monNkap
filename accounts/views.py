@@ -13,6 +13,7 @@ from .wallet_forms import WalletTransactionForm, GoalAllocationForm
 from .models import Wallet, WalletTransaction, GoalAllocation
 from .emails import send_welcome_email, send_goal_achieved_email, send_low_balance_alert
 from goals.models import Goal
+from .motivation_messages import get_wallet_income_message
 
 
 @ratelimit(key='ip', rate='5/h', method='POST')
@@ -205,6 +206,12 @@ def add_transaction_view(request):
             
             type_label = "Entrée" if transaction.transaction_type == 'income' else "Sortie"
             messages.success(request, f'{type_label} de {transaction.amount} FCFA enregistrée!')
+            
+            # Message de motivation pour les entrées d'argent
+            if transaction.transaction_type == 'income':
+                motivation = get_wallet_income_message()
+                messages.info(request, f"{motivation['icon']} {motivation['message']}")
+            
             return redirect('accounts:wallet')
     else:
         form = WalletTransactionForm()
