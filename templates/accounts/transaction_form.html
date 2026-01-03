@@ -116,14 +116,19 @@
 
                         <!-- Catégorie -->
                         <div class="mb-3">
-                            <label for="{{ form.category.id_for_label }}" class="form-label">
+                            <label for="{{ form.category_name.id_for_label }}" class="form-label">
                                 <i class="bi bi-tag me-1"></i>Catégorie
                             </label>
-                            {{ form.category }}
-                            {% if form.category.errors %}
-                            <div class="text-danger small mt-1">{{ form.category.errors }}</div>
+                            {{ form.category_name }}
+                            <datalist id="category-suggestions">
+                                {% for cat in existing_categories %}
+                                    <option value="{{ cat.name }}">
+                                {% endfor %}
+                            </datalist>
+                            {% if form.category_name.errors %}
+                            <div class="text-danger small mt-1">{{ form.category_name.errors }}</div>
                             {% endif %}
-                            <small class="text-muted">Ex: Salaire, Freelance, Courses, Loyer...</small>
+                            <small class="text-muted">Saisissez une catégorie ou choisissez parmi les suggestions</small>
                         </div>
 
                         <!-- Description -->

@@ -216,10 +216,15 @@ def add_transaction_view(request):
     else:
         form = WalletTransactionForm()
     
+    # Récupérer les catégories existantes pour les suggestions
+    from expenses.models import Category
+    existing_categories = Category.objects.all().order_by('name')
+    
     context = {
         'form': form,
         'wallet': wallet,
-        'title': 'Ajouter une Transaction'
+        'title': 'Ajouter une Transaction',
+        'existing_categories': existing_categories
     }
     
     return render(request, 'accounts/transaction_form.html', context)
