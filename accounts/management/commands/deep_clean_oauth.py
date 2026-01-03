@@ -1,5 +1,8 @@
 from django.core.management.base import BaseCommand
 from django.db import connection
+from allauth.socialaccount.models import SocialApp
+from django.contrib.sites.models import Site
+import os
 
 
 class Command(BaseCommand):
@@ -34,53 +37,41 @@ class Command(BaseCommand):
             sites = cursor.fetchall()
             for site in sites:
                 self.stdout.write(f"ID: {site[0]}, Domain: {site[1]}, Name: {site[2]}")
-            
-            # 4. NETTOYER COMPLÈTEMENT
-            self.stdout.write("\n=== NETTOYAGE COMPLET ===")
-            
-            # Supprimer toutes les liaisons
-            cursor.execute("DELETE FROM socialaccount_socialapp_sites")
-            deleted_links = cursor.rowcount
-            self.stdout.write(f"✓ {deleted_links} liaisons supprimées")
-            
-            # Supprimer toutes les applications Google
-            cursor.execute("DELETE FROM socialaccount_socialapp WHERE provider = 'google'")
-            deleted_apps = cursor.rowcount
-            self.stdout.write(f"✓ {deleted_apps} applications Google supprimées")
-            
-            # Recréer l'application Google
-            self.stdout.write("\n=== CRÉATION ===")
-            import os
-            client_id = os.environ.get('GOOGLE_CLIENT_ID')
-            client_secret = os.environ.get('GOOGLE_CLIENT_SECRET')
-            
-            if not client_id or not client_secret:
-                self.stdout.write(self.style.ERROR("✗ Variables GOOGLE_CLIENT_ID et GOOGLE_CLIENT_SECRET non définies"))
-                return
-            
-            # Insérer la nouvelle application
-            cursor.execute("""
-                INSERT INTO socialaccount_socialapp (provider, name, client_id, secret, key, settings)
-                VALUES (%s, %s, %s, %s, %s, %s)
-                RETURNING id
-            """, ['google', 'Google', client_id, client_secret, '', '{}'])
-            app_id = cursor.fetchone()[0]
-            self.stdout.write(f"✓ Application créée (ID: {app_id})")
-            
-            # Lier au site 1
-            cursor.execute("""
-                INSERT INTO socialaccount_socialapp_sites (socialapp_id, site_id)
-                VALUES (%s, %s)
-            """, [app_id, 1])
-            self.stdout.write(f"✓ Liée au site 1")
-            
-            # Vérification finale
-            cursor.execute("SELECT COUNT(*) FROM socialaccount_socialapp WHERE provider = 'google'")
-            count = cursor.fetchone()[0]
-            self.stdout.write(f"\n=== RÉSULTAT FINAL ===")
-            self.stdout.write(f"Applications Google: {count}")
-            
-            if count == 1:
-                self.stdout.write(self.style.SUCCESS("✓✓✓ Configuration correcte!"))
-            else:
-                self.stdout.write(self.style.ERROR(f"✗✗✗ ERREUR: {count} applications"))
+        
+        # 4. NETTOYER COMPLÈTEMENT avec l'ORM
+        self.stdout.write("\n=== NETTOYAGE COMPLET ===")
+        
+        # Supprimer toutes les applications Google
+        deleted = SocialApp.objects.filter(provider='google').delete()
+        self.stdout.write(f"✓ {deleted[0]} applications Google supprimées")
+        
+        # Recréer l'application Google
+        self.stdout.write("\n=== CRÉATION ===")
+        client_id = os.environ.get('GOOGLE_CLIENT_ID')
+        client_secret = os.environ.get('GOOGLE_CLIENT_SECRET')
+        
+        if not client_id or not client_secret:
+            self.stdout.write(self.style.ERROR("✗ Variables GOOGLE_CLIENT_ID et GOOGLE_CLIENT_SECRET non définies"))
+            return
+        
+        # Utiliser l'ORM pour créer l'application
+        site = Site.objects.get(id=1)
+        app = SocialApp.objects.create(
+            provider='google',
+            name='Google',
+            client_id=client_id,
+            secret=client_secret,
+        )
+        app.sites.add(site)
+        self.stdout.write(f"✓ Application créée (ID: {app.id})")
+        self.stdout.write(f"✓ Liée au site: {site.domain}")
+        
+        # Vérification finale
+        count = SocialApp.objects.filter(provider='google').count()
+        self.stdout.write(f"\n=== RÉSULTAT FINAL ===")
+        self.stdout.write(f"Applications Google: {count}")
+        
+        if count == 1:
+            self.stdout.write(self.style.SUCCESS("✓✓✓ Configuration correcte!"))
+        else:
+            self.stdout.write(self.style.ERROR(f"✗✗✗ ERREUR: {count} applications"))
