@@ -1450,73 +1450,63 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // ==================== GESTION DU THÈME ====================
+        // ==================== GESTION DU THÈME PERSISTANT ====================
         
-        // Récupérer la préférence du serveur (depuis le profil utilisateur)
-        const userThemePreference = '{{ user_theme|default:"auto" }}';
-        console.log('Préférence thème depuis serveur:', userThemePreference);
-        
-        // Fonction pour gérer localStorage avec protection contre Tracking Prevention
-        function getLocalTheme() {
+        // Charger le thème immédiatement (avant le DOM)
+        (function() {
+            // Priorité 1: localStorage (choix utilisateur temporaire)
+            let savedTheme = null;
             try {
-                return localStorage.getItem('theme');
-            } catch (e) {
-                // Tracking Prevention bloque localStorage
-                return null;
-            }
-        }
-        
-        function setLocalTheme(theme) {
-            try {
-                localStorage.setItem('theme', theme);
-            } catch (e) {
-                // Tracking Prevention bloque localStorage - on ignore
-                console.log('localStorage non disponible');
-            }
-        }
-        
-        // Charger le thème
-        function loadTheme() {
+                savedTheme = localStorage.getItem('monnkap-theme');
+            } catch(e) {}
+            
+            // Priorité 2: préférence serveur
+            const serverTheme = '{{ user_theme|default:"auto" }}';
+            
             let themeToApply = 'light';
             
-            console.log('userThemePreference:', userThemePreference);
-            
-            if (userThemePreference === 'dark') {
+            if (savedTheme) {
+                // Utiliser le choix local de l'utilisateur
+                themeToApply = savedTheme;
+            } else if (serverTheme === 'dark') {
                 themeToApply = 'dark';
-            } else if (userThemePreference === 'light') {
+            } else if (serverTheme === 'light') {
                 themeToApply = 'light';
-            } else if (userThemePreference === 'auto') {
-                // Mode automatique : suivre les préférences système
+            } else if (serverTheme === 'auto') {
+                // Mode auto : suivre le système
                 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                     themeToApply = 'dark';
                 }
             }
             
-            console.log('Thème à appliquer:', themeToApply);
-            
+            // Appliquer le thème IMMÉDIATEMENT
             if (themeToApply === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
-                console.log('Mode sombre appliqué');
             } else {
                 document.documentElement.removeAttribute('data-theme');
-                console.log('Mode clair appliqué');
             }
-        }
+        })();
         
-        // Appliquer le thème avant le rendu de la page
-        loadTheme();
-        
-        // Toggle du thème (temporaire jusqu'à changement dans le profil)
+        // Toggle du thème
         document.addEventListener('DOMContentLoaded', function() {
             const themeToggle = document.getElementById('themeToggle');
             
             if (themeToggle) {
                 themeToggle.addEventListener('click', function() {
-                    const currentTheme = document.documentElement.getAttribute('data-theme');
-                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                    const newTheme = isDark ? 'light' : 'dark';
                     
-                    document.documentElement.setAttribute('data-theme', newTheme);
-                    setLocalTheme(newTheme);
+                    // Appliquer le thème
+                    if (newTheme === 'dark') {
+                        document.documentElement.setAttribute('data-theme', 'dark');
+                    } else {
+                        document.documentElement.removeAttribute('data-theme');
+                    }
+                    
+                    // Sauvegarder dans localStorage
+                    try {
+                        localStorage.setItem('monnkap-theme', newTheme);
+                    } catch(e) {}
                     
                     // Animation du toggle
                     this.style.transform = 'rotate(360deg)';
