@@ -1641,6 +1641,22 @@
             
             cards.forEach(card => observer.observe(card));
         }
+        
+        // ==================== ACTIVE NAV LINK ====================
+        // Marquer automatiquement le lien de navigation actif
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.navbar-nav .nav-link:not(.dropdown-toggle)');
+            
+            navLinks.forEach(link => {
+                const linkPath = new URL(link.href).pathname;
+                
+                // Correspondance exacte ou début du chemin
+                if (currentPath === linkPath || (linkPath !== '/' && currentPath.startsWith(linkPath))) {
+                    link.classList.add('active');
+                }
+            });
+        });
     </script>
     
     {% block extra_js %}{% endblock %}
