@@ -47,6 +47,15 @@
             align-items: center;
             position: relative;
             overflow: hidden;
+            padding-top: 80px; /* Espace pour la navbar fixe */
+        }
+        
+        @media (max-width: 768px) {
+            .hero {
+                padding-top: 100px; /* Plus d'espace sur mobile */
+                min-height: auto;
+                padding-bottom: 3rem;
+            }
         }
         
         .disclaimer-badge {
@@ -61,6 +70,20 @@
             align-items: center;
             gap: 0.5rem;
             margin-bottom: 1rem;
+            max-width: 100%;
+        }
+        
+        @media (max-width: 768px) {
+            .disclaimer-badge {
+                font-size: 0.7rem;
+                padding: 0.35rem 0.9rem;
+                margin-bottom: 0.8rem;
+                gap: 0.3rem;
+            }
+            
+            .disclaimer-badge i {
+                font-size: 0.8rem;
+            }
         }
         
         .hero::before {
@@ -99,6 +122,12 @@
             width: 100%;
             z-index: 1000;
             padding: 1.5rem 0;
+        }
+        
+        @media (max-width: 768px) {
+            .navbar-landing {
+                padding: 1rem 0;
+            }
         }
         
         .navbar-landing.scrolled {
