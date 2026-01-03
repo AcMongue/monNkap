@@ -54,6 +54,16 @@ class UserRegistrationForm(UserCreationForm):
             'placeholder': 'Confirmer le mot de passe'
         })
 
+    def clean_email(self):
+        """Valider l'unicité de l'email"""
+        email = self.cleaned_data.get('email')
+        if email and User.objects.filter(email=email).exists():
+            raise forms.ValidationError(
+                "Un compte avec cet email existe déjà. "
+                "Veuillez utiliser un autre email ou réinitialiser votre mot de passe."
+            )
+        return email
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
@@ -79,6 +89,18 @@ class UserUpdateForm(forms.ModelForm):
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
         }
+    
+    def clean_email(self):
+        """Valider l'unicité de l'email (sauf pour l'utilisateur actuel)"""
+        email = self.cleaned_data.get('email')
+        if email:
+            # Exclure l'utilisateur actuel de la vérification
+            users_with_email = User.objects.filter(email=email).exclude(pk=self.instance.pk)
+            if users_with_email.exists():
+                raise forms.ValidationError(
+                    "Un autre compte utilise déjà cet email."
+                )
+        return email
 
 
 class ProfileUpdateForm(forms.ModelForm):
