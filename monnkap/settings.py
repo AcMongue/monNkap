@@ -40,9 +40,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     
-    # Django-allauth (authentification par email/username uniquement)
+    # Allauth (sans authentification sociale)
     'allauth',
     'allauth.account',
+    # 'allauth.socialaccount',  # DÉSACTIVÉ
+    # 'allauth.socialaccount.providers.google',  # DÉSACTIVÉ
     
     # Security apps
     'axes',
@@ -236,10 +238,28 @@ ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
 ACCOUNT_EMAIL_VERIFICATION = 'optional'  # 'mandatory', 'optional', or 'none'
 ACCOUNT_SESSION_REMEMBER = True
 
-# Configuration sociale : DÉSACTIVÉE
-# Google OAuth a été retiré de l'application
-    }
-}
+# Configuration sociale - DÉSACTIVÉE
+# SOCIALACCOUNT_AUTO_SIGNUP = True
+# SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
+# SOCIALACCOUNT_QUERY_EMAIL = True
+
+# Providers spécifiques - DÉSACTIVÉS
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google': {
+#         'SCOPE': [
+#             'profile',
+#             'email',
+#         ],
+#         'AUTH_PARAMS': {
+#             'access_type': 'online',
+#         },
+#         'APP': {
+#             'client_id': '',
+#             'secret': '',
+#             'key': ''
+#         }
+#     }
+# }
 
 # En production, activez ces paramètres :
 # SECURE_SSL_REDIRECT = True
