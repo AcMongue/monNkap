@@ -121,8 +121,75 @@
             font-size: 2rem;
         }
         
+        /* Fix responsive pour mobile */
+        @media (max-width: 768px) {
+            .navbar-brand-landing {
+                font-size: 1.4rem;
+            }
+            
+            .navbar-brand-landing i {
+                font-size: 1.6rem;
+            }
+        }
+        
         .navbar-landing.scrolled .navbar-brand-landing {
             color: var(--primary-color);
+        }
+        
+        .navbar-toggler {
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+        
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+            width: 24px;
+            height: 24px;
+        }
+        
+        .navbar-landing.scrolled .navbar-toggler {
+            border-color: var(--primary-color);
+        }
+        
+        .navbar-landing.scrolled .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%280, 102, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+        
+        /* Menu mobile styles */
+        @media (max-width: 991px) {
+            .navbar-collapse {
+                background: rgba(255, 255, 255, 0.98);
+                margin-top: 1rem;
+                padding: 1.5rem;
+                border-radius: 12px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            }
+            
+            .navbar-landing.scrolled .navbar-collapse {
+                background: white;
+            }
+            
+            .nav-link-landing {
+                color: var(--text-primary) !important;
+                padding: 0.8rem 0;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            }
+            
+            .nav-link-landing:hover {
+                color: var(--primary-color) !important;
+                transform: none;
+            }
+            
+            .nav-item.ms-3 {
+                margin-left: 0 !important;
+                margin-top: 1rem;
+            }
+            
+            .btn-cta {
+                width: 100%;
+                display: block;
+            }
         }
         
         .nav-link-landing {
@@ -181,6 +248,25 @@
             margin-bottom: 2rem;
             opacity: 0.95;
             animation: slideUp 1s ease 0.2s backwards;
+        }
+        
+        /* Amélioration responsive mobile */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+                margin-bottom: 1rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .disclaimer-badge {
+                font-size: 0.75rem;
+                padding: 0.4rem 1rem;
+                margin-bottom: 0.8rem;
+            }
         }
         
         @keyframes slideUp {
