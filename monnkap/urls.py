@@ -51,6 +51,11 @@ urlpatterns = [
     ), name='password_reset_complete'),
 ]
 
+# Pages d'erreur personnalisées
+handler404 = 'django.views.defaults.page_not_found'
+handler500 = 'django.views.defaults.server_error'
+handler403 = 'django.views.defaults.permission_denied'
+
 # Configuration pour servir les fichiers media en développement
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
