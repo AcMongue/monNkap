@@ -306,59 +306,62 @@ body::before {
    NAVBAR - DESIGN MINIMALISTE AVEC INDICATEUR ACTIF
    ============================================================ */
 .navbar {
-    background: rgba(255, 255, 255, 0.98) !important;
+    background: var(--bg) !important;
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border);
     padding: 1rem 0;
     box-shadow: var(--shadow-sm);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
 }
 
 [data-theme="dark"] .navbar {
-    background: rgba(23, 23, 23, 0.98) !important;
+    background: var(--bg-soft) !important;
 }
 
 .navbar-brand {
     font-weight: 800;
     font-size: 1.5rem;
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--primary) !important;
     letter-spacing: -0.02em;
 }
 
 .nav-link {
     font-weight: 500;
     color: var(--text-light) !important;
-    transition: color var(--transition);
+    transition: all var(--transition);
     position: relative;
-    padding: 0.5rem 1rem !important;
+    padding: 0.65rem 1.125rem !important;
     margin: 0 0.25rem;
-    border-radius: var(--radius);
+    border-radius: 10px;
 }
 
-/* Indicateur de page active */
+/* Indicateur de page active - Plus visible */
 .nav-link.active {
     color: var(--primary) !important;
-    background: rgba(0, 102, 255, 0.08);
+    background: rgba(0, 102, 255, 0.15) !important;
+    font-weight: 600;
 }
 
 .nav-link:hover {
     color: var(--primary) !important;
-    background: rgba(0, 102, 255, 0.04);
+    background: rgba(0, 102, 255, 0.08);
 }
 
-/* Alternative: Underline pour les pages actives */
+/* Underline pour les pages actives - Plus visible */
 .nav-link.active::after {
     content: '';
     position: absolute;
-    bottom: 2px;
+    bottom: 4px;
     left: 50%;
     transform: translateX(-50%);
-    width: 20px;
-    height: 2px;
-    background: var(--gradient-primary);
-    border-radius: 2px;
+    width: 30px;
+    height: 3px;
+    background: var(--primary);
+    border-radius: 3px;
 }
 
 /* ============================================================
@@ -508,20 +511,6 @@ body {
     padding-top: 60px; /* Espace pour navbar fixed */
 }
 
-/* Navbar Mobile-First */
-.navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1030;
-    padding: 0.75rem 0;
-}
-
-.navbar-brand {
-    font-size: 1.125rem;
-}
-
 .navbar-toggler {
     border: none;
     padding: 0.5rem;
@@ -541,12 +530,6 @@ body {
 
 [data-theme="dark"] .navbar-collapse {
     background: var(--bg-soft);
-}
-
-.nav-link {
-    padding: 0.75rem 1rem !important;
-    margin: 0.125rem 0;
-    display: block;
 }
 
 /* Boutons Mobile */
