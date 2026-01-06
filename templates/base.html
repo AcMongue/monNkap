@@ -1477,6 +1477,7 @@
         (function() {
             // Bloquer temporairement toutes les transitions CSS pour éviter le flash
             document.documentElement.classList.add('no-transitions');
+            document.body.classList.add('no-transitions');
             
             // Priorité 1: localStorage (choix utilisateur temporaire)
             let savedTheme = null;
@@ -1510,11 +1511,17 @@
                 document.documentElement.removeAttribute('data-theme');
             }
             
-            // Réactiver les transitions après le chargement complet
+            // Réactiver les transitions après le chargement complet ET le rendu
             window.addEventListener('load', function() {
-                setTimeout(function() {
-                    document.documentElement.classList.remove('no-transitions');
-                }, 150);
+                // Attendre que le navigateur ait fini de peindre
+                requestAnimationFrame(function() {
+                    requestAnimationFrame(function() {
+                        setTimeout(function() {
+                            document.documentElement.classList.remove('no-transitions');
+                            document.body.classList.remove('no-transitions');
+                        }, 200);
+                    });
+                });
             });
         })();
         

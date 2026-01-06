@@ -83,7 +83,18 @@
 
 /* Désactiver les transitions au chargement pour éviter le flash */
 .no-transitions,
-.no-transitions * {
+.no-transitions *,
+.no-transitions *::before,
+.no-transitions *::after {
+    transition: none !important;
+    animation: none !important;
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+}
+
+/* Bloquer le flash sur le body et html */
+html.no-transitions,
+body.no-transitions {
     transition: none !important;
     animation: none !important;
 }
