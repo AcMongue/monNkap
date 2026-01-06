@@ -96,6 +96,7 @@ body {
     background: var(--bg);
     line-height: 1.6;
     font-size: 15px;
+    transition: none !important;
     /* Empêche le zoom sur double-tap iOS */
     touch-action: manipulation;
 }
@@ -306,8 +307,7 @@ body::before {
    NAVBAR - DESIGN MINIMALISTE AVEC INDICATEUR ACTIF
    ============================================================ */
 .navbar {
-    background: var(--bg) !important;
-    backdrop-filter: blur(10px);
+    background: var(--surface) !important;
     border-bottom: 1px solid var(--border);
     padding: 1rem 0;
     box-shadow: var(--shadow-sm);
@@ -316,10 +316,12 @@ body::before {
     left: 0;
     right: 0;
     z-index: 1030;
+    transition: none !important;
 }
 
 [data-theme="dark"] .navbar {
-    background: var(--bg-soft) !important;
+    background: var(--surface) !important;
+    border-bottom-color: var(--border);
 }
 
 .navbar-brand {
@@ -332,36 +334,47 @@ body::before {
 .nav-link {
     font-weight: 500;
     color: var(--text-light) !important;
-    transition: all var(--transition);
+    transition: all 0.15s ease;
     position: relative;
     padding: 0.65rem 1.125rem !important;
     margin: 0 0.25rem;
     border-radius: 10px;
 }
 
-/* Indicateur de page active - Plus visible */
+/* Mode clair - Onglet actif BLEU PLEIN */
 .nav-link.active {
-    color: var(--primary) !important;
-    background: rgba(0, 102, 255, 0.15) !important;
+    color: #FFFFFF !important;
+    background: var(--primary) !important;
     font-weight: 600;
 }
 
-.nav-link:hover {
+.nav-link:hover:not(.active) {
     color: var(--primary) !important;
     background: rgba(0, 102, 255, 0.08);
 }
 
-/* Underline pour les pages actives - Plus visible */
+/* Mode sombre - Onglet actif BLEU CLAIR */
+[data-theme="dark"] .nav-link.active {
+    color: #FFFFFF !important;
+    background: var(--primary-light) !important;
+}
+
+[data-theme="dark"] .nav-link:hover:not(.active) {
+    color: var(--primary-light) !important;
+    background: rgba(77, 148, 255, 0.15);
+}
+
+/* Underline pour l'onglet actif */
 .nav-link.active::after {
     content: '';
     position: absolute;
-    bottom: 4px;
+    bottom: 3px;
     left: 50%;
     transform: translateX(-50%);
-    width: 30px;
-    height: 3px;
-    background: var(--primary);
-    border-radius: 3px;
+    width: 40px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
 }
 
 /* ============================================================
