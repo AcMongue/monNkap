@@ -191,18 +191,26 @@ MESSAGE_TAGS = {
 
 # Email configuration avec Resend API (contourne le blocage SMTP de Render)
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 if os.environ.get('RENDER'):
     # Production sur Render : utiliser Resend API
     EMAIL_BACKEND = 'accounts.email_backend.ResendEmailBackend'
     DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_FROM', 'MonNkap <onboarding@resend.dev>')
     SITE_URL = 'https://monnkap-app.onrender.com'
+    logger.info(f"=== EMAIL CONFIG (RENDER) ===")
+    logger.info(f"EMAIL_BACKEND: {EMAIL_BACKEND}")
+    logger.info(f"DEFAULT_FROM_EMAIL: {DEFAULT_FROM_EMAIL}")
+    logger.info(f"RESEND_API_KEY présent: {bool(os.environ.get('RESEND_API_KEY'))}")
 else:
     # Développement local : afficher dans la console
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     DEFAULT_FROM_EMAIL = 'noreply@monnkap.com'
-    EMAIL_HOST_USER = 'noreply@monnkap.com'
     SITE_URL = 'http://127.0.0.1:8000'
+    logger.info(f"=== EMAIL CONFIG (LOCAL) ===")
+    logger.info(f"EMAIL_BACKEND: {EMAIL_BACKEND}")
 
 # Session Security
 SESSION_COOKIE_AGE = 86400  # 24 heures
