@@ -515,27 +515,44 @@
             display: none !important;
         }
         
-        .nav-link:hover:not(.active) {
-            color: var(--primary-color) !important;
-            background: rgba(0, 102, 255, 0.08);
-            border-radius: 8px;
+        .navbar-nav .nav-link {
+            padding: 10px 16px !important;
+            margin: 0 4px !important;
+            border-radius: 8px !important;
+            font-weight: 500 !important;
+            transition: all 0.2s ease !important;
         }
         
-        /* ONGLET ACTIF - ULTRA VISIBLE */
-        .navbar-nav .nav-link.active {
-            color: #FFFFFF !important;
-            background: #0066FF !important;
-            font-weight: 700 !important;
-            border-radius: 8px !important;
-            box-shadow: 0 2px 8px rgba(0, 102, 255, 0.4) !important;
+        .navbar-nav .nav-link:hover:not(.active) {
+            color: #0066FF !important;
+            background: rgba(0, 102, 255, 0.1) !important;
         }
         
-        [data-theme="dark"] .navbar-nav .nav-link.active {
+        /* ONGLET ACTIF - CONTRASTE MAXIMUM MODE CLAIR */
+        body:not([data-theme="dark"]) .navbar-nav .nav-link.active,
+        body:not([data-theme="dark"]) .navbar-nav .nav-link.active:hover {
             color: #FFFFFF !important;
-            background: #3B82F6 !important;
+            background: linear-gradient(135deg, #0066FF 0%, #0052CC 100%) !important;
             font-weight: 700 !important;
             border-radius: 8px !important;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.6), 0 2px 8px rgba(59, 130, 246, 0.5) !important;
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.5), 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+            border: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+        
+        /* ONGLET ACTIF - CONTRASTE MAXIMUM MODE SOMBRE */
+        [data-theme="dark"] .navbar-nav .nav-link.active,
+        [data-theme="dark"] .navbar-nav .nav-link.active:hover {
+            color: #FFFFFF !important;
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%) !important;
+            font-weight: 700 !important;
+            border-radius: 8px !important;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.8), 0 4px 16px rgba(59, 130, 246, 0.6) !important;
+            border: 2px solid rgba(255, 255, 255, 0.15) !important;
+        }
+        
+        [data-theme="dark"] .navbar-nav .nav-link:hover:not(.active) {
+            color: #60A5FA !important;
+            background: rgba(59, 130, 246, 0.15) !important;
         }
         
         .content-wrapper {
@@ -1652,14 +1669,39 @@
             const currentPath = window.location.pathname;
             const navLinks = document.querySelectorAll('.navbar-nav .nav-link:not(.dropdown-toggle)');
             
+            console.log('🔍 Current path:', currentPath);
+            
+            // Retirer tous les .active d'abord
+            navLinks.forEach(link => link.classList.remove('active'));
+            
+            // Trouver et marquer le lien actif
+            let found = false;
             navLinks.forEach(link => {
-                const linkPath = new URL(link.href).pathname;
-                
-                // Correspondance exacte ou début du chemin
-                if (currentPath === linkPath || (linkPath !== '/' && currentPath.startsWith(linkPath))) {
-                    link.classList.add('active');
+                try {
+                    const linkPath = new URL(link.href).pathname;
+                    
+                    // Correspondance exacte en priorité
+                    if (currentPath === linkPath) {
+                        link.classList.add('active');
+                        console.log('✅ Exact match:', linkPath);
+                        found = true;
+                    }
+                    // Correspondance partielle (sauf pour home)
+                    else if (linkPath !== '/' && currentPath.startsWith(linkPath)) {
+                        if (!found) {
+                            link.classList.add('active');
+                            console.log('✅ Partial match:', linkPath);
+                            found = true;
+                        }
+                    }
+                } catch(e) {
+                    console.error('❌ Error processing link:', link.href, e);
                 }
             });
+            
+            if (!found) {
+                console.log('⚠️ No active link found');
+            }
         });
     </script>
     
