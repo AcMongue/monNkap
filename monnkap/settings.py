@@ -190,19 +190,29 @@ MESSAGE_TAGS = {
 # ============================================================================
 
 # Email configuration (pour réinitialisation de mot de passe)
-# En développement, les emails seront affichés dans la console
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'noreply@monnkap.com'
-EMAIL_HOST_USER = 'noreply@monnkap.com'
-SITE_URL = 'http://127.0.0.1:8000'  # À changer en production
+# Configuration console pour développement et email réel pour production
+import os
 
-# Pour la production, utilisez un service SMTP réel :
+if os.environ.get('RENDER'):
+    # Production sur Render : utiliser console backend (affiche dans logs Render)
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    DEFAULT_FROM_EMAIL = 'noreply@monnkap.com'
+    EMAIL_HOST_USER = 'noreply@monnkap.com'
+    SITE_URL = 'https://monnkap-app.onrender.com'
+else:
+    # Développement local : console backend
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    DEFAULT_FROM_EMAIL = 'noreply@monnkap.com'
+    EMAIL_HOST_USER = 'noreply@monnkap.com'
+    SITE_URL = 'http://127.0.0.1:8000'
+
+# Pour configurer un vrai SMTP (Gmail, SendGrid, etc.), ajoutez ces variables d'environnement sur Render :
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'  # ou votre serveur SMTP
-# EMAIL_PORT = 587
+# EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+# EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
 # EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'your-email@gmail.com'
-# EMAIL_HOST_PASSWORD = 'your-app-password'
+# EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+# EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 # Session Security
 SESSION_COOKIE_AGE = 86400  # 24 heures
