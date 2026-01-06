@@ -512,26 +512,30 @@
         }
         
         .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 0;
-            height: 3px;
-            background: var(--primary-color);
-            transition: all 0.3s ease;
-            transform: translateX(-50%);
-            border-radius: 3px 3px 0 0;
+            display: none !important;
         }
         
-        .nav-link:hover::after,
-        .nav-link.active::after {
-            width: 100%;
-        }
-        
-        .nav-link:hover,
-        .nav-link.active {
+        .nav-link:hover:not(.active) {
             color: var(--primary-color) !important;
+            background: rgba(0, 102, 255, 0.08);
+            border-radius: 8px;
+        }
+        
+        /* ONGLET ACTIF - ULTRA VISIBLE */
+        .navbar-nav .nav-link.active {
+            color: #FFFFFF !important;
+            background: #0066FF !important;
+            font-weight: 700 !important;
+            border-radius: 8px !important;
+            box-shadow: 0 2px 8px rgba(0, 102, 255, 0.4) !important;
+        }
+        
+        [data-theme="dark"] .navbar-nav .nav-link.active {
+            color: #FFFFFF !important;
+            background: #3B82F6 !important;
+            font-weight: 700 !important;
+            border-radius: 8px !important;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.6), 0 2px 8px rgba(59, 130, 246, 0.5) !important;
         }
         
         .content-wrapper {
