@@ -81,6 +81,13 @@
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.8);
 }
 
+/* Désactiver les transitions au chargement pour éviter le flash */
+.no-transitions,
+.no-transitions * {
+    transition: none !important;
+    animation: none !important;
+}
+
 /* ============================================================
    BASE STYLES - MINIMALISTE ET MODERNE
    ============================================================ */
@@ -99,6 +106,24 @@ body {
     transition: none !important;
     /* Empêche le zoom sur double-tap iOS */
     touch-action: manipulation;
+}
+
+/* Améliorer le contraste en mode clair */
+body:not([data-theme="dark"]) {
+    color: #1F2937;
+}
+
+body:not([data-theme="dark"]) h1,
+body:not([data-theme="dark"]) h2,
+body:not([data-theme="dark"]) h3,
+body:not([data-theme="dark"]) h4,
+body:not([data-theme="dark"]) h5,
+body:not([data-theme="dark"]) h6 {
+    color: #111827;
+}
+
+body:not([data-theme="dark"]) .text-secondary {
+    color: #4B5563 !important;
 }
 
 /* Améliore le scroll sur mobile */
@@ -298,7 +323,7 @@ html {
 /* ============================================================
    NAVBAR - ULTRA-PROPRE ET PROFESSIONNELLE
    ============================================================ */
-.navbar {
+body .navbar {
     background: var(--surface) !important;
     border-bottom: 1px solid var(--border) !important;
     padding: 0.875rem 0 !important;
@@ -312,14 +337,15 @@ html {
     backdrop-filter: none !important;
 }
 
-.navbar-brand {
+body .navbar-brand {
     font-weight: 700 !important;
     font-size: 1.375rem !important;
     color: var(--primary) !important;
     letter-spacing: -0.02em !important;
+    transform: none !important;
 }
 
-.nav-link {
+body .nav-link {
     font-weight: 500 !important;
     font-size: 0.9375rem !important;
     color: var(--text-secondary) !important;
@@ -330,36 +356,38 @@ html {
     border-radius: var(--radius) !important;
 }
 
-.nav-link::after {
+body .nav-link::after {
     display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
-/* ONGLET ACTIF - MODE CLAIR */
-.nav-link.active {
+/* ONGLET ACTIF - MODE CLAIR - ENCORE PLUS VISIBLE */
+body .navbar-nav .nav-link.active {
     color: #FFFFFF !important;
     background: var(--primary) !important;
-    font-weight: 600 !important;
-    box-shadow: var(--shadow-sm) !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 4px rgba(0, 102, 255, 0.3) !important;
 }
 
-.nav-link:hover:not(.active) {
+body .navbar-nav .nav-link:hover:not(.active) {
     color: var(--primary) !important;
     background: var(--bg-secondary) !important;
 }
 
 /* ONGLET ACTIF - MODE SOMBRE (ULTRA-VISIBLE) */
-[data-theme="dark"] .nav-link {
+[data-theme="dark"] body .navbar-nav .nav-link {
     color: var(--text-secondary) !important;
 }
 
-[data-theme="dark"] .nav-link.active {
+[data-theme="dark"] body .navbar-nav .nav-link.active {
     color: #FFFFFF !important;
     background: var(--primary) !important;
-    font-weight: 600 !important;
-    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5) !important;
+    font-weight: 700 !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.6), 0 2px 8px rgba(59, 130, 246, 0.4) !important;
 }
 
-[data-theme="dark"] .nav-link:hover:not(.active) {
+[data-theme="dark"] body .navbar-nav .nav-link:hover:not(.active) {
     color: var(--primary-light) !important;
     background: var(--bg-secondary) !important;
 }

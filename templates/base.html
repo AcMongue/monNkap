@@ -1455,10 +1455,7 @@
         // Charger le thème immédiatement (avant le DOM) et bloquer les transitions
         (function() {
             // Bloquer temporairement toutes les transitions CSS pour éviter le flash
-            const style = document.createElement('style');
-            style.id = 'no-transition';
-            style.innerHTML = '* { transition: none !important; }';
-            document.head.appendChild(style);
+            document.documentElement.classList.add('no-transitions');
             
             // Priorité 1: localStorage (choix utilisateur temporaire)
             let savedTheme = null;
@@ -1495,11 +1492,8 @@
             // Réactiver les transitions après le chargement complet
             window.addEventListener('load', function() {
                 setTimeout(function() {
-                    const noTransStyle = document.getElementById('no-transition');
-                    if (noTransStyle) {
-                        noTransStyle.remove();
-                    }
-                }, 100);
+                    document.documentElement.classList.remove('no-transitions');
+                }, 150);
             });
         })();
         
