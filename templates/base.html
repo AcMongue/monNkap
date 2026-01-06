@@ -1579,7 +1579,8 @@
         });
         
         // Détecter les changements de préférence système (seulement en mode auto)
-        if (window.matchMedia && userThemePreference === 'auto') {
+        const serverTheme = '{{ user_theme|default:"auto" }}';
+        if (window.matchMedia && serverTheme === 'auto') {
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
                 const localTheme = getLocalTheme();
                 if (!localTheme) {
