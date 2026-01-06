@@ -189,18 +189,13 @@ MESSAGE_TAGS = {
 # SÉCURITÉ RENFORCÉE - Configuration pour la production
 # ============================================================================
 
-# Email configuration avec Gmail SMTP
+# Email configuration avec Resend API (contourne le blocage SMTP de Render)
 import os
 
 if os.environ.get('RENDER'):
-    # Production sur Render : utiliser Gmail SMTP
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'smtp.gmail.com'
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
-    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')  # Votre email Gmail
-    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')  # Mot de passe d'application
-    DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER', 'noreply@monnkap.com')
+    # Production sur Render : utiliser Resend API
+    EMAIL_BACKEND = 'accounts.email_backend.ResendEmailBackend'
+    DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_FROM', 'MonNkap <onboarding@resend.dev>')
     SITE_URL = 'https://monnkap-app.onrender.com'
 else:
     # Développement local : afficher dans la console
