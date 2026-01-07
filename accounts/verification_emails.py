@@ -13,6 +13,9 @@ def send_verification_code_email(user, code):
     """
     subject = "Votre code de vérification - MonNkap"
     
+    # Utiliser l'email vérifié du propriétaire du compte Resend comme FROM
+    from_email = 'aimecharlesmongue@gmail.com'
+    
     message = f"""Bonjour {user.username},
 
 Bienvenue sur MonNkap ! 🎉
@@ -35,7 +38,7 @@ Votre assistant personnel de gestion financière"""
         send_mail(
             subject=subject,
             message=message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
+            from_email=from_email,
             recipient_list=[user.email],
             fail_silently=False,
         )
