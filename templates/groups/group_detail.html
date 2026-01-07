@@ -101,7 +101,7 @@
         <!-- Contributions récentes -->
         <div class="card mt-4">
             <div class="card-header bg-white">
-                <h5 class="mb-0">
+                <h5 class="mb-0 text-dark">
                     <i class="bi bi-clock-history"></i> Contributions récentes
                 </h5>
             </div>
@@ -114,7 +114,6 @@
                                 <th>Membre</th>
                                 <th>Date</th>
                                 <th>Montant</th>
-                                <th>Statut</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -123,11 +122,6 @@
                                 <td>{{ contribution.user.username }}</td>
                                 <td>{{ contribution.date|date:"d/m/Y" }}</td>
                                 <td><strong class="text-success">{{ contribution.amount|floatformat:0 }} FCFA</strong></td>
-                                <td>
-                                    <span class="badge {% if contribution.payment_status == 'paid' %}bg-success{% elif contribution.payment_status == 'pending' %}bg-warning{% else %}bg-secondary{% endif %}">
-                                        {{ contribution.get_payment_status_display }}
-                                    </span>
-                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -172,7 +166,18 @@
                         <span class="badge bg-primary badge-sm">Admin</span>
                         {% endif %}
                     </div>
-                    <small class="text-muted">{{ member.joined_at|date:"d/m/Y" }}</small>
+                    <div class="d-flex align-items-center gap-2">
+                        <small class="text-muted">{{ member.joined_at|date:"d/m/Y" }}</small>
+                        {% if membership.role == 'admin' and member.user != group.creator and member.user != request.user %}
+                        <a href="{% url 'groups:remove_member' group.pk member.pk %}" 
+                           class="btn btn-sm btn-outline-danger"
+                           onclick="return confirm('Êtes-vous sûr de vouloir retirer {{ member.user.username }} du groupe ?');"
+                           data-bs-toggle="tooltip" 
+                           title="Retirer ce membre">
+                            <i class="bi bi-person-dash"></i>
+                        </a>
+                        {% endif %}
+                    </div>
                 </div>
                 {% endfor %}
             </div>

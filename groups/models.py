@@ -153,12 +153,6 @@ class GroupContribution(models.Model):
     """
     Contributions des membres vers un objectif de groupe.
     """
-    PAYMENT_STATUS_CHOICES = [
-        ('pending', 'En attente'),
-        ('paid', 'Payé'),
-        ('cancelled', 'Annulé'),
-    ]
-    
     group = models.ForeignKey(
         Group,
         on_delete=models.CASCADE,
@@ -176,12 +170,6 @@ class GroupContribution(models.Model):
         decimal_places=2,
         validators=[MinValueValidator(Decimal('0.01'))],
         verbose_name='Montant'
-    )
-    payment_status = models.CharField(
-        max_length=20,
-        choices=PAYMENT_STATUS_CHOICES,
-        default='paid',
-        verbose_name='Statut de paiement'
     )
     note = models.CharField(
         max_length=255,
@@ -213,8 +201,8 @@ class GroupContribution(models.Model):
         is_new = self.pk is None
         super().save(*args, **kwargs)
         
-        # Ne mettre à jour que si c'est une nouvelle contribution payée
-        if is_new and self.payment_status == 'paid':
+        # Mettre à jour le montant collecté si c'est une nouvelle contribution
+        if is_new:
             self.group.current_amount += self.amount
             if self.group.current_amount >= self.group.target_amount:
                 self.group.status = 'completed'

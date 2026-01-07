@@ -14,6 +14,7 @@ urlpatterns = [
     path('<int:pk>/delete/', views.group_delete_view, name='delete'),
     path('<int:pk>/invite/', views.group_invite_view, name='invite'),
     path('<int:group_pk>/add-member/', views.member_add_view, name='add_member'),
+    path('<int:group_pk>/remove-member/<int:member_pk>/', views.member_remove_view, name='remove_member'),
     path('<int:group_pk>/contribute/', views.contribution_create_view, name='contribute'),
     
     # Dépenses de groupe

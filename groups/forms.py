@@ -80,16 +80,13 @@ class GroupContributionForm(forms.ModelForm):
     """
     class Meta:
         model = GroupContribution
-        fields = ('amount', 'payment_status', 'note', 'date')
+        fields = ('amount', 'note', 'date')
         widgets = {
             'amount': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Montant à contribuer',
                 'step': '0.01',
                 'min': '0.01'
-            }),
-            'payment_status': forms.Select(attrs={
-                'class': 'form-select'
             }),
             'note': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -107,7 +104,6 @@ class GroupContributionForm(forms.ModelForm):
         if not self.instance.pk:
             from django.utils import timezone
             self.initial['date'] = timezone.now().date()
-            self.initial['payment_status'] = 'paid'
 
 
 class GroupExpenseForm(forms.ModelForm):

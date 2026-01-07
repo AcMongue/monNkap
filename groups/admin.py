@@ -51,8 +51,8 @@ class MembershipAdmin(admin.ModelAdmin):
 
 @admin.register(GroupContribution)
 class GroupContributionAdmin(admin.ModelAdmin):
-    list_display = ('group', 'user', 'amount', 'payment_status', 'date', 'created_at')
-    list_filter = ('payment_status', 'date', 'created_at')
+    list_display = ('group', 'user', 'amount', 'date', 'created_at')
+    list_filter = ('date', 'created_at')
     search_fields = ('group__name', 'user__username', 'note')
     readonly_fields = ('created_at',)
     date_hierarchy = 'date'

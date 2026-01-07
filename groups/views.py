@@ -47,8 +47,7 @@ def group_detail_view(request, pk):
     
     # Statistiques par membre
     member_stats = GroupContribution.objects.filter(
-        group=group,
-        payment_status='paid'
+        group=group
     ).values('user__username').annotate(
         total=Sum('amount'),
         count=Count('id')
@@ -179,6 +178,45 @@ def member_add_view(request, group_pk):
     return render(request, 'groups/member_form.html', {
         'form': form,
         'group': group
+    })
+
+
+@login_required
+def member_remove_view(request, group_pk, member_pk):
+    """
+    Vue de suppression d'un membre d'un groupe (réservé aux admins).
+    Un admin ne peut pas se retirer lui-même.
+    Le créateur du groupe ne peut pas être retiré.
+    """
+    group = get_object_or_404(Group, pk=group_pk)
+    
+    # Vérifier que l'utilisateur est admin du groupe
+    admin_membership = Membership.objects.filter(user=request.user, group=group, role='admin').first()
+    if not admin_membership:
+        messages.error(request, 'Seuls les administrateurs peuvent retirer des membres.')
+        return redirect('groups:detail', pk=group_pk)
+    
+    # Récupérer le membre à retirer
+    member_to_remove = get_object_or_404(Membership, pk=member_pk, group=group)
+    
+    # Vérifications de sécurité
+    if member_to_remove.user == group.creator:
+        messages.error(request, 'Le créateur du groupe ne peut pas être retiré.')
+        return redirect('groups:detail', pk=group_pk)
+    
+    if member_to_remove.user == request.user:
+        messages.error(request, 'Vous ne pouvez pas vous retirer vous-même. Utilisez "Quitter le groupe".')
+        return redirect('groups:detail', pk=group_pk)
+    
+    if request.method == 'POST':
+        username = member_to_remove.user.username
+        member_to_remove.delete()
+        messages.success(request, f'{username} a été retiré du groupe.')
+        return redirect('groups:detail', pk=group_pk)
+    
+    return render(request, 'groups/member_confirm_remove.html', {
+        'group': group,
+        'member': member_to_remove
     })
 
 

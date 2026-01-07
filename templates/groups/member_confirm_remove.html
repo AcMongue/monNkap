@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Retirer un membre - MonNkap{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-person-dash"></i> Retirer un membre
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Attention !</strong> Cette action est irréversible.
+                </div>
+                
+                <p class="mb-4">
+                    Êtes-vous sûr de vouloir retirer <strong>{{ member.user.username }}</strong> du groupe 
+                    <strong>{{ group.name }}</strong> ?
+                </p>
+                
+                <div class="mb-3">
+                    <h6>Informations du membre :</h6>
+                    <ul>
+                        <li><strong>Nom d'utilisateur :</strong> {{ member.user.username }}</li>
+                        <li><strong>Rôle :</strong> 
+                            {% if member.role == 'admin' %}
+                            <span class="badge bg-primary">Administrateur</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Membre</span>
+                            {% endif %}
+                        </li>
+                        <li><strong>Date d'adhésion :</strong> {{ member.joined_at|date:"d/m/Y à H:i" }}</li>
+                    </ul>
+                </div>
+                
+                <form method="post" class="d-flex gap-2">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger flex-grow-1">
+                        <i class="bi bi-person-dash"></i> Oui, retirer ce membre
+                    </button>
+                    <a href="{% url 'groups:detail' group.pk %}" class="btn btn-secondary flex-grow-1">
+                        <i class="bi bi-x-circle"></i> Annuler
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
