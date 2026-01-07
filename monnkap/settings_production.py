@@ -42,12 +42,10 @@ SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 
-# Email
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
-EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+# Email avec Resend API (contourne le blocage SMTP de Render)
+EMAIL_BACKEND = 'accounts.email_backend.ResendEmailBackend'
+DEFAULT_FROM_EMAIL = config('EMAIL_FROM', default='MonNkap <onboarding@resend.dev>')
+# RESEND_API_KEY doit être défini dans les variables d'environnement
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_TIMEOUT = 10  # Timeout de 10 secondes pour éviter les blocages
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=EMAIL_HOST_USER)
