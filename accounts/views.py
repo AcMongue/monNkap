@@ -11,9 +11,8 @@ from django_ratelimit.decorators import ratelimit
 from decimal import Decimal
 from .forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm
 from .wallet_forms import WalletTransactionForm, GoalAllocationForm
-from .models import Wallet, WalletTransaction, GoalAllocation, EmailVerificationCode
+from .models import Wallet, WalletTransaction, GoalAllocation
 from .emails import send_welcome_email, send_goal_achieved_email, send_low_balance_alert
-from .verification_emails import send_verification_code_email
 from goals.models import Goal
 from .motivation_messages import get_wallet_income_message
 
@@ -22,7 +21,7 @@ from .motivation_messages import get_wallet_income_message
 def register_view(request):
     """
     Vue d'inscription d'un nouvel utilisateur.
-    Envoie un code de vérification par email.
+    Crée automatiquement un profil utilisateur via les signaux Django.
     Rate limited: 5 tentatives par heure par IP.
     """
     if request.user.is_authenticated:
@@ -37,28 +36,17 @@ def register_view(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            # Créer l'utilisateur mais ne pas le connecter
-            user = form.save(commit=False)
-            user.is_active = False  # Désactiver jusqu'à vérification
-            user.save()
+            user = form.save()
+            username = form.cleaned_data.get('username')
             
-            # Créer le profil (via signal)
-            form.save_m2m()
-            
-            # Générer et envoyer le code de vérification
-            verification_code = EmailVerificationCode.create_for_user(user)
-            
+            # Envoyer l'email de bienvenue
             try:
-                send_verification_code_email(user, verification_code.code)
-                messages.success(request, f'Compte créé! Vérifiez votre email pour le code de vérification.')
-                # Stocker l'ID utilisateur en session pour la page de vérification
-                request.session['pending_verification_user_id'] = user.id
-                return redirect('accounts:verify_email')
+                send_welcome_email(user)
             except Exception as e:
-                print(f"Erreur envoi code de vérification: {e}")
-                messages.error(request, "Erreur lors de l'envoi du code. Veuillez contacter le support.")
-                user.delete()  # Supprimer l'utilisateur si l'email n'a pas pu être envoyé
-                return render(request, 'accounts/register.html', {'form': form})
+                print(f"Erreur envoi email de bienvenue: {e}")
+            
+            messages.success(request, f'Compte créé avec succès pour {username}! Vous pouvez maintenant vous connecter.')
+            return redirect('accounts:login')
         else:
             messages.error(request, 'Erreur lors de la création du compte. Veuillez vérifier les informations.')
     else:
@@ -296,100 +284,3 @@ def allocate_to_goal_view(request, goal_pk):
     }
     
     return render(request, 'accounts/allocate_form.html', context)
-
-
-@ratelimit(key='ip', rate='10/h', method='POST')
-def verify_email_view(request):
-    """
-    Vue pour saisir le code de vérification d'email
-    """
-    # Récupérer l'utilisateur en attente de vérification
-    user_id = request.session.get('pending_verification_user_id')
-    if not user_id:
-        messages.error(request, 'Session expirée. Veuillez vous inscrire à nouveau.')
-        return redirect('accounts:register')
-    
-    try:
-        user = User.objects.get(id=user_id, is_active=False)
-    except User.DoesNotExist:
-        messages.error(request, 'Utilisateur introuvable.')
-        return redirect('accounts:register')
-    
-    was_limited = getattr(request, 'limited', False)
-    if was_limited:
-        messages.error(request, 'Trop de tentatives. Attendez un peu.')
-        return render(request, 'accounts/verify_email.html', {'email': user.email})
-    
-    if request.method == 'POST':
-        code = request.POST.get('code', '').strip()
-        
-        if not code:
-            messages.error(request, 'Veuillez entrer le code.')
-            return render(request, 'accounts/verify_email.html', {'email': user.email})
-        
-        # Chercher le code valide le plus récent
-        verification = user.verification_codes.filter(
-            code=code,
-            is_used=False
-        ).first()
-        
-        if verification and verification.is_valid():
-            # Activer l'utilisateur
-            user.is_active = True
-            user.save()
-            
-            # Marquer le code comme utilisé
-            verification.mark_as_used()
-            
-            # Nettoyer la session
-            del request.session['pending_verification_user_id']
-            
-            # Envoyer l'email de bienvenue
-            try:
-                send_welcome_email(user)
-            except Exception as e:
-                print(f"Erreur envoi email de bienvenue: {e}")
-            
-            # Connecter automatiquement l'utilisateur
-            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            
-            messages.success(request, f'✅ Email vérifié! Bienvenue {user.username}!')
-            return redirect('dashboard:home')
-        else:
-            messages.error(request, '❌ Code invalide ou expiré. Vérifiez votre email.')
-            return render(request, 'accounts/verify_email.html', {'email': user.email})
-    
-    return render(request, 'accounts/verify_email.html', {'email': user.email})
-
-
-@ratelimit(key='ip', rate='3/h', method='POST')
-def resend_verification_code_view(request):
-    """
-    Renvoie un nouveau code de vérification
-    """
-    user_id = request.session.get('pending_verification_user_id')
-    if not user_id:
-        messages.error(request, 'Session expirée.')
-        return redirect('accounts:register')
-    
-    try:
-        user = User.objects.get(id=user_id, is_active=False)
-    except User.DoesNotExist:
-        messages.error(request, 'Utilisateur introuvable.')
-        return redirect('accounts:register')
-    
-    was_limited = getattr(request, 'limited', False)
-    if was_limited:
-        messages.error(request, 'Trop de tentatives. Attendez un peu.')
-        return redirect('accounts:verify_email')
-    
-    # Générer un nouveau code
-    verification_code = EmailVerificationCode.create_for_user(user)
-    
-    try:
-        send_verification_code_email(user, verification_code.code)
-        messages.success(request, '✉️ Un nouveau code a été envoyé à votre email.')
-    except Exception as e:
-        messages.error(request, "Erreur lors de l'envoi du code.")
-    
-    return redirect('accounts:verify_email')
