@@ -1,0 +1,17 @@
+Bonjour {{ user.username }},
+
+Bienvenue sur MonNkap ! 🎉
+
+Pour activer votre compte, veuillez confirmer votre adresse email en cliquant sur le lien ci-dessous :
+
+https://monnkap-app.onrender.com{{ key_url }}
+
+Ce lien est valide pendant 3 jours.
+
+Si vous n'avez pas créé de compte sur MonNkap, vous pouvez ignorer cet email en toute sécurité.
+
+Cordialement,
+L'équipe MonNkap
+
+---
+Votre assistant personnel de gestion financière

@@ -243,7 +243,7 @@ ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 # Configuration du compte (nouvelle syntaxe)
 ACCOUNT_LOGIN_METHODS = {'username', 'email'}  # Permet connexion par username ou email
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
-ACCOUNT_EMAIL_VERIFICATION = 'optional'  # 'mandatory', 'optional', or 'none'
+ACCOUNT_EMAIL_VERIFICATION = 'none'  # Désactivé - utilisation système personnalisé avec code
 ACCOUNT_SESSION_REMEMBER = True
 
 # Configuration sociale - DÉSACTIVÉE

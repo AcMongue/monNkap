@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Vérifiez votre email - MonNkap{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card glass-card">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-envelope-check icon-xl text-primary mb-3"></i>
+                        <h3 class="mb-3">Vérifiez votre email</h3>
+                        <p class="text-muted">
+                            Nous avons envoyé un code à <strong>{{ email }}</strong>
+                        </p>
+                    </div>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" action="{% url 'accounts:verify_email' %}">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="code" class="form-label">Code de vérification (6 chiffres)</label>
+                            <input 
+                                type="text" 
+                                class="form-control form-control-lg text-center" 
+                                id="code" 
+                                name="code" 
+                                maxlength="6"
+                                pattern="[0-9]{6}"
+                                placeholder="000000"
+                                required
+                                autofocus
+                                style="letter-spacing: 0.5em; font-weight: bold; font-size: 1.5rem;"
+                            >
+                            <div class="form-text">
+                                Entrez le code à 6 chiffres reçu par email
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 btn-lg mb-3">
+                            <i class="bi bi-check-circle me-2"></i>
+                            Vérifier le code
+                        </button>
+                    </form>
+
+                    <div class="text-center">
+                        <p class="text-muted small mb-2">Vous n'avez pas reçu le code ?</p>
+                        <form method="post" action="{% url 'accounts:resend_verification' %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link btn-sm">
+                                <i class="bi bi-arrow-clockwise me-1"></i>
+                                Renvoyer le code
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="alert alert-info mt-4">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <small>
+                            Le code est valide pendant 15 minutes. Vérifiez votre dossier spam si vous ne le recevez pas.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Animation pour l'input du code */
+    #code:focus {
+        border-color: var(--bs-primary);
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .icon-xl {
+        font-size: 4rem;
+    }
+</style>
+{% endblock %}
