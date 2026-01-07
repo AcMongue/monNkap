@@ -6,14 +6,19 @@
 {% block content %}
 <div class="container py-4">
     <div class="page-header mb-4">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
+        <div class="row align-items-center g-3">
+            <div class="col-12 col-md-8">
                 <h1><i class="bi bi-wallet2 me-2"></i>Mon Portefeuille</h1>
-                <p>Gérez votre argent et allouez-le à vos objectifs</p>
+                <p class="mb-0">Gérez votre argent et allouez-le à vos objectifs</p>
             </div>
-            <a href="{% url 'accounts:add_transaction' %}" class="btn btn-gradient-primary">
-                <i class="bi bi-plus-circle me-2"></i>Nouvelle Transaction
-            </a>
+            <div class="col-12 col-md-4">
+                <div class="d-grid">
+                    <a href="{% url 'accounts:add_transaction' %}" class="btn btn-gradient-primary">
+                        <i class="bi bi-plus-circle me-2"></i>
+                        <span class="d-none d-sm-inline">Nouvelle </span>Transaction
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
     

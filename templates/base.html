@@ -69,6 +69,30 @@
             // Marquer comme chargé
             document.documentElement.classList.add('theme-loaded');
         })();
+        
+        // Écouter les changements de thème dans le profil
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeSelect = document.querySelector('select[name="theme_preference"]');
+            if (themeSelect) {
+                themeSelect.addEventListener('change', function() {
+                    const selectedTheme = this.value;
+                    localStorage.setItem('monnkap-theme', selectedTheme);
+                    
+                    // Appliquer immédiatement
+                    if (selectedTheme === 'dark') {
+                        document.documentElement.setAttribute('data-theme', 'dark');
+                    } else if (selectedTheme === 'light') {
+                        document.documentElement.removeAttribute('data-theme');
+                    } else if (selectedTheme === 'auto') {
+                        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                            document.documentElement.setAttribute('data-theme', 'dark');
+                        } else {
+                            document.documentElement.removeAttribute('data-theme');
+                        }
+                    }
+                });
+            }
+        });
     </script>
     
     <style>
