@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Inviter des Membres - {{ group.name }} - FinTrack{% endblock %}
+{% block title %}Inviter des Membres - {{ group.name }} - MonNkap{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -176,14 +176,14 @@
     }
 
     function shareWhatsApp() {
-        const text = `Rejoignez mon groupe "{{ group.name }}" sur FinTrack!\n\nCode: {{ group.invite_code }}\nOu utilisez ce lien: {{ invite_url }}`;
+        const text = `Rejoignez mon groupe "{{ group.name }}" sur MonNkap!\n\nCode: {{ group.invite_code }}\nOu utilisez ce lien: {{ invite_url }}`;
         const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
         window.open(url, '_blank');
     }
 
     function shareEmail() {
         const subject = `Invitation - Groupe {{ group.name }}`;
-        const body = `Bonjour,\n\nVous êtes invité(e) à rejoindre le groupe "{{ group.name }}" sur FinTrack.\n\nVous pouvez rejoindre de deux façons:\n\n1. Utiliser le code d'invitation: {{ group.invite_code }}\n   Rendez-vous sur l'application et cliquez sur "Rejoindre un Groupe"\n\n2. Utiliser le lien direct: {{ invite_url }}\n\nÀ bientôt!\n`;
+        const body = `Bonjour,\n\nVous êtes invité(e) à rejoindre le groupe "{{ group.name }}" sur MonNkap.\n\nVous pouvez rejoindre de deux façons:\n\n1. Utiliser le code d'invitation: {{ group.invite_code }}\n   Rendez-vous sur l'application et cliquez sur "Rejoindre un Groupe"\n\n2. Utiliser le lien direct: {{ invite_url }}\n\nÀ bientôt!\n`;
         window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     }
 </script>

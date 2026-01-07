@@ -57,7 +57,7 @@ def send_monthly_report_email(user, stats):
 
 def send_group_invitation_email(invited_by, recipient_email, group, invite_code):
     """Envoie une invitation à rejoindre un groupe"""
-    subject = f'{invited_by.username} vous invite à rejoindre {group.name} sur FinTrack'
+    subject = f'{invited_by.username} vous invite à rejoindre {group.name} sur MonNkap'
     message = render_to_string('emails/group_invitation.html', {
         'invited_by': invited_by,
         'recipient_email': recipient_email,
@@ -94,7 +94,7 @@ def send_low_balance_alert(user, wallet):
 
 def send_weekly_summary_email(user, summary_data):
     """Envoie un résumé hebdomadaire des activités"""
-    subject = '📈 Votre résumé hebdomadaire FinTrack'
+    subject = '📈 Votre résumé hebdomadaire MonNkap'
     message = render_to_string('emails/weekly_summary.html', {
         'user': user,
         'data': summary_data,

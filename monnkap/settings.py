@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-change-this-in-production-fintrack-2025'
+SECRET_KEY = 'django-insecure-change-this-in-production-MonNkap-2025'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     # Security apps
     'axes',
     
-    # Applications FinTrack
+    # Applications MonNkap
     'accounts.apps.AccountsConfig',
     'expenses.apps.ExpensesConfig',
     'goals.apps.GoalsConfig',
