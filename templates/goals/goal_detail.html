@@ -4,18 +4,22 @@
 
 {% block content %}
 <div class="row mb-4">
-    <div class="col-md-6">
+    <div class="col-12 col-md-6 mb-3 mb-md-0">
         <h1 class="text-white fw-bold">
             <i class="bi bi-bullseye"></i> {{ goal.title }}
         </h1>
     </div>
-    <div class="col-md-6 text-end">
-        <a href="{% url 'goals:contribute' goal.pk %}" class="btn btn-light">
-            <i class="bi bi-plus-circle"></i> Ajouter une contribution
-        </a>
-        <a href="{% url 'goals:update' goal.pk %}" class="btn btn-outline-light">
-            <i class="bi bi-pencil"></i> Modifier
-        </a>
+    <div class="col-12 col-md-6 text-md-end">
+        <div class="d-grid d-sm-flex gap-2 justify-content-md-end">
+            <a href="{% url 'goals:contribute' goal.pk %}" class="btn btn-light">
+                <i class="bi bi-plus-circle"></i> 
+                <span class="d-none d-sm-inline">Ajouter </span>Contribution
+            </a>
+            <a href="{% url 'goals:update' goal.pk %}" class="btn btn-outline-light">
+                <i class="bi bi-pencil"></i> 
+                <span class="d-none d-sm-inline">Modifier</span>
+            </a>
+        </div>
     </div>
 </div>
 
@@ -49,20 +53,20 @@
                     </div>
                 </div>
                 
-                <div class="row text-center mb-3">
-                    <div class="col-md-4">
+                <div class="row text-center mb-3 g-3">
+                    <div class="col-12 col-md-4">
                         <div class="p-3 rounded" style="background: rgba(0,0,0,0.05);">
                             <h5 class="text-success mb-1">{{ goal.current_amount|floatformat:0 }} FCFA</h5>
                             <small class="text-muted">Montant épargné</small>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-12 col-md-4">
                         <div class="p-3 rounded" style="background: rgba(0,0,0,0.05);">
                             <h5 class="text-primary mb-1">{{ goal.target_amount|floatformat:0 }} FCFA</h5>
                             <small class="text-muted">Montant cible</small>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-12 col-md-4">
                         <div class="p-3 rounded" style="background: rgba(0,0,0,0.05);">
                             <h5 class="text-danger mb-1">{{ goal.get_remaining_amount|floatformat:0 }} FCFA</h5>
                             <small class="text-muted">Montant restant</small>
@@ -123,24 +127,43 @@
     </div>
     
     <!-- Actions -->
-    <div class="col-md-4">
+    <div class="col-12 col-md-4">
         <div class="card">
             <div class="card-header bg-white">
                 <h5 class="mb-0">Actions</h5>
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
-                    <a href="{% url 'goals:contribute' goal.pk %}" class="btn btn-gradient-success">
-                        <i class="bi bi-plus-circle"></i> Ajouter une contribution
-                    </a>
+                    {% if goal.is_completed and goal.status == 'active' %}
+                        <a href="{% url 'goals:complete' goal.pk %}" class="btn btn-success">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            <span class="d-none d-sm-inline">J'ai </span>Réalisé cet objectif
+                        </a>
+                        <a href="{% url 'goals:release' goal.pk %}" class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-return-left me-2"></i>
+                            Libérer les fonds
+                        </a>
+                        <hr>
+                    {% endif %}
+                    
+                    {% if goal.status == 'active' %}
+                        <a href="{% url 'goals:contribute' goal.pk %}" class="btn btn-gradient-success">
+                            <i class="bi bi-plus-circle me-2"></i>
+                            <span class="d-none d-sm-inline">Ajouter </span>Contribution
+                        </a>
+                    {% endif %}
+                    
                     <a href="{% url 'goals:update' goal.pk %}" class="btn btn-outline-primary">
-                        <i class="bi bi-pencil"></i> Modifier l'objectif
+                        <i class="bi bi-pencil me-2"></i>
+                        Modifier
                     </a>
                     <a href="{% url 'goals:delete' goal.pk %}" class="btn btn-outline-danger">
-                        <i class="bi bi-trash"></i> Supprimer
+                        <i class="bi bi-trash me-2"></i>
+                        Supprimer
                     </a>
                     <a href="{% url 'goals:list' %}" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left"></i> Retour à la liste
+                        <i class="bi bi-arrow-left me-2"></i>
+                        <span class="d-none d-sm-inline">Retour</span>
                     </a>
                 </div>
             </div>

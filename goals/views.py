@@ -2,10 +2,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Sum
+from django.utils import timezone
 from .models import Goal, Contribution
 from .forms import GoalForm, ContributionForm
 from accounts.emails import send_goal_achieved_email
 from accounts.motivation_messages import get_savings_message
+from expenses.models import Expense
+from accounts.models import Wallet
 
 
 @login_required
@@ -156,3 +159,73 @@ def contribution_create_view(request, goal_pk):
         'form': form,
         'goal': goal
     })
+
+
+@login_required
+def complete_goal_view(request, pk):
+    """
+    Réalise un objectif complété en créant une dépense correspondante.
+    L'argent sort du portefeuille.
+    """
+    goal = get_object_or_404(Goal, pk=pk, user=request.user)
+    
+    # Vérifier que l'objectif est bien complété
+    if not goal.is_completed():
+        messages.error(request, 'Cet objectif n\'est pas encore complété.')
+        return redirect('goals:detail', pk=pk)
+    
+    if goal.status != 'active':
+        messages.error(request, 'Cet objectif a déjà été traité.')
+        return redirect('goals:detail', pk=pk)
+    
+    if request.method == 'POST':
+        # Créer une dépense du montant de l'objectif
+        expense = Expense.objects.create(
+            user=request.user,
+            title=f"Réalisation: {goal.title}",
+            amount=goal.current_amount,
+            category='other',
+            description=f"Dépense liée à l'objectif atteint: {goal.title}",
+            date=timezone.now().date()
+        )
+        
+        # Marquer l'objectif comme complété
+        goal.status = 'completed'
+        goal.save()
+        
+        messages.success(request, f'🎉 Objectif réalisé! Une dépense de {goal.current_amount} FCFA a été créée.')
+        return redirect('dashboard:home')
+    
+    return render(request, 'goals/complete_goal_confirm.html', {'goal': goal})
+
+
+@login_required
+def release_goal_funds_view(request, pk):
+    """
+    Libère les fonds d'un objectif et les remet dans le solde disponible.
+    Utile si on change d'avis sur l'objectif.
+    """
+    goal = get_object_or_404(Goal, pk=pk, user=request.user)
+    
+    if goal.status == 'cancelled':
+        messages.error(request, 'Cet objectif a déjà été annulé.')
+        return redirect('goals:detail', pk=pk)
+    
+    if request.method == 'POST':
+        # Récupérer le wallet
+        wallet, _ = Wallet.objects.get_or_create(user=request.user)
+        
+        # Remettre l'argent dans le solde disponible
+        amount_to_release = goal.current_amount
+        
+        # Marquer comme annulé
+        goal.status = 'cancelled'
+        goal.save()
+        
+        # Mettre à jour le wallet
+        wallet.update_balances()
+        
+        messages.success(request, f'💰 {amount_to_release} FCFA libérés et remis dans votre solde disponible.')
+        return redirect('accounts:wallet')
+    
+    return render(request, 'goals/release_funds_confirm.html', {'goal': goal})

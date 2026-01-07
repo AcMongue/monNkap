@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Réaliser l'objectif - MonNkap{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body p-4 p-sm-5">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-check-circle text-success" style="font-size: 4rem;"></i>
+                        <h3 class="mt-3">Réaliser cet objectif ?</h3>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <h5 class="alert-heading">
+                            <i class="bi bi-info-circle"></i> {{ goal.title }}
+                        </h5>
+                        <p class="mb-2">Montant épargné : <strong>{{ goal.current_amount|floatformat:0 }} FCFA</strong></p>
+                        <hr>
+                        <p class="mb-0 small">
+                            En confirmant, une dépense de <strong>{{ goal.current_amount|floatformat:0 }} FCFA</strong> 
+                            sera créée et l'argent sortira de votre portefeuille.
+                        </p>
+                    </div>
+                    
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle me-2"></i>
+                                Oui, j'ai réalisé cet objectif
+                            </button>
+                            <a href="{% url 'goals:detail' goal.pk %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-2"></i>
+                                Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
