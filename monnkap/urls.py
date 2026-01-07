@@ -19,8 +19,6 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
-from django.contrib.auth import views as auth_views
-from accounts.password_reset_view import SafePasswordResetView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,25 +29,6 @@ urlpatterns = [
     path('expenses/', include('expenses.urls')),
     path('goals/', include('goals.urls')),
     path('groups/', include('groups.urls')),
-    
-    # Password reset URLs avec gestion d'erreur robuste
-    path('password-reset/', SafePasswordResetView.as_view(
-        template_name='accounts/password_reset.html',
-        email_template_name='accounts/password_reset_email.html',
-        subject_template_name='accounts/password_reset_subject.txt'
-    ), name='password_reset'),
-    
-    path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(
-        template_name='accounts/password_reset_done.html'
-    ), name='password_reset_done'),
-    
-    path('password-reset-confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
-        template_name='accounts/password_reset_confirm.html'
-    ), name='password_reset_confirm'),
-    
-    path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(
-        template_name='accounts/password_reset_complete.html'
-    ), name='password_reset_complete'),
 ]
 
 # Pages d'erreur personnalisées
