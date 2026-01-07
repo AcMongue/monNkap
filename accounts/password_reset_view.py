@@ -19,6 +19,21 @@ class SafePasswordResetView(PasswordResetView):
     subject_template_name = 'accounts/password_reset_subject.txt'
     success_url = '/accounts/password_reset/done/'
     
+    def save_form(self, form):
+        """
+        Override pour s'assurer que le domaine est correct dans l'email
+        """
+        opts = {
+            'use_https': self.request.is_secure(),
+            'from_email': None,
+            'email_template_name': self.email_template_name,
+            'subject_template_name': self.subject_template_name,
+            'request': self.request,
+            'html_email_template_name': None,
+            'extra_email_context': None,
+        }
+        form.save(**opts)
+    
     def form_valid(self, form):
         """
         Si l'envoi d'email échoue (timeout SMTP, erreur de connexion, etc.),
@@ -32,9 +47,9 @@ class SafePasswordResetView(PasswordResetView):
             logger.info(f"EMAIL_HOST_USER: {getattr(settings, 'EMAIL_HOST_USER', 'Non défini')}")
             
             # Tenter d'envoyer l'email normalement
-            response = super().form_valid(form)
+            self.save_form(form)
             logger.info("Email de réinitialisation envoyé avec succès")
-            return response
+            return redirect(self.success_url)
             
         except Exception as e:
             # Logger l'erreur complète pour le débogage
