@@ -49,21 +49,29 @@ class Group(models.Model):
         related_name='member_groups',
         verbose_name='Membres'
     )
+    # Champs obsolètes - conservés pour compatibilité, mais remplacés par GroupGoal
     target_amount = models.DecimalField(
         max_digits=10,
         decimal_places=2,
         validators=[MinValueValidator(Decimal('0.01'))],
-        verbose_name='Montant cible'
+        verbose_name='Montant cible (obsolète)',
+        null=True,
+        blank=True,
+        help_text='Utilisez GroupGoal pour les nouveaux objectifs'
     )
     current_amount = models.DecimalField(
         max_digits=10,
         decimal_places=2,
         default=Decimal('0.00'),
         validators=[MinValueValidator(Decimal('0.00'))],
-        verbose_name='Montant collecté'
+        verbose_name='Montant collecté (obsolète)',
+        help_text='Utilisez GroupGoal pour les nouveaux objectifs'
     )
     deadline = models.DateField(
-        verbose_name='Date limite'
+        verbose_name='Date limite (obsolète)',
+        null=True,
+        blank=True,
+        help_text='Utilisez GroupGoal pour les nouveaux objectifs'
     )
     status = models.CharField(
         max_length=20,

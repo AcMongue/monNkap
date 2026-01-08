@@ -6,40 +6,29 @@ from .models import Group, Membership, GroupContribution, GroupExpense, GroupSav
 class GroupForm(forms.ModelForm):
     """
     Formulaire de création et modification de groupes.
+    
+    Note: Avec la nouvelle architecture, un groupe est juste un conteneur de personnes.
+    Les objectifs (montant cible, deadline) sont définis via GroupGoal après création.
     """
     class Meta:
         model = Group
-        fields = ('name', 'description', 'target_amount', 'deadline', 'status')
+        fields = ('name', 'description')
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Ex: Projet voyage à Dubaï'
+                'placeholder': 'Ex: Famille Dupont, Tontine des amis, Couple...'
             }),
             'description': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 4,
-                'placeholder': 'Décrivez l\'objectif du groupe...'
-            }),
-            'target_amount': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Montant cible en FCFA',
-                'step': '0.01',
-                'min': '0.01'
-            }),
-            'deadline': forms.DateInput(attrs={
-                'class': 'form-control',
-                'type': 'date'
-            }),
-            'status': forms.Select(attrs={
-                'class': 'form-select'
+                'placeholder': 'Décrivez le groupe et son but (optionnel)...'
             })
         }
-
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Pour un nouveau groupe, ne pas afficher le champ status
-        if not self.instance.pk:
-            self.fields.pop('status')
+        # Les champs target_amount, deadline ne sont plus dans le formulaire
+        # Ils seront définis via les GroupGoal
 
 
 class MembershipForm(forms.Form):
