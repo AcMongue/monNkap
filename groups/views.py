@@ -244,11 +244,23 @@ def contribution_create_view(request, group_pk):
     if request.method == 'POST':
         form = GroupContributionForm(request.POST)
         if form.is_valid():
+            # Sauvegarder le montant avant pour débug
+            old_amount = group.current_amount
+            
             contribution = form.save(commit=False)
             contribution.group = group
             contribution.user = request.user
-            contribution.save()
-            messages.success(request, f'Contribution de {contribution.amount} FCFA ajoutée!')
+            contribution.save()  # La méthode save() du modèle met à jour le groupe automatiquement
+            
+            # Recharger le groupe depuis la base pour vérifier
+            group.refresh_from_db()
+            
+            # Message de succès avec détail
+            messages.success(
+                request, 
+                f'Contribution de {contribution.amount:,.0f} FCFA ajoutée ! '
+                f'Montant collecté : {old_amount:,.0f} FCFA → {group.current_amount:,.0f} FCFA'
+            )
             return redirect('groups:detail', pk=group_pk)
         else:
             messages.error(request, 'Erreur lors de l\'ajout de la contribution.')

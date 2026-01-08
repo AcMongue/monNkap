@@ -199,14 +199,30 @@ class GroupContribution(models.Model):
         Met à jour le montant collecté du groupe lors de l'ajout d'une contribution.
         """
         is_new = self.pk is None
+        
+        # Logger pour debug
+        if is_new:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.info(f"💰 NOUVELLE CONTRIBUTION : {self.amount} FCFA de {self.user.username} pour {self.group.name}")
+            logger.info(f"📊 Montant actuel du groupe AVANT : {self.group.current_amount} FCFA")
+        
         super().save(*args, **kwargs)
         
         # Mettre à jour le montant collecté si c'est une nouvelle contribution
         if is_new:
+            old_amount = self.group.current_amount
             self.group.current_amount += self.amount
+            
+            # Logger après mise à jour
+            logger.info(f"📊 Montant actuel du groupe APRÈS : {self.group.current_amount} FCFA")
+            
             if self.group.current_amount >= self.group.target_amount:
                 self.group.status = 'completed'
+                logger.info(f"🎉 OBJECTIF ATTEINT ! Groupe {self.group.name} marqué comme complété")
+            
             self.group.save()
+            logger.info(f"✅ Groupe sauvegardé : {old_amount} → {self.group.current_amount} FCFA")
 
 
 class GroupExpense(models.Model):
