@@ -72,8 +72,7 @@ def home_view(request):
     monthly_contributions = GroupContribution.objects.filter(
         user=request.user,
         date__month=current_month,
-        date__year=current_year,
-        payment_status='paid'
+        date__year=current_year
     )
     
     total_monthly_contributions = monthly_contributions.aggregate(
@@ -235,7 +234,6 @@ def statistics_view(request):
     # === CONTRIBUTIONS AUX GROUPES ===
     group_contributions_by_month = GroupContribution.objects.filter(
         user=request.user,
-        payment_status='paid',
         date__gte=twelve_months_ago
     ).annotate(
         month=TruncMonth('date')
@@ -250,7 +248,6 @@ def statistics_view(request):
     # Total des contributions
     total_contributions = GroupContribution.objects.filter(
         user=request.user,
-        payment_status='paid',
         date__year=current_year
     ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
     
@@ -275,7 +272,6 @@ def statistics_view(request):
         # Contributions du mois
         month_contrib = GroupContribution.objects.filter(
             user=request.user,
-            payment_status='paid',
             date__month=month_date.month,
             date__year=month_date.year
         ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
