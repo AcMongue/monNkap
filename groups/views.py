@@ -246,26 +246,53 @@ def contribution_create_view(request, group_pk):
         messages.error(request, 'Vous devez être membre du groupe pour contribuer.')
         return redirect('groups:list')
     
+    # Récupérer les objectifs du groupe
+    from .models import GroupGoal
+    goals = GroupGoal.objects.filter(group=group, status='active')
+    
+    # Récupérer l'objectif cible si spécifié dans l'URL
+    goal_id = request.GET.get('goal')
+    selected_goal = None
+    if goal_id:
+        selected_goal = GroupGoal.objects.filter(pk=goal_id, group=group).first()
+    
     if request.method == 'POST':
         form = GroupContributionForm(request.POST)
         if form.is_valid():
-            # Sauvegarder le montant avant pour débug
-            old_amount = group.current_amount
-            
             contribution = form.save(commit=False)
             contribution.group = group
             contribution.user = request.user
-            contribution.save()  # La méthode save() du modèle met à jour le groupe automatiquement
             
-            # Recharger le groupe depuis la base pour vérifier
-            group.refresh_from_db()
+            # Lier à l'objectif si spécifié
+            goal_id_post = request.POST.get('goal_id')
+            if goal_id_post:
+                goal = GroupGoal.objects.filter(pk=goal_id_post, group=group).first()
+                if goal:
+                    contribution.goal = goal
+                    old_amount = goal.current_amount
+                    contribution.save()  # La méthode save() met à jour l'objectif
+                    goal.refresh_from_db()
+                    
+                    messages.success(
+                        request, 
+                        f'✅ Contribution de {contribution.amount:,.0f} FCFA ajoutée à "{goal.title}" ! '
+                        f'Progression : {old_amount:,.0f} → {goal.current_amount:,.0f} FCFA'
+                    )
+                else:
+                    messages.error(request, 'Objectif introuvable.')
+                    return redirect('groups:contribute', group_pk=group_pk)
+            else:
+                # Contribution au groupe (ancien système)
+                old_amount = group.current_amount
+                contribution.save()
+                group.refresh_from_db()
+                
+                messages.success(
+                    request, 
+                    f'✅ Contribution de {contribution.amount:,.0f} FCFA ajoutée ! '
+                    f'Montant collecté : {old_amount:,.0f} → {group.current_amount:,.0f} FCFA'
+                )
             
-            # Message de succès avec détail
-            messages.success(
-                request, 
-                f'Contribution de {contribution.amount:,.0f} FCFA ajoutée ! '
-                f'Montant collecté : {old_amount:,.0f} FCFA → {group.current_amount:,.0f} FCFA'
-            )
             return redirect('groups:detail', pk=group_pk)
         else:
             messages.error(request, 'Erreur lors de l\'ajout de la contribution.')
@@ -274,7 +301,9 @@ def contribution_create_view(request, group_pk):
     
     return render(request, 'groups/contribution_form.html', {
         'form': form,
-        'group': group
+        'group': group,
+        'goals': goals,
+        'selected_goal': selected_goal
     })
 
 
@@ -285,7 +314,7 @@ def group_goal_create_view(request, group_pk):
     Seuls les admins peuvent créer des objectifs.
     """
     from .models import GroupGoal
-    from decimal import Decimal
+    from .forms import GroupGoalForm
     
     group = get_object_or_404(Group, pk=group_pk)
     
@@ -296,31 +325,22 @@ def group_goal_create_view(request, group_pk):
         return redirect('groups:detail', pk=group_pk)
     
     if request.method == 'POST':
-        title = request.POST.get('title')
-        description = request.POST.get('description', '')
-        goal_type = request.POST.get('goal_type', 'savings')
-        target_amount = request.POST.get('target_amount')
-        deadline = request.POST.get('deadline')
-        
-        try:
-            # Créer le nouvel objectif
-            goal = GroupGoal.objects.create(
-                group=group,
-                title=title,
-                description=description,
-                goal_type=goal_type,
-                target_amount=Decimal(target_amount),
-                deadline=deadline,
-                created_by=request.user
-            )
+        form = GroupGoalForm(request.POST)
+        if form.is_valid():
+            goal = form.save(commit=False)
+            goal.group = group
+            goal.created_by = request.user
+            goal.save()
             
             messages.success(
                 request,
                 f'✅ Objectif "{goal.title}" créé avec succès ! '
                 f'Cible : {goal.target_amount:,.0f} FCFA'
             )
-        except Exception as e:
-            messages.error(request, f'Erreur lors de la création de l\'objectif : {e}')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
         
         return redirect('groups:detail', pk=group_pk)
     

@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Group, Membership, GroupContribution, GroupExpense, GroupSavingsGoal, GroupSavingsContribution
+from .models import Group, Membership, GroupContribution, GroupExpense, GroupSavingsGoal, GroupSavingsContribution, GroupGoal
 
 
 class GroupForm(forms.ModelForm):
@@ -201,3 +201,39 @@ class GroupSavingsContributionForm(forms.ModelForm):
         if not self.instance.pk:
             from django.utils import timezone
             self.initial['date'] = timezone.now().date()
+
+
+class GroupGoalForm(forms.ModelForm):
+    """
+    Formulaire de création et modification d'objectifs de groupe.
+    """
+    class Meta:
+        model = GroupGoal
+        fields = ('title', 'description', 'goal_type', 'target_amount', 'deadline')
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ex: Voyage à Dubaï',
+                'required': True
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Décrivez cet objectif...'
+            }),
+            'goal_type': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'target_amount': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': '500000',
+                'step': '0.01',
+                'min': '0.01',
+                'required': True
+            }),
+            'deadline': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+                'required': True
+            })
+        }

@@ -152,12 +152,23 @@ class Membership(models.Model):
 class GroupContribution(models.Model):
     """
     Contributions des membres vers un objectif de groupe.
+    Peut être lié à un GroupGoal spécifique (nouvelle architecture)
+    ou au groupe général (ancien système, deprecated).
     """
     group = models.ForeignKey(
         Group,
         on_delete=models.CASCADE,
         related_name='contributions',
         verbose_name='Groupe'
+    )
+    goal = models.ForeignKey(
+        'GroupGoal',
+        on_delete=models.SET_NULL,
+        related_name='contributions',
+        verbose_name='Objectif',
+        null=True,
+        blank=True,
+        help_text='Objectif spécifique vers lequel contribuer (optionnel)'
     )
     user = models.ForeignKey(
         User,
@@ -196,33 +207,51 @@ class GroupContribution(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        Met à jour le montant collecté du groupe lors de l'ajout d'une contribution.
+        Met à jour le montant collecté de l'objectif (GroupGoal) ou du groupe (ancien système).
         """
         is_new = self.pk is None
         
-        # Logger pour debug
         if is_new:
             import logging
             logger = logging.getLogger(__name__)
-            logger.info(f"💰 NOUVELLE CONTRIBUTION : {self.amount} FCFA de {self.user.username} pour {self.group.name}")
-            logger.info(f"📊 Montant actuel du groupe AVANT : {self.group.current_amount} FCFA")
-        
-        super().save(*args, **kwargs)
-        
-        # Mettre à jour le montant collecté si c'est une nouvelle contribution
-        if is_new:
-            old_amount = self.group.current_amount
-            self.group.current_amount += self.amount
             
-            # Logger après mise à jour
-            logger.info(f"📊 Montant actuel du groupe APRÈS : {self.group.current_amount} FCFA")
-            
-            if self.group.current_amount >= self.group.target_amount:
-                self.group.status = 'completed'
-                logger.info(f"🎉 OBJECTIF ATTEINT ! Groupe {self.group.name} marqué comme complété")
-            
-            self.group.save()
-            logger.info(f"✅ Groupe sauvegardé : {old_amount} → {self.group.current_amount} FCFA")
+            # Si contribution vers un objectif spécifique (nouvelle architecture)
+            if self.goal:
+                logger.info(f"💰 CONTRIBUTION vers objectif : {self.amount} FCFA de {self.user.username} pour '{self.goal.title}'")
+                logger.info(f"📊 Montant objectif AVANT : {self.goal.current_amount} FCFA")
+                
+                super().save(*args, **kwargs)
+                
+                # Mettre à jour l'objectif
+                old_amount = self.goal.current_amount
+                self.goal.current_amount += self.amount
+                
+                if self.goal.current_amount >= self.goal.target_amount:
+                    self.goal.status = 'completed'
+                    logger.info(f"🎉 OBJECTIF ATTEINT ! '{self.goal.title}' marqué comme complété")
+                
+                self.goal.save()
+                logger.info(f"✅ Objectif sauvegardé : {old_amount} → {self.goal.current_amount} FCFA")
+                
+            # Sinon contribution générale au groupe (ancien système)
+            else:
+                logger.info(f"💰 CONTRIBUTION groupe : {self.amount} FCFA de {self.user.username} pour {self.group.name}")
+                logger.info(f"📊 Montant groupe AVANT : {self.group.current_amount} FCFA")
+                
+                super().save(*args, **kwargs)
+                
+                # Mettre à jour le groupe
+                old_amount = self.group.current_amount
+                self.group.current_amount += self.amount
+                
+                if self.group.current_amount >= self.group.target_amount:
+                    self.group.status = 'completed'
+                    logger.info(f"🎉 OBJECTIF GROUPE ATTEINT ! {self.group.name} marqué comme complété")
+                
+                self.group.save()
+                logger.info(f"✅ Groupe sauvegardé : {old_amount} → {self.group.current_amount} FCFA")
+        else:
+            super().save(*args, **kwargs)
 
 
 class GroupGoal(models.Model):
