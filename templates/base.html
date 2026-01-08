@@ -1560,6 +1560,73 @@
         </div>
     </div>
     
+    <!-- Modal Soutien / Donation -->
+    <div class="modal fade" id="donationModal" tabindex="-1" aria-labelledby="donationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="donationModalLabel">
+                        <i class="bi bi-heart-fill"></i> Soutenez MonNkap
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <i class="bi bi-heart-fill text-danger" style="font-size: 3rem;"></i>
+                    </div>
+                    <h6 class="fw-bold text-center mb-3">MonNkap est gratuit et le restera toujours !</h6>
+                    <p>Cependant, le développement et l'hébergement de cette application nécessitent du temps et des ressources.</p>
+                    <p class="mb-3">Votre soutien nous aide à :</p>
+                    <ul>
+                        <li>🚀 Développer de nouvelles fonctionnalités</li>
+                        <li>💾 Améliorer l'hébergement et les performances</li>
+                        <li>🔒 Garantir la sécurité de vos données</li>
+                        <li>🛠️ Assurer le support technique</li>
+                    </ul>
+                    
+                    <div class="card bg-light mt-3">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="bi bi-phone-fill text-warning"></i> Orange Money</h6>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" id="orangeMoneyNumber" value="+237 6 90 96 30 25" readonly>
+                                <button class="btn btn-outline-primary" type="button" id="copyOrangeMoneyBtn" title="Copier le numéro">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">Support technique disponible sur ce numéro</small>
+                        </div>
+                    </div>
+                    
+                    <div class="card bg-light mt-2">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="bi bi-envelope-fill text-primary"></i> Contact</h6>
+                            <p class="mb-0">
+                                <a href="mailto:ac7dev25@gmail.com" class="text-decoration-none">
+                                    ac7dev25@gmail.com
+                                </a>
+                            </p>
+                            <small class="text-muted">Pour plus d'informations ou signaler un problème</small>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-success mt-3 mb-0">
+                        <i class="bi bi-info-circle"></i> <strong>Merci pour votre soutien !</strong><br>
+                        <small>Même un petit montant fait une grande différence pour l'avenir de MonNkap.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="snooze30DaysBtn">
+                        <i class="bi bi-alarm"></i> Ne plus afficher pendant 30 jours
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Plus tard</button>
+                    <button type="button" class="btn btn-warning" id="copyAndCloseBtn">
+                        <i class="bi bi-clipboard-check"></i> Copier le numéro
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Messages Flash -->
     {% if messages %}
     <div class="container mt-3">
@@ -1921,6 +1988,95 @@
                 // Si pas de prompt disponible, afficher les instructions
                 alert('🍎 Sur iPhone: Tap 🔗 → "Sur l\'écran d\'accueil"\n\n🤖 Sur Android: Le bouton "Installer" devrait apparaître en haut');
             }
+        });
+        
+        // ==================== MODAL DONATION PÉRIODIQUE ====================
+        window.addEventListener('DOMContentLoaded', () => {
+            const DONATION_MODAL_KEY = 'monnkap-donation-modal-last-shown';
+            const SNOOZE_KEY = 'monnkap-donation-modal-snoozed-until';
+            const DAYS_BETWEEN_SHOWS = 7; // Afficher tous les 7 jours
+            
+            // Vérifier si on doit afficher le modal
+            function shouldShowDonationModal() {
+                // Vérifier le snooze (30 jours)
+                const snoozedUntil = localStorage.getItem(SNOOZE_KEY);
+                if (snoozedUntil) {
+                    const snoozedDate = new Date(snoozedUntil);
+                    if (new Date() < snoozedDate) {
+                        console.log('💤 [Donation] Modal snoozé jusqu\'au', snoozedDate);
+                        return false;
+                    }
+                }
+                
+                // Vérifier la dernière date d'affichage
+                const lastShown = localStorage.getItem(DONATION_MODAL_KEY);
+                if (!lastShown) {
+                    return true; // Première fois
+                }
+                
+                const lastShownDate = new Date(lastShown);
+                const daysSinceLastShown = (new Date() - lastShownDate) / (1000 * 60 * 60 * 24);
+                
+                console.log(`🕐 [Donation] Dernière affichage il y a ${daysSinceLastShown.toFixed(1)} jours`);
+                return daysSinceLastShown >= DAYS_BETWEEN_SHOWS;
+            }
+            
+            // Afficher le modal de donation
+            if (shouldShowDonationModal()) {
+                // Attendre 5 secondes après le chargement + attendre le modal PWA si présent
+                setTimeout(() => {
+                    const donationModal = new bootstrap.Modal(document.getElementById('donationModal'));
+                    donationModal.show();
+                    
+                    // Enregistrer la date d'affichage
+                    localStorage.setItem(DONATION_MODAL_KEY, new Date().toISOString());
+                    console.log('💝 [Donation] Modal affiché');
+                }, 5000);
+            }
+            
+            // Bouton copier numéro Orange Money
+            document.getElementById('copyOrangeMoneyBtn')?.addEventListener('click', () => {
+                const number = document.getElementById('orangeMoneyNumber').value;
+                navigator.clipboard.writeText(number).then(() => {
+                    const btn = document.getElementById('copyOrangeMoneyBtn');
+                    const originalHTML = btn.innerHTML;
+                    btn.innerHTML = '<i class="bi bi-check-lg"></i>';
+                    btn.classList.add('btn-success');
+                    btn.classList.remove('btn-outline-primary');
+                    
+                    setTimeout(() => {
+                        btn.innerHTML = originalHTML;
+                        btn.classList.remove('btn-success');
+                        btn.classList.add('btn-outline-primary');
+                    }, 2000);
+                });
+            });
+            
+            // Bouton copier et fermer
+            document.getElementById('copyAndCloseBtn')?.addEventListener('click', () => {
+                const number = document.getElementById('orangeMoneyNumber').value;
+                navigator.clipboard.writeText(number).then(() => {
+                    // Afficher toast de confirmation
+                    alert('✅ Numéro Orange Money copié: ' + number + '\n\nMerci pour votre soutien ! 💚');
+                    
+                    // Fermer le modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('donationModal'));
+                    modal.hide();
+                });
+            });
+            
+            // Bouton snooze 30 jours
+            document.getElementById('snooze30DaysBtn')?.addEventListener('click', () => {
+                const snoozeUntil = new Date();
+                snoozeUntil.setDate(snoozeUntil.getDate() + 30);
+                localStorage.setItem(SNOOZE_KEY, snoozeUntil.toISOString());
+                
+                console.log('💤 [Donation] Snoozé jusqu\'au', snoozeUntil);
+                
+                // Fermer le modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('donationModal'));
+                modal.hide();
+            });
         });
     </script>
     
