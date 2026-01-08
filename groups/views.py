@@ -39,7 +39,7 @@ def group_help_view(request):
 @login_required
 def group_detail_view(request, pk):
     """
-    Vue détaillée d'un groupe avec membres et contributions.
+    Vue détaillée d'un groupe avec membres, objectifs et contributions.
     """
     group = get_object_or_404(Group, pk=pk)
     
@@ -52,6 +52,10 @@ def group_detail_view(request, pk):
     # Récupérer les membres et contributions
     members = Membership.objects.filter(group=group).select_related('user')
     contributions = GroupContribution.objects.filter(group=group).select_related('user')
+    
+    # Récupérer les objectifs du groupe (nouvelle architecture)
+    from .models import GroupGoal
+    goals = GroupGoal.objects.filter(group=group).select_related('created_by')
     
     # Statistiques par membre
     member_stats = GroupContribution.objects.filter(
@@ -66,6 +70,7 @@ def group_detail_view(request, pk):
         'membership': membership,
         'members': members,
         'contributions': contributions,
+        'goals': goals,  # Nouveaux objectifs multiples
         'member_stats': member_stats
     }
     
@@ -271,6 +276,56 @@ def contribution_create_view(request, group_pk):
         'form': form,
         'group': group
     })
+
+
+@login_required
+def group_goal_create_view(request, group_pk):
+    """
+    Vue de création d'un nouvel objectif pour un groupe.
+    Seuls les admins peuvent créer des objectifs.
+    """
+    from .models import GroupGoal
+    from decimal import Decimal
+    
+    group = get_object_or_404(Group, pk=group_pk)
+    
+    # Vérifier que l'utilisateur est admin du groupe
+    membership = Membership.objects.filter(user=request.user, group=group, role='admin').first()
+    if not membership:
+        messages.error(request, 'Seuls les administrateurs peuvent créer des objectifs.')
+        return redirect('groups:detail', pk=group_pk)
+    
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        description = request.POST.get('description', '')
+        goal_type = request.POST.get('goal_type', 'savings')
+        target_amount = request.POST.get('target_amount')
+        deadline = request.POST.get('deadline')
+        
+        try:
+            # Créer le nouvel objectif
+            goal = GroupGoal.objects.create(
+                group=group,
+                title=title,
+                description=description,
+                goal_type=goal_type,
+                target_amount=Decimal(target_amount),
+                deadline=deadline,
+                created_by=request.user
+            )
+            
+            messages.success(
+                request,
+                f'✅ Objectif "{goal.title}" créé avec succès ! '
+                f'Cible : {goal.target_amount:,.0f} FCFA'
+            )
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la création de l\'objectif : {e}')
+        
+        return redirect('groups:detail', pk=group_pk)
+    
+    # Rediriger vers la page du groupe en GET
+    return redirect('groups:detail', pk=group_pk)
 
 
 @login_required

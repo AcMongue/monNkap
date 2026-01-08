@@ -225,6 +225,113 @@ class GroupContribution(models.Model):
             logger.info(f"✅ Groupe sauvegardé : {old_amount} → {self.group.current_amount} FCFA")
 
 
+class GroupGoal(models.Model):
+    """
+    Objectifs multiples pour un groupe (refonte architecture).
+    Un groupe peut avoir plusieurs objectifs (épargne, projets, etc.)
+    Ce modèle remplacera progressivement Group.target_amount et GroupSavingsGoal.
+    """
+    GOAL_TYPE_CHOICES = [
+        ('savings', 'Épargne'),
+        ('project', 'Projet'),
+        ('investment', 'Investissement'),
+        ('travel', 'Voyage'),
+        ('other', 'Autre'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('active', 'Actif'),
+        ('completed', 'Complété'),
+        ('cancelled', 'Annulé'),
+    ]
+    
+    group = models.ForeignKey(
+        'Group',
+        on_delete=models.CASCADE,
+        related_name='goals',
+        verbose_name='Groupe'
+    )
+    title = models.CharField(
+        max_length=200,
+        verbose_name='Titre de l\'objectif'
+    )
+    description = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name='Description'
+    )
+    goal_type = models.CharField(
+        max_length=20,
+        choices=GOAL_TYPE_CHOICES,
+        default='savings',
+        verbose_name='Type d\'objectif'
+    )
+    target_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal('0.01'))],
+        verbose_name='Montant cible'
+    )
+    current_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        validators=[MinValueValidator(Decimal('0.00'))],
+        verbose_name='Montant collecté'
+    )
+    deadline = models.DateField(
+        verbose_name='Date limite'
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='active',
+        verbose_name='Statut'
+    )
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='created_group_goals',
+        verbose_name='Créé par'
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Date de création'
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Dernière modification'
+    )
+
+    class Meta:
+        verbose_name = 'Objectif de groupe'
+        verbose_name_plural = 'Objectifs de groupe'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} - {self.group.name}"
+
+    def get_progress_percentage(self):
+        """Calcule le pourcentage de progression."""
+        if self.target_amount > 0:
+            percentage = (self.current_amount / self.target_amount) * 100
+            return min(percentage, 100)
+        return 0
+
+    def get_remaining_amount(self):
+        """Calcule le montant restant pour atteindre l'objectif."""
+        remaining = self.target_amount - self.current_amount
+        return max(remaining, Decimal('0.00'))
+
+    def is_overdue(self):
+        """Vérifie si la date limite est dépassée."""
+        return timezone.now().date() > self.deadline and self.status == 'active'
+
+    def is_completed(self):
+        """Vérifie si l'objectif est atteint."""
+        return self.current_amount >= self.target_amount
+
+
 class GroupExpense(models.Model):
     """
     Dépenses partagées au sein d'un groupe.

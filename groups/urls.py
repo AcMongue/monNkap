@@ -18,6 +18,9 @@ urlpatterns = [
     path('<int:group_pk>/remove-member/<int:member_pk>/', views.member_remove_view, name='remove_member'),
     path('<int:group_pk>/contribute/', views.contribution_create_view, name='contribute'),
     
+    # Nouveaux objectifs multiples (GroupGoal)
+    path('<int:group_pk>/goals/add/', views.group_goal_create_view, name='add_goal'),
+    
     # Dépenses de groupe
     path('<int:group_pk>/expenses/', views.group_expense_list_view, name='expense_list'),
     path('<int:group_pk>/expenses/add/', views.group_expense_create_view, name='expense_create'),
