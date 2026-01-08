@@ -3,77 +3,49 @@
 {% block title %}{{ group.name }} - MonNkap{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12 col-md-6 mb-3 mb-md-0">
-        <h1 class="text-white fw-bold">
+<div class="row mb-4 align-items-center">
+    <div class="col-12 col-md-8 mb-3 mb-md-0">
+        <h1 class="text-white fw-bold mb-2">
             <i class="bi bi-people"></i> {{ group.name }}
         </h1>
+        <p class="text-white-50 mb-0">
+            <i class="bi bi-person"></i> Créé par {{ group.creator.username }} • {{ members.count }} membre{{ members.count|pluralize }}
+        </p>
     </div>
-    <div class="col-12 col-md-6">
-        <!-- Action principale -->
-        <div class="d-grid d-md-flex justify-content-md-end gap-2 mb-2">
-            <a href="{% url 'groups:contribute' group.pk %}" class="btn btn-gradient-primary">
-                <i class="bi bi-plus-circle"></i> Contribuer à l'objectif
-            </a>
-            <a href="{% url 'groups:invite' group.pk %}" class="btn btn-gradient-success">
-                <i class="bi bi-person-plus-fill"></i> Inviter
+    <div class="col-12 col-md-4">
+        <div class="d-grid gap-2">
+            <a href="{% url 'groups:invite' group.pk %}" class="btn btn-light">
+                <i class="bi bi-person-plus"></i> Inviter un membre
             </a>
             {% if membership.role == 'admin' %}
-            <a href="{% url 'groups:update' group.pk %}" class="btn btn-outline-light">
-                <i class="bi bi-pencil"></i>
+            <a href="{% url 'groups:update' group.pk %}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-gear"></i> Paramètres
             </a>
             {% endif %}
-        </div>
-        
-        <!-- Actions secondaires (masquées temporairement pour simplifier) -->
-        <div class="d-grid d-md-flex justify-content-md-end gap-2">
-            <div class="dropdown">
-                <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    <i class="bi bi-three-dots"></i> Plus d'options
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li>
-                        <a class="dropdown-item" href="{% url 'groups:expense_list' group.pk %}">
-                            <i class="bi bi-receipt"></i> Dépenses partagées
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="{% url 'groups:savings_list' group_pk=group.pk %}">
-                            <i class="bi bi-piggy-bank"></i> Objectifs d'épargne
-                        </a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <a class="dropdown-item" href="{% url 'groups:help' %}" target="_blank">
-                            <i class="bi bi-question-circle"></i> Guide complet
-                        </a>
-                    </li>
-                </ul>
-            </div>
         </div>
     </div>
 </div>
 
-<!-- Panneau d'information explicatif -->
+<!-- Onglets de navigation -->
 <div class="row mb-3">
     <div class="col-12">
-        <div class="alert alert-primary alert-dismissible fade show" role="alert">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                <div>
-                    <h6 class="alert-heading text-white"><i class="bi bi-info-circle"></i> À propos de ce groupe</h6>
-                    <p class="mb-0 text-white">
-                        <strong>Objectif :</strong> Cotisez ensemble pour atteindre <strong>{{ group.target_amount|floatformat:0 }} FCFA</strong>.<br>
-                        Chaque contribution augmente le montant collecté vers cet objectif commun.
-                    </p>
-                </div>
-                <div class="d-flex gap-2">
-                    <a href="{% url 'groups:help' %}" class="btn btn-sm btn-light" target="_blank">
-                        <i class="bi bi-question-circle"></i> Aide
-                    </a>
-                </div>
-            </div>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#objectifs">
+                    <i class="bi bi-bullseye"></i> Objectifs communs
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#depenses">
+                    <i class="bi bi-receipt"></i> Dépenses partagées
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#membres">
+                    <i class="bi bi-people"></i> Membres ({{ members.count }})
+                </a>
+            </li>
+        </ul>
     </div>
 </div>
 
@@ -109,22 +81,22 @@
                 </div>
                 
                 <div class="row text-center mb-3">
-                    <div class="col-md-4">
-                        <div class="p-3 rounded" style="background: rgba(0,0,0,0.05);">
-                            <h5 class="text-success mb-1">{{ group.current_amount|floatformat:0 }} FCFA</h5>
-                            <small class="text-muted">Montant collecté</small>
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <div class="p-3 rounded bg-success bg-opacity-10 border border-success">
+                            <h5 class="text-success mb-1 fw-bold">{{ group.current_amount|floatformat:0 }} FCFA</h5>
+                            <small class="d-block">Montant collecté</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <div class="p-3 rounded bg-primary bg-opacity-10 border border-primary">
+                            <h5 class="text-primary mb-1 fw-bold">{{ group.target_amount|floatformat:0 }} FCFA</h5>
+                            <small class="d-block">Montant cible</small>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="p-3 rounded" style="background: rgba(0,0,0,0.05);">
-                            <h5 class="text-primary mb-1">{{ group.target_amount|floatformat:0 }} FCFA</h5>
-                            <small class="text-muted">Montant cible</small>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="p-3 rounded" style="background: rgba(0,0,0,0.05);">
-                            <h5 class="text-danger mb-1">{{ group.get_remaining_amount|floatformat:0 }} FCFA</h5>
-                            <small class="text-muted">Montant restant</small>
+                        <div class="p-3 rounded bg-warning bg-opacity-10 border border-warning">
+                            <h5 class="text-warning mb-1 fw-bold">{{ group.get_remaining_amount|floatformat:0 }} FCFA</h5>
+                            <small class="d-block">Montant restant</small>
                         </div>
                     </div>
                 </div>
@@ -146,43 +118,45 @@
         </div>
         
         <!-- Contributions récentes -->
-        <div class="card mt-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="card mt-4 border-success">
+            <div class="card-header bg-success bg-opacity-10 d-flex justify-content-between align-items-center">
                 <div>
-                    <h5 class="mb-1">
-                        <i class="bi bi-clock-history"></i> Contributions vers l'objectif
+                    <h5 class="mb-1 text-success">
+                        <i class="bi bi-piggy-bank-fill"></i> Contributions vers l'objectif
                     </h5>
-                    <small class="opacity-75">Chaque contribution augmente le "Montant collecté" ci-dessus</small>
+                    <small class="d-block text-muted">Chaque contribution augmente le "Montant collecté" ci-dessus</small>
                 </div>
-                <span class="badge bg-success">{{ contributions.count }}</span>
+                <a href="{% url 'groups:contribute' group.pk %}" class="btn btn-sm btn-success">
+                    <i class="bi bi-plus-circle"></i> Contribuer
+                </a>
             </div>
-            <div class="card-body">
+            <div class="card-body p-0">
                 {% if contributions %}
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Membre</th>
-                                <th>Date</th>
-                                <th class="text-end">Montant</th>
+                    <table class="table table-hover table-striped mb-0">
+                        <thead>
+                            <tr class="border-bottom">
+                                <th class="px-3 py-3">Membre</th>
+                                <th class="px-3 py-3">Date</th>
+                                <th class="px-3 py-3 text-end">Montant</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for contribution in contributions %}
                             <tr>
-                                <td><strong>{{ contribution.user.username }}</strong></td>
-                                <td><small class="text-muted">{{ contribution.date|date:"d/m/Y" }}</small></td>
-                                <td class="text-end"><strong class="text-success">{{ contribution.amount|floatformat:0 }} FCFA</strong></td>
+                                <td class="px-3 py-3"><strong>{{ contribution.user.username }}</strong></td>
+                                <td class="px-3 py-3"><small class="text-muted">{{ contribution.date|date:"d/m/Y" }}</small></td>
+                                <td class="px-3 py-3 text-end"><span class="badge bg-success">{{ contribution.amount|floatformat:0 }} FCFA</span></td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
                 {% else %}
-                <div class="text-center py-4">
+                <div class="text-center py-5">
                     <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
-                    <p class="text-muted mt-2">Aucune contribution pour le moment</p>
-                    <a href="{% url 'groups:contribute' group.pk %}" class="btn btn-sm btn-gradient-primary">
+                    <p class="text-muted mt-3 mb-3">Aucune contribution pour le moment</p>
+                    <a href="{% url 'groups:contribute' group.pk %}" class="btn btn-success">
                         <i class="bi bi-plus-circle"></i> Faire la première contribution
                     </a>
                 </div>
@@ -194,7 +168,7 @@
     <!-- Membres et actions -->
     <div class="col-md-4">
         <div class="card mb-3">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Membres ({{ members.count }})</h5>
                 {% if membership.role == 'admin' %}
                 <a href="{% url 'groups:add_member' group.pk %}" 
