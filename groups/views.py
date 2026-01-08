@@ -82,6 +82,7 @@ def group_create_view(request):
     """
     Vue de création d'un nouveau groupe.
     Le créateur devient automatiquement administrateur.
+    Redirige vers la page du groupe avec invitation à créer le 1er objectif.
     """
     if request.method == 'POST':
         form = GroupForm(request.POST)
@@ -97,7 +98,12 @@ def group_create_view(request):
                 role='admin'
             )
             
-            messages.success(request, 'Groupe créé avec succès!')
+            messages.success(
+                request, 
+                f'🎉 Groupe "{group.name}" créé avec succès ! '
+                f'Créez maintenant votre premier objectif pour commencer.'
+            )
+            # Rediriger vers le groupe avec paramètre pour ouvrir le modal
             return redirect('groups:detail', pk=group.pk)
         else:
             messages.error(request, 'Erreur lors de la création du groupe.')
@@ -346,6 +352,70 @@ def group_goal_create_view(request, group_pk):
     
     # Rediriger vers la page du groupe en GET
     return redirect('groups:detail', pk=group_pk)
+
+
+@login_required
+def group_goal_edit_view(request, pk):
+    """
+    Vue d'édition d'un objectif de groupe.
+    Seuls les admins peuvent éditer.
+    """
+    from .models import GroupGoal
+    from .forms import GroupGoalForm
+    
+    goal = get_object_or_404(GroupGoal, pk=pk)
+    group = goal.group
+    
+    # Vérifier que l'utilisateur est admin
+    membership = Membership.objects.filter(user=request.user, group=group, role='admin').first()
+    if not membership:
+        messages.error(request, 'Seuls les administrateurs peuvent éditer les objectifs.')
+        return redirect('groups:detail', pk=group.pk)
+    
+    if request.method == 'POST':
+        form = GroupGoalForm(request.POST, instance=goal)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'✅ Objectif "{goal.title}" modifié avec succès !')
+            return redirect('groups:detail', pk=group.pk)
+    else:
+        form = GroupGoalForm(instance=goal)
+    
+    return render(request, 'groups/goal_form.html', {
+        'form': form,
+        'goal': goal,
+        'group': group,
+        'title': 'Modifier l\'objectif'
+    })
+
+
+@login_required
+def group_goal_delete_view(request, pk):
+    """
+    Vue de suppression d'un objectif de groupe.
+    Seuls les admins peuvent supprimer.
+    """
+    from .models import GroupGoal
+    
+    goal = get_object_or_404(GroupGoal, pk=pk)
+    group = goal.group
+    
+    # Vérifier que l'utilisateur est admin
+    membership = Membership.objects.filter(user=request.user, group=group, role='admin').first()
+    if not membership:
+        messages.error(request, 'Seuls les administrateurs peuvent supprimer les objectifs.')
+        return redirect('groups:detail', pk=group.pk)
+    
+    if request.method == 'POST':
+        goal_title = goal.title
+        goal.delete()
+        messages.success(request, f'🗑️ Objectif "{goal_title}" supprimé avec succès.')
+        return redirect('groups:detail', pk=group.pk)
+    
+    return render(request, 'groups/goal_confirm_delete.html', {
+        'goal': goal,
+        'group': group
+    })
 
 
 @login_required

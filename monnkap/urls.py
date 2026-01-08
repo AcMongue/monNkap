@@ -23,6 +23,7 @@ from django.views.generic import TemplateView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', TemplateView.as_view(template_name='landing.html'), name='landing'),
+    path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),
     path('dashboard/', include('dashboard.urls')),
     path('accounts/', include('accounts.urls')),
     path('accounts/', include('allauth.urls')),  # Django-allauth URLs

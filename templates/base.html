@@ -1745,6 +1745,74 @@
         });
     </script>
     
+    <!-- ==================== PWA SERVICE WORKER ====================  -->
+    <script>
+        // Enregistrer le service worker si supporté
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(registration => {
+                        console.log('✅ [PWA] Service Worker enregistré:', registration.scope);
+                        
+                        // Vérifier les mises à jour
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            console.log('🔄 [PWA] Nouvelle version du Service Worker détectée');
+                            
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('💡 [PWA] Nouvelle version disponible - rechargez la page');
+                                    // Optionnel : notifier l'utilisateur
+                                    // alert('Une nouvelle version est disponible. Rafraîchissez la page.');
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.error('❌ [PWA] Échec enregistrement Service Worker:', error);
+                    });
+            });
+            
+            // Gérer les messages du service worker
+            navigator.serviceWorker.addEventListener('message', event => {
+                console.log('📩 [PWA] Message reçu du SW:', event.data);
+                
+                if (event.data.type === 'CACHE_UPDATED') {
+                    console.log('✅ [PWA] Cache mis à jour:', event.data.url);
+                }
+            });
+        } else {
+            console.log('⚠️ [PWA] Service Workers non supportés dans ce navigateur');
+        }
+        
+        // Détecter si l'app est installée
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+                console.log('📱 [PWA] Application en mode standalone (installée)');
+                document.documentElement.classList.add('pwa-installed');
+            } else {
+                console.log('🌐 [PWA] Application en mode navigateur');
+            }
+        });
+        
+        // Écouter l'événement d'installation
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('💾 [PWA] Prompt d\'installation disponible');
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Vous pouvez afficher un bouton personnalisé ici
+            // showInstallButton();
+        });
+        
+        // Confirmation d'installation
+        window.addEventListener('appinstalled', () => {
+            console.log('🎉 [PWA] Application installée avec succès!');
+            deferredPrompt = null;
+        });
+    </script>
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html>

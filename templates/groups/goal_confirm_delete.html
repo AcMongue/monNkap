@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Supprimer l'objectif - MonNkap{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-exclamation-triangle"></i> Confirmer la suppression
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>Attention !</strong> Cette action est irréversible.
+                </div>
+                
+                <h5 class="mb-3">Voulez-vous vraiment supprimer cet objectif ?</h5>
+                
+                <div class="p-3 bg-light rounded mb-4">
+                    <h6 class="mb-2">
+                        {% if goal.goal_type == 'savings' %}💰
+                        {% elif goal.goal_type == 'project' %}💼
+                        {% elif goal.goal_type == 'investment' %}📈
+                        {% elif goal.goal_type == 'travel' %}✈️
+                        {% else %}⭐{% endif %}
+                        {{ goal.title }}
+                    </h6>
+                    <p class="text-muted small mb-2">{{ goal.description }}</p>
+                    <div class="d-flex justify-content-between">
+                        <span class="small">Montant collecté :</span>
+                        <strong class="text-success">{{ goal.current_amount|floatformat:0 }} / {{ goal.target_amount|floatformat:0 }} FCFA</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="small">Contributions :</span>
+                        <strong>{{ goal.contributions.count }}</strong>
+                    </div>
+                </div>
+                
+                {% if goal.contributions.count > 0 %}
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>{{ goal.contributions.count }} contribution(s)</strong> sont liées à cet objectif. 
+                    Elles seront conservées mais ne seront plus associées à un objectif spécifique.
+                </div>
+                {% endif %}
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger btn-lg">
+                            <i class="bi bi-trash"></i> Oui, supprimer définitivement
+                        </button>
+                        <a href="{% url 'groups:detail' group.pk %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Non, annuler
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -20,6 +20,8 @@ urlpatterns = [
     
     # Nouveaux objectifs multiples (GroupGoal)
     path('<int:group_pk>/goals/add/', views.group_goal_create_view, name='add_goal'),
+    path('goals/<int:pk>/edit/', views.group_goal_edit_view, name='edit_goal'),
+    path('goals/<int:pk>/delete/', views.group_goal_delete_view, name='delete_goal'),
     
     # Dépenses de groupe
     path('<int:group_pk>/expenses/', views.group_expense_list_view, name='expense_list'),

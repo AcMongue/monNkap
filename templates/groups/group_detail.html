@@ -121,6 +121,23 @@
                                             <span class="text-danger ms-1"><i class="bi bi-exclamation-triangle"></i></span>
                                             {% endif %}
                                         </small>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'groups:contribute' group.pk %}?goal={{ goal.pk }}" class="btn btn-success">
+                                                <i class="bi bi-plus-circle"></i> Contribuer
+                                            </a>
+                                            {% if membership.role == 'admin' %}
+                                            <a href="{% url 'groups:edit_goal' goal.pk %}" class="btn btn-outline-primary">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a href="{% url 'groups:delete_goal' goal.pk %}" class="btn btn-outline-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                            <span class="text-danger ms-1"><i class="bi bi-exclamation-triangle"></i></span>
+                                            {% endif %}
+                                        </small>
                                         <div>
                                             <a href="{% url 'groups:contribute' group.pk %}?goal={{ goal.pk }}" class="btn btn-sm btn-success">
                                                 <i class="bi bi-plus-circle"></i> Contribuer

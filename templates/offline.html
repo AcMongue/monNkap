@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Hors ligne - MonNkap{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 text-center">
+        <div class="card">
+            <div class="card-body py-5">
+                <i class="bi bi-wifi-off text-muted" style="font-size: 5rem;"></i>
+                <h2 class="mt-4 mb-3">Vous êtes hors ligne</h2>
+                <p class="text-muted mb-4">
+                    Impossible de se connecter au serveur MonNkap.<br>
+                    Vérifiez votre connexion internet et réessayez.
+                </p>
+                
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i>
+                    Certaines fonctionnalités sont disponibles hors ligne grâce au cache de l'application.
+                </div>
+                
+                <div class="d-grid gap-2 mt-4">
+                    <button class="btn btn-primary btn-lg" onclick="location.reload()">
+                        <i class="bi bi-arrow-clockwise"></i> Réessayer
+                    </button>
+                    <a href="/dashboard/home/" class="btn btn-outline-secondary">
+                        <i class="bi bi-house"></i> Retour au dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-check-circle text-success"></i> Fonctionnalités hors ligne</h5>
+                <ul class="list-unstyled mb-0">
+                    <li class="py-2"><i class="bi bi-check text-success"></i> Consulter les pages récemment visitées</li>
+                    <li class="py-2"><i class="bi bi-check text-success"></i> Voir vos données en cache</li>
+                    <li class="py-2"><i class="bi bi-x text-danger"></i> Ajouter de nouvelles dépenses (nécessite une connexion)</li>
+                    <li class="py-2"><i class="bi bi-x text-danger"></i> Modifier des objectifs (nécessite une connexion)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
