@@ -8,9 +8,10 @@ const OFFLINE_URL = '/offline/';
 const ESSENTIAL_RESOURCES = [
     '/',
     '/dashboard/home/',
-    '/static/css/style.css',
+    '/static/css/custom-design.css',
     '/static/manifest.json',
     '/static/favicon.svg',
+    '/static/icons/icon-192.png',
     OFFLINE_URL
 ];
 

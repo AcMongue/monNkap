@@ -1488,6 +1488,12 @@
                     </li>
                 </ul>
                 <ul class="navbar-nav">
+                    <!-- Bouton d'installation PWA -->
+                    <li class="nav-item me-3">
+                        <button id="pwa-install-btn" class="btn btn-sm btn-outline-primary" style="display: none;" title="Installer l'application">
+                            <i class="bi bi-download"></i> Installer
+                        </button>
+                    </li>
                     <li class="nav-item me-3">
                         <div class="theme-toggle" id="themeToggle" title="Changer de thème">
                             <i class="bi bi-sun-fill"></i>
@@ -1802,15 +1808,39 @@
             e.preventDefault();
             deferredPrompt = e;
             
-            // Vous pouvez afficher un bouton personnalisé ici
-            // showInstallButton();
+            // Afficher le bouton d'installation
+            showInstallButton();
         });
         
         // Confirmation d'installation
         window.addEventListener('appinstalled', () => {
             console.log('🎉 [PWA] Application installée avec succès!');
             deferredPrompt = null;
+            // Masquer le bouton d'installation
+            const installBtn = document.getElementById('pwa-install-btn');
+            if (installBtn) installBtn.style.display = 'none';
         });
+        
+        // Fonction pour afficher le bouton d'installation
+        function showInstallButton() {
+            const installBtn = document.getElementById('pwa-install-btn');
+            if (installBtn) {
+                installBtn.style.display = 'inline-block';
+                installBtn.onclick = async () => {
+                    if (!deferredPrompt) return;
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log(`[PWA] Résultat installation: ${outcome}`);
+                    deferredPrompt = null;
+                    installBtn.style.display = 'none';
+                };
+            }
+        }
+        
+        // Afficher le bouton si le prompt est disponible
+        if (deferredPrompt) {
+            showInstallButton();
+        }
     </script>
     
     {% block extra_js %}{% endblock %}
