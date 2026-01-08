@@ -68,22 +68,25 @@ self.addEventListener('fetch', (event) => {
         // Essayer le réseau d'abord
         fetch(event.request)
             .then((response) => {
-                // Mettre en cache la réponse si elle est valide
-                if (response && response.status === 200 && response.type === 'basic') {
+                // Mettre en cache TOUTES les réponses valides (pas seulement basic)
+                if (response && response.status === 200) {
                     const responseClone = response.clone();
                     caches.open(CACHE_NAME).then((cache) => {
                         cache.put(event.request, responseClone);
-                    });
+                    }).catch(err => console.log('[SW] Cache error:', err));
                 }
                 return response;
             })
             .catch(() => {
+                console.log('[SW] Network failed, trying cache for:', event.request.url);
                 // Si le réseau échoue, utiliser le cache
                 return caches.match(event.request)
                     .then((cachedResponse) => {
                         if (cachedResponse) {
+                            console.log('[SW] Serving from cache:', event.request.url);
                             return cachedResponse;
                         }
+                        console.log('[SW] Not in cache, showing offline page');
                         // Si pas en cache, afficher la page offline pour les navigations
                         if (event.request.mode === 'navigate') {
                             return caches.match(OFFLINE_URL);

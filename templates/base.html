@@ -1520,6 +1520,46 @@
     </nav>
     {% endif %}
     
+    <!-- Modal Nouveautés PWA -->
+    <div class="modal fade" id="pwaAnnouncementModal" tabindex="-1" aria-labelledby="pwaAnnouncementLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="pwaAnnouncementLabel">
+                        <i class="bi bi-stars"></i> Nouveauté : MonNkap en Application Mobile !
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <img src="{% static 'icons/icon-192.png' %}" alt="MonNkap" style="width: 80px; height: 80px; border-radius: 16px;">
+                    </div>
+                    <h6 class="fw-bold">🎉 Installez MonNkap sur votre téléphone !</h6>
+                    <p class="mb-3">Vous avez maintenant la possibilité d'installer MonNkap comme une véritable application mobile :</p>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> <strong>Icône sur l'écran d'accueil</strong> - Accès rapide en 1 tap</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> <strong>Fonctionne hors ligne</strong> - Consultez vos données sans connexion</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> <strong>Expérience app native</strong> - Plein écran, sans barre de navigation</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> <strong>Notifications</strong> - Alertes pour vos objectifs (bientôt)</li>
+                    </ul>
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle"></i> <strong>Comment installer ?</strong><br>
+                        <small>
+                            <strong>Sur mobile :</strong> Cliquez sur le bouton <span class="badge bg-primary"><i class="bi bi-download"></i> Installer</span> en haut de la page<br>
+                            <strong>Sur iPhone :</strong> Tap 🔗 → "Sur l'écran d'accueil"
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Plus tard</button>
+                    <button type="button" class="btn btn-primary" id="installFromModal">
+                        <i class="bi bi-download"></i> Installer maintenant
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Messages Flash -->
     {% if messages %}
     <div class="container mt-3">
@@ -1841,6 +1881,47 @@
         if (deferredPrompt) {
             showInstallButton();
         }
+        
+        // ==================== MODAL NOUVEAUTÉS PWA ====================
+        // Afficher le modal une seule fois si l'utilisateur ne l'a pas vu
+        window.addEventListener('DOMContentLoaded', () => {
+            const hasSeenPwaAnnouncement = localStorage.getItem('monnkap-pwa-announcement-seen');
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            
+            // Afficher seulement si: jamais vu + pas déjà installé
+            if (!hasSeenPwaAnnouncement && !isStandalone) {
+                // Attendre 2 secondes après le chargement pour ne pas gêner
+                setTimeout(() => {
+                    const modal = new bootstrap.Modal(document.getElementById('pwaAnnouncementModal'));
+                    modal.show();
+                    // Marquer comme vu
+                    localStorage.setItem('monnkap-pwa-announcement-seen', 'true');
+                }, 2000);
+            }
+        });
+        
+        // Bouton d'installation depuis le modal
+        document.getElementById('installFromModal')?.addEventListener('click', () => {
+            if (deferredPrompt) {
+                // Fermer le modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('pwaAnnouncementModal'));
+                modal.hide();
+                
+                // Déclencher l'installation
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('✅ [PWA] Utilisateur a accepté l\'installation');
+                    } else {
+                        console.log('❌ [PWA] Utilisateur a refusé l\'installation');
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                // Si pas de prompt disponible, afficher les instructions
+                alert('🍎 Sur iPhone: Tap 🔗 → "Sur l\'écran d\'accueil"\n\n🤖 Sur Android: Le bouton "Installer" devrait apparaître en haut');
+            }
+        });
     </script>
     
     {% block extra_js %}{% endblock %}
