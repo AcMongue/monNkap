@@ -6,6 +6,7 @@ app_name = 'groups'
 
 urlpatterns = [
     path('', views.group_list_view, name='list'),
+    path('help/', views.group_help_view, name='help'),
     path('join/', views.join_group_view, name='join'),
     path('join/<str:invite_code>/', views.join_group_view, name='join_with_code'),
     path('create/', views.group_create_view, name='create'),

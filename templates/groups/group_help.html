@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block title %}Guide des Groupes - MonNkap{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="mb-4">
+            <a href="{% url 'groups:list' %}" class="btn btn-outline-light">
+                <i class="bi bi-arrow-left"></i> Retour aux groupes
+            </a>
+        </div>
+        
+        <h1 class="text-white fw-bold mb-4">
+            <i class="bi bi-question-circle"></i> Guide des Fonctionnalités de Groupe
+        </h1>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 class="card-title text-primary">
+                    <i class="bi bi-plus-circle"></i> 1. Contributions au Groupe
+                </h3>
+                <p class="lead">Cotisation collective pour un objectif commun</p>
+                
+                <h5>🎯 Objectif</h5>
+                <p>
+                    Les <strong>contributions</strong> servent à alimenter la <strong>cagnotte principale du groupe</strong>.
+                    Tous les membres cotisent pour atteindre un objectif financier défini (ex: 100 000 FCFA pour un cadeau).
+                </p>
+                
+                <h5>💡 Fonctionnement</h5>
+                <ul>
+                    <li>Chaque membre ajoute de l'argent à la cagnotte commune</li>
+                    <li>Le <strong>montant collecté</strong> augmente automatiquement</li>
+                    <li>Une barre de progression montre l'avancement vers l'objectif</li>
+                    <li>Quand l'objectif est atteint, le groupe passe en statut "Complété"</li>
+                </ul>
+                
+                <h5>📊 Incidence</h5>
+                <div class="alert alert-success">
+                    <strong>✅ Impact direct :</strong> Chaque contribution augmente le "Montant collecté" du groupe et rapproche du "Montant cible".
+                </div>
+                
+                <h5>📝 Exemple concret</h5>
+                <div class="bg-light p-3 rounded">
+                    <strong>Groupe :</strong> Cadeau anniversaire maman<br>
+                    <strong>Objectif :</strong> 50 000 FCFA<br>
+                    <strong>Membres :</strong> 5 personnes<br>
+                    <strong>Actions :</strong><br>
+                    - Alice contribue 15 000 FCFA → Montant collecté : 15 000 FCFA<br>
+                    - Bob contribue 10 000 FCFA → Montant collecté : 25 000 FCFA<br>
+                    - Charlie contribue 25 000 FCFA → Montant collecté : 50 000 FCFA ✅ Objectif atteint !
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 class="card-title text-warning">
+                    <i class="bi bi-receipt"></i> 2. Dépenses de Groupe
+                </h3>
+                <p class="lead">Gestion des dépenses partagées entre membres</p>
+                
+                <h5>🎯 Objectif</h5>
+                <p>
+                    Les <strong>dépenses de groupe</strong> permettent de gérer les <strong>frais partagés</strong> au quotidien.
+                    Quand un membre paie pour tout le monde, l'app calcule automatiquement qui doit rembourser combien.
+                </p>
+                
+                <h5>💡 Fonctionnement</h5>
+                <ul>
+                    <li>Un membre paie une dépense (courses, restaurant, loyer)</li>
+                    <li>La dépense est divisée équitablement entre tous les membres</li>
+                    <li>L'app montre qui doit rembourser qui</li>
+                    <li>Chaque membre peut marquer sa part comme "payée"</li>
+                </ul>
+                
+                <h5>📊 Incidence</h5>
+                <div class="alert alert-warning">
+                    <strong>⚠️ Aucun impact sur la cagnotte :</strong> Les dépenses de groupe sont indépendantes de l'objectif principal. Elles ne touchent PAS le "Montant collecté".
+                </div>
+                
+                <h5>📝 Exemple concret</h5>
+                <div class="bg-light p-3 rounded">
+                    <strong>Groupe :</strong> Colocation<br>
+                    <strong>Situation :</strong> Alice fait les courses pour 12 000 FCFA<br>
+                    <strong>Actions :</strong><br>
+                    - Alice crée une "Dépense de groupe" : Courses - 12 000 FCFA<br>
+                    - L'app divise : 12 000 ÷ 4 membres = 3 000 FCFA par personne<br>
+                    - Bob, Charlie et David doivent chacun 3 000 FCFA à Alice<br>
+                    - Ils marquent "Payé" une fois qu'ils ont remboursé Alice
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 class="card-title text-info">
+                    <i class="bi bi-piggy-bank"></i> 3. Épargne de Groupe
+                </h3>
+                <p class="lead">Objectifs d'épargne spécifiques et multiples</p>
+                
+                <h5>🎯 Objectif</h5>
+                <p>
+                    L'<strong>épargne de groupe</strong> permet de créer <strong>plusieurs objectifs d'épargne distincts</strong> au sein du même groupe.
+                    C'est utile pour planifier différents projets simultanément.
+                </p>
+                
+                <h5>💡 Fonctionnement</h5>
+                <ul>
+                    <li>Créez autant d'objectifs d'épargne que vous voulez (voyage, investissement, projet)</li>
+                    <li>Chaque objectif a son propre montant cible et sa progression</li>
+                    <li>Les membres cotisent vers l'objectif spécifique de leur choix</li>
+                    <li>Suivez la progression de chaque objectif indépendamment</li>
+                </ul>
+                
+                <h5>📊 Incidence</h5>
+                <div class="alert alert-info">
+                    <strong>ℹ️ Épargne séparée :</strong> Les contributions aux objectifs d'épargne sont séparées de la cagnotte principale. Elles n'affectent PAS le "Montant collecté" du groupe.
+                </div>
+                
+                <h5>📝 Exemple concret</h5>
+                <div class="bg-light p-3 rounded">
+                    <strong>Groupe :</strong> Couple Alice & Bob<br>
+                    <strong>Objectifs d'épargne :</strong><br>
+                    <br>
+                    <strong>1. Voyage à Paris</strong> - Objectif : 500 000 FCFA<br>
+                    - Alice : 150 000 FCFA<br>
+                    - Bob : 100 000 FCFA<br>
+                    - Total : 250 000 FCFA (50% atteint)<br>
+                    <br>
+                    <strong>2. Nouveau canapé</strong> - Objectif : 80 000 FCFA<br>
+                    - Alice : 40 000 FCFA<br>
+                    - Bob : 40 000 FCFA<br>
+                    - Total : 80 000 FCFA (100% atteint ✅)<br>
+                    <br>
+                    <strong>3. Fonds d'urgence</strong> - Objectif : 200 000 FCFA<br>
+                    - Alice : 50 000 FCFA<br>
+                    - Total : 50 000 FCFA (25% atteint)
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4 border-primary">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="bi bi-lightbulb"></i> Récapitulatif</h4>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Fonctionnalité</th>
+                            <th>Utilisation</th>
+                            <th>Impact sur la cagnotte principale</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong><i class="bi bi-plus-circle text-success"></i> Contributions</strong></td>
+                            <td>Cotiser pour l'objectif principal du groupe</td>
+                            <td><span class="badge bg-success">✅ OUI - Augmente le montant collecté</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong><i class="bi bi-receipt text-warning"></i> Dépenses</strong></td>
+                            <td>Gérer les frais partagés (qui doit rembourser qui)</td>
+                            <td><span class="badge bg-secondary">❌ NON - Indépendant</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong><i class="bi bi-piggy-bank text-info"></i> Épargne</strong></td>
+                            <td>Créer des objectifs d'épargne spécifiques</td>
+                            <td><span class="badge bg-secondary">❌ NON - Objectifs séparés</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="text-center mb-5">
+            <a href="{% url 'groups:list' %}" class="btn btn-gradient-primary btn-lg">
+                <i class="bi bi-arrow-left"></i> Retour aux groupes
+            </a>
+            <a href="{% url 'groups:create' %}" class="btn btn-gradient-success btn-lg">
+                <i class="bi bi-plus-circle"></i> Créer un groupe
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

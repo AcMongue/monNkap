@@ -29,6 +29,14 @@ def group_list_view(request):
 
 
 @login_required
+def group_help_view(request):
+    """
+    Vue affichant la page d'aide explicative sur les fonctionnalités des groupes.
+    """
+    return render(request, 'groups/group_help.html')
+
+
+@login_required
 def group_detail_view(request, pk):
     """
     Vue détaillée d'un groupe avec membres et contributions.

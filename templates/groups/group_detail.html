@@ -4,29 +4,66 @@
 
 {% block content %}
 <div class="row mb-4">
-    <div class="col-md-6">
+    <div class="col-12 col-md-6 mb-3 mb-md-0">
         <h1 class="text-white fw-bold">
             <i class="bi bi-people"></i> {{ group.name }}
         </h1>
     </div>
-    <div class="col-md-6 text-end">
-        <a href="{% url 'groups:expense_list' group.pk %}" class="btn btn-light">
-            <i class="bi bi-receipt"></i> Dépenses Groupe
-        </a>
-        <a href="{% url 'groups:savings_list' group_pk=group.pk %}" class="btn btn-light">
-            <i class="bi bi-piggy-bank"></i> Épargne Groupe
-        </a>
-        <a href="{% url 'groups:invite' group.pk %}" class="btn btn-gradient-success">
-            <i class="bi bi-person-plus-fill"></i> Inviter des Membres
-        </a>
-        <a href="{% url 'groups:contribute' group.pk %}" class="btn btn-light">
-            <i class="bi bi-plus-circle"></i> Contribuer
-        </a>
-        {% if membership.role == 'admin' %}
-        <a href="{% url 'groups:update' group.pk %}" class="btn btn-outline-light">
-            <i class="bi bi-pencil"></i> Modifier
-        </a>
-        {% endif %}
+    <div class="col-12 col-md-6">
+        <!-- Action principale -->
+        <div class="d-grid d-md-flex justify-content-md-end gap-2 mb-2">
+            <a href="{% url 'groups:contribute' group.pk %}" class="btn btn-gradient-primary">
+                <i class="bi bi-plus-circle"></i> Contribuer à l'objectif
+            </a>
+            <a href="{% url 'groups:invite' group.pk %}" class="btn btn-gradient-success">
+                <i class="bi bi-person-plus-fill"></i> Inviter
+            </a>
+        </div>
+        
+        <!-- Actions secondaires avec explications -->
+        <div class="d-grid d-md-flex justify-content-md-end gap-2">
+            <a href="{% url 'groups:expense_list' group.pk %}" 
+               class="btn btn-outline-light btn-sm"
+               data-bs-toggle="tooltip" 
+               data-bs-placement="bottom"
+               title="Gérer les dépenses partagées entre membres (courses, loyer, etc.)">
+                <i class="bi bi-receipt"></i> Dépenses
+            </a>
+            <a href="{% url 'groups:savings_list' group_pk=group.pk %}" 
+               class="btn btn-outline-light btn-sm"
+               data-bs-toggle="tooltip" 
+               data-bs-placement="bottom"
+               title="Créer des objectifs d'épargne spécifiques (voyage, projet, etc.)">
+                <i class="bi bi-piggy-bank"></i> Épargne
+            </a>
+            {% if membership.role == 'admin' %}
+            <a href="{% url 'groups:update' group.pk %}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-pencil"></i> Modifier
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Panneaux d'information explicatifs -->
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="alert-heading"><i class="bi bi-info-circle"></i> Fonctionnalités du groupe</h6>
+                    <small>
+                        <strong>Contributions :</strong> Cotisez pour l'objectif principal du groupe ({{ group.target_amount|floatformat:0 }} FCFA). 
+                        <strong>Dépenses :</strong> Gérez vos dépenses partagées (courses, sorties). 
+                        <strong>Épargne :</strong> Créez des objectifs d'épargne spécifiques.
+                    </small>
+                </div>
+                <a href="{% url 'groups:help' %}" class="btn btn-sm btn-outline-primary" target="_blank">
+                    <i class="bi bi-question-circle"></i> Guide détaillé
+                </a>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     </div>
 </div>
 
@@ -100,10 +137,11 @@
         
         <!-- Contributions récentes -->
         <div class="card mt-4">
-            <div class="card-header bg-white">
-                <h5 class="mb-0 text-dark">
-                    <i class="bi bi-clock-history"></i> Contributions récentes
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-clock-history"></i> Contributions récentes vers l'objectif
                 </h5>
+                <small class="text-muted">Ces contributions alimentent la cagnotte du groupe ({{ group.current_amount|floatformat:0 }} / {{ group.target_amount|floatformat:0 }} FCFA)</small>
             </div>
             <div class="card-body">
                 {% if contributions %}
