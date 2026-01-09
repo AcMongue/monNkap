@@ -1522,38 +1522,111 @@
     
     <!-- Modal Nouveautés PWA -->
     <div class="modal fade" id="pwaAnnouncementModal" tabindex="-1" aria-labelledby="pwaAnnouncementLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="pwaAnnouncementLabel">
-                        <i class="bi bi-stars"></i> Nouveauté : MonNkap en Application Mobile !
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0 bg-gradient" style="background: linear-gradient(135deg, #0066FF 0%, #00A8FF 100%);">
+                    <h5 class="modal-title text-white fw-bold" id="pwaAnnouncementLabel">
+                        <i class="bi bi-phone-fill me-2"></i>Installez MonNkap sur votre appareil
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="text-center mb-3">
-                        <img src="{% static 'icons/icon-192.png' %}" alt="MonNkap" style="width: 80px; height: 80px; border-radius: 16px;">
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4">
+                        <img src="{% static 'icons/icon-192.png' %}" alt="MonNkap" style="width: 80px; height: 80px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                     </div>
-                    <h6 class="fw-bold">🎉 Installez MonNkap sur votre téléphone !</h6>
-                    <p class="mb-3">Vous avez maintenant la possibilité d'installer MonNkap comme une véritable application mobile :</p>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> <strong>Icône sur l'écran d'accueil</strong> - Accès rapide en 1 tap</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> <strong>Fonctionne hors ligne</strong> - Consultez vos données sans connexion</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> <strong>Expérience app native</strong> - Plein écran, sans barre de navigation</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> <strong>Notifications</strong> - Alertes pour vos objectifs (bientôt)</li>
-                    </ul>
-                    <div class="alert alert-info mb-0">
-                        <i class="bi bi-info-circle"></i> <strong>Comment installer ?</strong><br>
-                        <small>
-                            <strong>Sur mobile :</strong> Cliquez sur le bouton <span class="badge bg-primary"><i class="bi bi-download"></i> Installer</span> en haut de la page<br>
-                            <strong>Sur iPhone :</strong> Tap 🔗 → "Sur l'écran d'accueil"
-                        </small>
+                    
+                    <h6 class="fw-bold text-center mb-3">Accédez à MonNkap comme une application native</h6>
+                    <p class="text-muted text-center mb-4">Une expérience optimisée, rapide et accessible sans passer par le navigateur</p>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-lightning-fill text-primary me-2 mt-1"></i>
+                                <small class="text-muted">Accès instantané depuis l'écran d'accueil</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-wifi-off text-primary me-2 mt-1"></i>
+                                <small class="text-muted">Fonctionnement hors ligne</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-fullscreen text-primary me-2 mt-1"></i>
+                                <small class="text-muted">Affichage plein écran</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-bell text-primary me-2 mt-1"></i>
+                                <small class="text-muted">Notifications (bientôt)</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Instructions par plateforme -->
+                    <div class="accordion" id="installInstructions">
+                        <!-- Android / Chrome -->
+                        <div class="accordion-item border-0 mb-2">
+                            <h2 class="accordion-header" id="headingAndroid">
+                                <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAndroid" aria-expanded="false" aria-controls="collapseAndroid">
+                                    <i class="bi bi-android2 text-success me-2"></i>
+                                    <strong>Android / Chrome / Edge</strong>
+                                </button>
+                            </h2>
+                            <div id="collapseAndroid" class="accordion-collapse collapse" aria-labelledby="headingAndroid" data-bs-parent="#installInstructions">
+                                <div class="accordion-body bg-light">
+                                    <ol class="mb-0 ps-3">
+                                        <li class="mb-2">Cliquez sur le bouton <span class="badge bg-primary">Installer</span> dans la barre de navigation en haut</li>
+                                        <li class="mb-2">Une fenêtre apparaîtra vous demandant de confirmer l'installation</li>
+                                        <li>Cliquez sur <strong>"Installer"</strong> pour ajouter MonNkap à votre écran d'accueil</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- iPhone / Safari -->
+                        <div class="accordion-item border-0">
+                            <h2 class="accordion-header" id="headingiOS">
+                                <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseiOS" aria-expanded="false" aria-controls="collapseiOS">
+                                    <i class="bi bi-apple text-dark me-2"></i>
+                                    <strong>iPhone / iPad (Safari uniquement)</strong>
+                                </button>
+                            </h2>
+                            <div id="collapseiOS" class="accordion-collapse collapse" aria-labelledby="headingiOS" data-bs-parent="#installInstructions">
+                                <div class="accordion-body bg-light">
+                                    <div class="alert alert-info mb-3">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        <strong>Important :</strong> Utilisez Safari (pas Chrome ou autre navigateur)
+                                    </div>
+                                    <ol class="mb-0 ps-3">
+                                        <li class="mb-2">
+                                            <strong>Ouvrez le menu Partage</strong>
+                                            <br><small class="text-muted">Appuyez sur l'icône de partage <i class="bi bi-box-arrow-up"></i> en bas de l'écran (au centre de la barre)</small>
+                                        </li>
+                                        <li class="mb-2">
+                                            <strong>Faites défiler vers le bas</strong>
+                                            <br><small class="text-muted">Dans la liste d'options qui apparaît</small>
+                                        </li>
+                                        <li class="mb-2">
+                                            <strong>Sélectionnez "Sur l'écran d'accueil"</strong>
+                                            <br><small class="text-muted">Icône avec un carré et un plus <i class="bi bi-plus-square"></i></small>
+                                        </li>
+                                        <li>
+                                            <strong>Appuyez sur "Ajouter"</strong>
+                                            <br><small class="text-muted">MonNkap apparaîtra sur votre écran d'accueil avec son icône</small>
+                                        </li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Plus tard</button>
+                <div class="modal-footer border-0 bg-light">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Plus tard</button>
                     <button type="button" class="btn btn-primary" id="installFromModal">
-                        <i class="bi bi-download"></i> Installer maintenant
+                        <i class="bi bi-download me-1"></i>Installer maintenant
                     </button>
                 </div>
             </div>
@@ -1985,6 +2058,25 @@
                 setTimeout(() => {
                     const modal = new bootstrap.Modal(document.getElementById('pwaAnnouncementModal'));
                     modal.show();
+                    
+                    // Détecter la plateforme et ouvrir l'accordéon approprié
+                    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                    const isAndroid = /Android/.test(navigator.userAgent);
+                    
+                    if (isIOS) {
+                        // Ouvrir automatiquement l'accordéon iOS
+                        const iOSAccordion = document.getElementById('collapseiOS');
+                        if (iOSAccordion) {
+                            const bsCollapse = new bootstrap.Collapse(iOSAccordion, { show: true });
+                        }
+                    } else if (isAndroid) {
+                        // Ouvrir automatiquement l'accordéon Android
+                        const androidAccordion = document.getElementById('collapseAndroid');
+                        if (androidAccordion) {
+                            const bsCollapse = new bootstrap.Collapse(androidAccordion, { show: true });
+                        }
+                    }
+                    
                     // Marquer comme vu
                     localStorage.setItem('monnkap-pwa-announcement-seen', 'true');
                 }, 2000);
@@ -2009,8 +2101,22 @@
                     deferredPrompt = null;
                 });
             } else {
-                // Si pas de prompt disponible, afficher les instructions
-                alert('🍎 Sur iPhone: Tap 🔗 → "Sur l\'écran d\'accueil"\n\n🤖 Sur Android: Le bouton "Installer" devrait apparaître en haut');
+                // Si pas de prompt disponible, ouvrir l'accordéon approprié
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                
+                if (isIOS) {
+                    // Ouvrir l'accordéon iOS
+                    const iOSAccordion = document.getElementById('collapseiOS');
+                    if (iOSAccordion) {
+                        const bsCollapse = new bootstrap.Collapse(iOSAccordion, { show: true });
+                    }
+                } else {
+                    // Ouvrir l'accordéon Android
+                    const androidAccordion = document.getElementById('collapseAndroid');
+                    if (androidAccordion) {
+                        const bsCollapse = new bootstrap.Collapse(androidAccordion, { show: true });
+                    }
+                }
             }
         });
         
