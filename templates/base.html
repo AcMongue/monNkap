@@ -1563,65 +1563,89 @@
     <!-- Modal Soutien / Donation -->
     <div class="modal fade" id="donationModal" tabindex="-1" aria-labelledby="donationModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title" id="donationModalLabel">
-                        <i class="bi bi-heart-fill"></i> Soutenez MonNkap
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0 bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h5 class="modal-title text-white fw-bold" id="donationModalLabel">
+                        <i class="bi bi-heart-fill me-2"></i>Soutenez MonNkap
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="text-center mb-3">
-                        <i class="bi bi-heart-fill text-danger" style="font-size: 3rem;"></i>
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle" style="width: 80px; height: 80px;">
+                            <i class="bi bi-heart-fill text-danger" style="font-size: 2.5rem;"></i>
+                        </div>
                     </div>
-                    <h6 class="fw-bold text-center mb-3">MonNkap est gratuit et le restera toujours !</h6>
-                    <p>Cependant, le développement et l'hébergement de cette application nécessitent du temps et des ressources.</p>
-                    <p class="mb-3">Votre soutien nous aide à :</p>
-                    <ul>
-                        <li>🚀 Développer de nouvelles fonctionnalités</li>
-                        <li>💾 Améliorer l'hébergement et les performances</li>
-                        <li>🔒 Garantir la sécurité de vos données</li>
-                        <li>🛠️ Assurer le support technique</li>
-                    </ul>
                     
-                    <div class="card bg-light mt-3">
-                        <div class="card-body">
-                            <h6 class="card-title"><i class="bi bi-phone-fill text-warning"></i> Orange Money</h6>
-                            <div class="input-group mb-2">
-                                <input type="text" class="form-control" id="orangeMoneyNumber" value="+237 6 90 96 30 25" readonly>
-                                <button class="btn btn-outline-primary" type="button" id="copyOrangeMoneyBtn" title="Copier le numéro">
+                    <h6 class="fw-bold text-center mb-3">MonNkap est gratuit et le restera toujours</h6>
+                    <p class="text-muted text-center mb-4">Cependant, le développement et l'hébergement nécessitent du temps et des ressources.</p>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-lightning-charge-fill text-primary me-2 mt-1"></i>
+                                <small class="text-muted">Nouvelles fonctionnalités</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-server text-primary me-2 mt-1"></i>
+                                <small class="text-muted">Hébergement performant</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-shield-check text-primary me-2 mt-1"></i>
+                                <small class="text-muted">Sécurité des données</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-headset text-primary me-2 mt-1"></i>
+                                <small class="text-muted">Support technique</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card border-0 bg-light mb-3">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-phone-fill text-warning me-2"></i>
+                                <h6 class="mb-0 fw-semibold">Orange Money</h6>
+                            </div>
+                            <div class="input-group">
+                                <input type="text" class="form-control border-0 bg-white" id="orangeMoneyNumber" value="+237 6 90 96 30 25" readonly>
+                                <button class="btn btn-outline-primary" type="button" id="copyOrangeMoneyBtn" title="Copier">
                                     <i class="bi bi-clipboard"></i>
                                 </button>
                             </div>
-                            <small class="text-muted">Support technique disponible sur ce numéro</small>
+                            <small class="text-muted d-block mt-2">Support technique disponible</small>
                         </div>
                     </div>
                     
-                    <div class="card bg-light mt-2">
-                        <div class="card-body">
-                            <h6 class="card-title"><i class="bi bi-envelope-fill text-primary"></i> Contact</h6>
-                            <p class="mb-0">
-                                <a href="mailto:ac7dev25@gmail.com" class="text-decoration-none">
-                                    ac7dev25@gmail.com
-                                </a>
-                            </p>
-                            <small class="text-muted">Pour plus d'informations ou signaler un problème</small>
+                    <div class="card border-0 bg-light">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-envelope-fill text-primary me-2"></i>
+                                <h6 class="mb-0 fw-semibold">Contact</h6>
+                            </div>
+                            <a href="mailto:ac7dev25@gmail.com" class="text-decoration-none text-primary fw-medium">
+                                ac7dev25@gmail.com
+                            </a>
+                            <small class="text-muted d-block mt-1">Pour informations ou signalement</small>
                         </div>
-                    </div>
-                    
-                    <div class="alert alert-success mt-3 mb-0">
-                        <i class="bi bi-info-circle"></i> <strong>Merci pour votre soutien !</strong><br>
-                        <small>Même un petit montant fait une grande différence pour l'avenir de MonNkap.</small>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="snooze30DaysBtn">
-                        <i class="bi bi-alarm"></i> Ne plus afficher pendant 30 jours
+                <div class="modal-footer border-0 bg-light d-flex justify-content-between">
+                    <button type="button" class="btn btn-sm btn-link text-muted text-decoration-none" id="snooze30DaysBtn">
+                        Ne plus afficher pendant 30 jours
                     </button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Plus tard</button>
-                    <button type="button" class="btn btn-warning" id="copyAndCloseBtn">
-                        <i class="bi bi-clipboard-check"></i> Copier le numéro
-                    </button>
+                    <div>
+                        <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">Plus tard</button>
+                        <button type="button" class="btn btn-primary" id="copyAndCloseBtn">
+                            <i class="bi bi-clipboard-check me-1"></i>Copier le numéro
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
