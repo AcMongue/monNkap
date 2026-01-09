@@ -2047,6 +2047,9 @@
         }
         
         // ==================== MODAL NOUVEAUTÉS PWA ====================
+        // Variable globale pour coordonner l'affichage des modals
+        let pwaModalWillShow = false;
+        
         // Afficher le modal une seule fois si l'utilisateur ne l'a pas vu
         window.addEventListener('DOMContentLoaded', () => {
             const hasSeenPwaAnnouncement = localStorage.getItem('monnkap-pwa-announcement-seen');
@@ -2054,6 +2057,8 @@
             
             // Afficher seulement si: jamais vu + pas déjà installé
             if (!hasSeenPwaAnnouncement && !isStandalone) {
+                pwaModalWillShow = true;
+                
                 // Attendre 2 secondes après le chargement pour ne pas gêner
                 setTimeout(() => {
                     const modal = new bootstrap.Modal(document.getElementById('pwaAnnouncementModal'));
@@ -2079,6 +2084,13 @@
                     
                     // Marquer comme vu
                     localStorage.setItem('monnkap-pwa-announcement-seen', 'true');
+                    
+                    // Écouter la fermeture du modal pour déclencher le modal donation
+                    document.getElementById('pwaAnnouncementModal').addEventListener('hidden.bs.modal', function() {
+                        console.log('📱 [PWA] Modal fermé, vérification modal donation...');
+                        // Déclencher l'événement pour afficher le modal donation si nécessaire
+                        window.dispatchEvent(new Event('pwaModalClosed'));
+                    }, { once: true });
                 }, 2000);
             }
         });
@@ -2152,16 +2164,27 @@
             }
             
             // Afficher le modal de donation
+            function showDonationModal() {
+                const donationModal = new bootstrap.Modal(document.getElementById('donationModal'));
+                donationModal.show();
+                
+                // Enregistrer la date d'affichage
+                localStorage.setItem(DONATION_MODAL_KEY, new Date().toISOString());
+                console.log('💝 [Donation] Modal affiché');
+            }
+            
             if (shouldShowDonationModal()) {
-                // Attendre 5 secondes après le chargement + attendre le modal PWA si présent
-                setTimeout(() => {
-                    const donationModal = new bootstrap.Modal(document.getElementById('donationModal'));
-                    donationModal.show();
-                    
-                    // Enregistrer la date d'affichage
-                    localStorage.setItem(DONATION_MODAL_KEY, new Date().toISOString());
-                    console.log('💝 [Donation] Modal affiché');
-                }, 5000);
+                // Si le modal PWA va s'afficher, attendre qu'il soit fermé
+                if (pwaModalWillShow) {
+                    console.log('⏳ [Donation] Attente fermeture modal PWA...');
+                    window.addEventListener('pwaModalClosed', () => {
+                        // Attendre 2 secondes après la fermeture du modal PWA
+                        setTimeout(showDonationModal, 2000);
+                    }, { once: true });
+                } else {
+                    // Pas de modal PWA, afficher après 5 secondes normalement
+                    setTimeout(showDonationModal, 5000);
+                }
             }
             
             // Bouton copier numéro Orange Money
