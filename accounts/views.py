@@ -196,6 +196,21 @@ def add_transaction_view(request):
         if form.is_valid():
             transaction = form.save(commit=False)
             transaction.wallet = wallet
+            
+            # Si c'est une sortie (expense), créer automatiquement une dépense liée
+            if transaction.transaction_type == 'expense':
+                from expenses.models import Expense
+                
+                # Créer la dépense associée
+                expense = Expense.objects.create(
+                    user=request.user,
+                    amount=transaction.amount,
+                    category=transaction.category,
+                    description=transaction.description,
+                    date=transaction.date
+                )
+                transaction.expense = expense
+            
             transaction.save()
             
             # Vérifier si le solde est bas après une sortie
