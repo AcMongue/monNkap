@@ -196,6 +196,11 @@ def create_or_update_wallet_transaction_from_expense(sender, instance, created, 
     Crée ou met à jour automatiquement une WalletTransaction quand une Expense est créée/modifiée.
     """
     if created:
+        # Vérifier si cette Expense a déjà une WalletTransaction liée (créée depuis le portefeuille)
+        if hasattr(instance, 'wallet_transaction') and instance.wallet_transaction:
+            # Déjà lié, ne pas créer de doublon
+            return
+        
         # Récupérer ou créer le wallet de l'utilisateur
         wallet, _ = Wallet.objects.get_or_create(user=instance.user)
         
