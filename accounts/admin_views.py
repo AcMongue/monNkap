@@ -17,9 +17,6 @@ def fix_wallet_expenses_view(request):
     Accessible uniquement aux admins via /admin/fix-wallet-expenses/
     """
     if request.method == 'POST':
-        # Importer le signal ici pour le désactiver temporairement
-        from .wallet_models import create_or_update_wallet_transaction_from_expense
-        
         # Exécuter la correction
         transactions_without_expense = WalletTransaction.objects.filter(
             transaction_type='expense',
@@ -33,13 +30,21 @@ def fix_wallet_expenses_view(request):
             'details': []
         }
         
-        for trans in transactions_without_expense:
-            try:
-                with db_transaction.atomic():
-                    # Désactiver le signal temporairement pour éviter la création d'une 2e transaction
-                    post_save.disconnect(create_or_update_wallet_transaction_from_expense, sender=Expense)
-                    
-                    try:
+        # Désactiver temporairement le signal pour éviter les doublons
+        from django.db.models import signals
+        from .models import Wallet
+        
+        # Trouver le receiver du signal
+        receivers_backup = signals.post_save._live_receivers(Expense)
+        
+        # Déconnecter tous les receivers de Expense
+        for receiver in list(receivers_backup):
+            signals.post_save.disconnect(receiver[1][0], sender=Expense)
+        
+        try:
+            for trans in transactions_without_expense:
+                try:
+                    with db_transaction.atomic():
                         expense = Expense.objects.create(
                             user=trans.wallet.user,
                             amount=trans.amount,
@@ -59,15 +64,16 @@ def fix_wallet_expenses_view(request):
                             'description': trans.description,
                             'user': trans.wallet.user.username
                         })
-                    finally:
-                        # Réactiver le signal
-                        post_save.connect(create_or_update_wallet_transaction_from_expense, sender=Expense)
-                    
-            except Exception as e:
-                results['errors'].append({
-                    'transaction_id': trans.id,
-                    'error': str(e)
-                })
+                        
+                except Exception as e:
+                    results['errors'].append({
+                        'transaction_id': trans.id,
+                        'error': str(e)
+                    })
+        finally:
+            # Reconnecter tous les receivers
+            for receiver in receivers_backup:
+                signals.post_save.connect(receiver[1][0], sender=Expense, weak=receiver[1][1])
         
         return JsonResponse(results)
     
