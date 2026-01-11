@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from .password_reset_view import SafePasswordResetView
+from .admin_views import fix_wallet_expenses_view
 from django.contrib.auth import views as auth_views
 
 app_name = 'accounts'
@@ -43,4 +44,7 @@ urlpatterns = [
     path('wallet/', views.wallet_dashboard_view, name='wallet'),
     path('wallet/add-transaction/', views.add_transaction_view, name='add_transaction'),
     path('wallet/allocate/<int:goal_pk>/', views.allocate_to_goal_view, name='allocate_to_goal'),
+    
+    # Admin tools (staff only)
+    path('admin/fix-wallet-expenses/', fix_wallet_expenses_view, name='fix_wallet_expenses'),
 ]

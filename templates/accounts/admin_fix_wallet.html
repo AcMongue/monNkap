@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}Correction Portefeuille - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="bi bi-wrench-adjustable"></i> Correction Historique Portefeuille
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> <strong>Fonction:</strong> Crée les dépenses manquantes pour les sorties du portefeuille qui n'ont pas de dépense associée.
+                    </div>
+                    
+                    <h6>Statistiques:</h6>
+                    <ul>
+                        <li><strong>Transactions à corriger:</strong> {{ count }}</li>
+                    </ul>
+                    
+                    {% if count > 0 %}
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i> <strong>Attention:</strong> Cette opération va créer {{ count }} dépense(s) et modifier la base de données.
+                        </div>
+                        
+                        <h6>Aperçu (20 premières):</h6>
+                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                            <table class="table table-sm table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Utilisateur</th>
+                                        <th>Montant</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for trans in transactions %}
+                                    <tr>
+                                        <td>{{ trans.date|date:"d/m/Y" }}</td>
+                                        <td>{{ trans.wallet.user.username }}</td>
+                                        <td>{{ trans.amount }} FCFA</td>
+                                        <td>{{ trans.description|truncatewords:5 }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <button type="button" class="btn btn-warning btn-lg" id="fixBtn">
+                                <i class="bi bi-gear-fill"></i> Lancer la correction
+                            </button>
+                            <a href="{% url 'dashboard:home' %}" class="btn btn-secondary">Annuler</a>
+                        </div>
+                        
+                        <div id="results" class="mt-4" style="display: none;">
+                            <div class="alert alert-success">
+                                <h6><i class="bi bi-check-circle"></i> Résultats:</h6>
+                                <ul>
+                                    <li><strong>Total traité:</strong> <span id="resultTotal">0</span></li>
+                                    <li><strong>Dépenses créées:</strong> <span id="resultCreated">0</span></li>
+                                    <li><strong>Erreurs:</strong> <span id="resultErrors">0</span></li>
+                                </ul>
+                            </div>
+                            
+                            <div id="detailsList"></div>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-success">
+                            <i class="bi bi-check-circle"></i> <strong>Parfait!</strong> Aucune transaction à corriger.
+                        </div>
+                        <a href="{% url 'dashboard:home' %}" class="btn btn-primary">Retour au tableau de bord</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('fixBtn')?.addEventListener('click', function() {
+    if (!confirm('Êtes-vous sûr de vouloir créer {{ count }} dépense(s) ?')) {
+        return;
+    }
+    
+    const btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Traitement en cours...';
+    
+    fetch(window.location.href, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('resultTotal').textContent = data.total;
+        document.getElementById('resultCreated').textContent = data.created;
+        document.getElementById('resultErrors').textContent = data.errors.length;
+        
+        // Afficher les détails
+        let detailsHtml = '<h6>Détails:</h6><ul class="list-group">';
+        data.details.forEach(item => {
+            detailsHtml += `<li class="list-group-item list-group-item-success">
+                ✅ Dépense #${item.expense_id} créée: ${item.amount} FCFA - ${item.description} (${item.user})
+            </li>`;
+        });
+        data.errors.forEach(err => {
+            detailsHtml += `<li class="list-group-item list-group-item-danger">
+                ❌ Erreur transaction #${err.transaction_id}: ${err.error}
+            </li>`;
+        });
+        detailsHtml += '</ul>';
+        
+        document.getElementById('detailsList').innerHTML = detailsHtml;
+        document.getElementById('results').style.display = 'block';
+        
+        btn.innerHTML = '<i class="bi bi-check-lg"></i> Terminé!';
+        btn.classList.remove('btn-warning');
+        btn.classList.add('btn-success');
+    })
+    .catch(error => {
+        alert('Erreur: ' + error);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-gear-fill"></i> Lancer la correction';
+    });
+});
+</script>
+{% endblock %}
