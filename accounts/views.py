@@ -200,16 +200,25 @@ def add_transaction_view(request):
             # Si c'est une sortie (expense), créer automatiquement une dépense liée
             if transaction.transaction_type == 'expense':
                 from expenses.models import Expense
+                from django.db.models.signals import post_save
+                from .wallet_models import create_or_update_wallet_transaction_from_expense
                 
-                # Créer la dépense associée
-                expense = Expense.objects.create(
-                    user=request.user,
-                    amount=transaction.amount,
-                    category=transaction.category,
-                    description=transaction.description,
-                    date=transaction.date
-                )
-                transaction.expense = expense
+                # Désactiver temporairement le signal pour éviter le doublon
+                post_save.disconnect(create_or_update_wallet_transaction_from_expense, sender=Expense)
+                
+                try:
+                    # Créer la dépense associée
+                    expense = Expense.objects.create(
+                        user=request.user,
+                        amount=transaction.amount,
+                        category=transaction.category,
+                        description=transaction.description,
+                        date=transaction.date
+                    )
+                    transaction.expense = expense
+                finally:
+                    # Réactiver le signal
+                    post_save.connect(create_or_update_wallet_transaction_from_expense, sender=Expense)
             
             transaction.save()
             
