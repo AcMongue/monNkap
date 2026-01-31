@@ -12,7 +12,7 @@
                 </h4>
             </div>
             <div class="card-body">
-                <p>Êtes-vous sûr de vouloir supprimer cette dépense ?</p>
+                <p class="fw-bold">⚠️ Cette action est irréversible !</p>
                 
                 <div class="alert alert-warning">
                     <strong>{{ expense.description }}</strong><br>
@@ -21,11 +21,22 @@
                     Catégorie : {{ expense.get_category_name }}
                 </div>
                 
-                <form method="post">
+                <p class="text-muted">Pour confirmer la suppression, tapez <code>SUPPRIMER</code> ci-dessous :</p>
+                
+                <form method="post" id="deleteForm">
                     {% csrf_token %}
+                    <div class="mb-3">
+                        <input type="text" 
+                               class="form-control" 
+                               id="confirmText" 
+                               placeholder="Tapez SUPPRIMER"
+                               autocomplete="off"
+                               required>
+                        <div class="invalid-feedback">Vous devez taper exactement "SUPPRIMER"</div>
+                    </div>
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-danger">
-                            <i class="bi bi-trash"></i> Oui, supprimer
+                        <button type="submit" class="btn btn-danger" id="deleteBtn" disabled>
+                            <i class="bi bi-trash"></i> Confirmer la suppression
                         </button>
                         <a href="{% url 'expenses:list' %}" class="btn btn-outline-secondary">
                             <i class="bi bi-x-circle"></i> Annuler
@@ -36,4 +47,33 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmInput = document.getElementById('confirmText');
+    const deleteBtn = document.getElementById('deleteBtn');
+    const form = document.getElementById('deleteForm');
+    
+    confirmInput.addEventListener('input', function() {
+        if (this.value === 'SUPPRIMER') {
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+            deleteBtn.disabled = false;
+        } else {
+            this.classList.remove('is-valid');
+            deleteBtn.disabled = true;
+        }
+    });
+    
+    form.addEventListener('submit', function(e) {
+        if (confirmInput.value !== 'SUPPRIMER') {
+            e.preventDefault();
+            confirmInput.classList.add('is-invalid');
+            return false;
+        }
+        deleteBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Suppression...';
+        deleteBtn.disabled = true;
+    });
+});
+</script>
 {% endblock %}

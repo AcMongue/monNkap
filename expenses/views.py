@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Sum, Count
 from django.db.models.functions import TruncMonth
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from datetime import datetime
 from .models import Expense, Category
 from .forms import ExpenseForm, CategoryForm
@@ -12,7 +13,7 @@ from accounts.motivation_messages import get_expense_message
 @login_required
 def expense_list_view(request):
     """
-    Vue listant toutes les dépenses de l'utilisateur avec filtres.
+    Vue listant toutes les dépenses de l'utilisateur avec filtres et pagination.
     """
     expenses = Expense.objects.filter(user=request.user).select_related('category')
     
@@ -34,8 +35,19 @@ def expense_list_view(request):
     # Liste des catégories pour le filtre
     categories = Category.objects.all()
     
+    # Pagination: 20 items par page
+    paginator = Paginator(expenses.order_by('-date', '-created_at'), 20)
+    page = request.GET.get('page', 1)
+    
+    try:
+        expenses_page = paginator.page(page)
+    except PageNotAnInteger:
+        expenses_page = paginator.page(1)
+    except EmptyPage:
+        expenses_page = paginator.page(paginator.num_pages)
+    
     context = {
-        'expenses': expenses,
+        'expenses': expenses_page,
         'total': total,
         'categories': categories,
         'selected_month': month,

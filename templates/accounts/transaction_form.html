@@ -83,7 +83,7 @@
                         </div>
                     </div>
 
-                    <form method="post" novalidate>
+                    <form method="post" novalidate data-auto-save>
                         {% csrf_token %}
 
                         {% if form.non_field_errors %}
@@ -155,7 +155,7 @@
 
                         <!-- Boutons -->
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg">
+                            <button type="submit" class="btn btn-primary btn-lg" id="submitWalletBtn">
                                 <i class="bi bi-check-circle me-2"></i>Enregistrer
                             </button>
                             <a href="{% url 'accounts:wallet' %}" class="btn btn-outline-secondary">
@@ -167,13 +167,13 @@
             </div>
 
             <!-- Simulation de l'impact -->
-            <div class="card glass-card mt-3">
+            <div class="card glass-card mt-3" id="simulatorCard">
                 <div class="card-body">
                     <h6 class="mb-3"><i class="bi bi-calculator me-2"></i>Simulateur d'impact</h6>
                     <div id="simulationResult" class="alert alert-info">
                         <small class="text-muted">
                             <i class="bi bi-info-circle me-1"></i>
-                            Sélectionnez le type et entrez un montant pour voir l'impact
+                            Modifiez le type ou le montant ci-dessus pour voir l'impact
                         </small>
                     </div>
                 </div>
@@ -183,86 +183,89 @@
 </div>
 
 <script>
-// Simulateur d'impact en temps réel
-document.addEventListener('DOMContentLoaded', function() {
-    const typeField = document.querySelector('[name="transaction_type"]');
-    const amountField = document.querySelector('[name="amount"]');
-    const simulationDiv = document.getElementById('simulationResult');
+(function() {
+    'use strict';
     
-    const currentTotal = {{ wallet.total_balance|default:0 }};
-    const currentAvailable = {{ wallet.available_balance|default:0 }};
-    const currentAllocated = {{ wallet.get_allocated_amount|default:0 }};
-
-    function updateSimulation() {
-        const type = typeField ? typeField.value : '';
-        const amount = parseFloat(amountField ? amountField.value : 0) || 0;
+    // Attendre que le DOM soit chargé
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+    
+    function init() {
+        // Récupérer les éléments
+        const typeSelect = document.getElementById('id_transaction_type');
+        const amountInput = document.getElementById('id_amount');
+        const resultDiv = document.getElementById('simulationResult');
         
-        if (!type || amount <= 0) {
-            simulationDiv.className = 'alert alert-info';
-            simulationDiv.innerHTML = `
-                <small class="text-muted">
-                    <i class="bi bi-info-circle me-1"></i>
-                    Sélectionnez le type et entrez un montant pour voir l'impact
-                </small>
-            `;
+        // Vérifier que tous les éléments existent
+        if (!typeSelect || !amountInput || !resultDiv) {
+            console.warn('Simulateur: éléments manquants', {
+                type: !!typeSelect,
+                amount: !!amountInput,
+                result: !!resultDiv
+            });
             return;
         }
-
-        let newTotal, newAvailable;
-        let icon, colorClass, operation;
         
-        if (type === 'income') {
-            newTotal = currentTotal + amount;
-            newAvailable = currentAvailable + amount;
-            icon = 'arrow-down-circle';
-            colorClass = 'alert-success';
-            operation = '+';
-        } else {
-            newTotal = currentTotal - amount;
-            newAvailable = currentAvailable - amount;
-            icon = 'arrow-up-circle';
-            colorClass = 'alert-danger';
-            operation = '-';
-        }
-
-        simulationDiv.className = `alert ${colorClass}`;
-        simulationDiv.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <strong><i class="bi bi-${icon} me-1"></i> 
-                        ${type === 'income' ? 'Entrée' : 'Sortie'} de ${amount.toLocaleString('fr-FR')} FCFA
+        // Valeurs actuelles du wallet
+        const walletData = {
+            total: {{ wallet.total_balance|floatformat:2|default:0 }},
+            available: {{ wallet.available_balance|floatformat:2|default:0 }},
+            allocated: {{ wallet.get_allocated_amount|floatformat:2|default:0 }}
+        };
+        
+        // Fonction de mise à jour
+        function updateSimulation() {
+            const type = typeSelect.value;
+            const amount = parseFloat(amountInput.value) || 0;
+            
+            if (!type || amount <= 0) {
+                resultDiv.className = 'alert alert-info';
+                resultDiv.innerHTML = '<small class="text-muted"><i class="bi bi-info-circle me-1"></i>Entrez un montant pour voir l\'impact</small>';
+                return;
+            }
+            
+            const isIncome = type === 'income';
+            const newTotal = isIncome ? walletData.total + amount : walletData.total - amount;
+            const newAvailable = isIncome ? walletData.available + amount : walletData.available - amount;
+            
+            resultDiv.className = isIncome ? 'alert alert-success' : 'alert alert-danger';
+            resultDiv.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong>
+                        <i class="bi bi-${isIncome ? 'arrow-down' : 'arrow-up'}-circle me-1"></i>
+                        ${isIncome ? 'Entrée' : 'Sortie'} de ${amount.toLocaleString('fr-FR')} FCFA
                     </strong>
+                    <span class="badge bg-dark">Simulation</span>
                 </div>
-                <div class="badge bg-dark">Simulation</div>
-            </div>
-            <hr>
-            <div class="row text-center small">
-                <div class="col-4">
-                    <div class="text-muted">Solde Total</div>
-                    <div class="fw-bold">${currentTotal.toLocaleString('fr-FR')}</div>
-                    <div class="text-muted">${operation} ${amount.toLocaleString('fr-FR')}</div>
-                    <div class="fw-bold fs-6 mt-1">→ ${newTotal.toLocaleString('fr-FR')}</div>
+                <hr class="my-2">
+                <div class="row text-center small">
+                    <div class="col-6">
+                        <div class="text-muted">Solde Total</div>
+                        <div class="fw-bold">${walletData.total.toLocaleString('fr-FR')}</div>
+                        <div class="text-muted">${isIncome ? '+' : '-'} ${amount.toLocaleString('fr-FR')}</div>
+                        <div class="fw-bold text-${isIncome ? 'success' : 'danger'} fs-6 mt-1">
+                            → ${newTotal.toLocaleString('fr-FR')} FCFA
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-muted">Disponible</div>
+                        <div class="fw-bold">${walletData.available.toLocaleString('fr-FR')}</div>
+                        <div class="text-muted">${isIncome ? '+' : '-'} ${amount.toLocaleString('fr-FR')}</div>
+                        <div class="fw-bold text-${isIncome ? 'success' : 'danger'} fs-6 mt-1">
+                            → ${newAvailable.toLocaleString('fr-FR')} FCFA
+                        </div>
+                    </div>
                 </div>
-                <div class="col-4">
-                    <div class="text-muted">Disponible</div>
-                    <div class="fw-bold">${currentAvailable.toLocaleString('fr-FR')}</div>
-                    <div class="text-muted">${operation} ${amount.toLocaleString('fr-FR')}</div>
-                    <div class="fw-bold fs-6 mt-1">→ ${newAvailable.toLocaleString('fr-FR')}</div>
-                </div>
-                <div class="col-4">
-                    <div class="text-muted">Alloué</div>
-                    <div class="fw-bold">${currentAllocated.toLocaleString('fr-FR')}</div>
-                    <div class="text-muted">inchangé</div>
-                    <div class="fw-bold fs-6 mt-1">→ ${currentAllocated.toLocaleString('fr-FR')}</div>
-                </div>
-            </div>
-        `;
+            `;
+        }
+        
+        // Attacher les événements
+        typeSelect.addEventListener('change', updateSimulation);
+        amountInput.addEventListener('input', updateSimulation);
     }
-
-    if (typeField && amountField) {
-        typeField.addEventListener('change', updateSimulation);
-        amountField.addEventListener('input', updateSimulation);
-    }
-});
+})();
 </script>
 {% endblock %}

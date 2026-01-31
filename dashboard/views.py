@@ -23,12 +23,12 @@ def home_view(request):
     current_year = today.year
     
     # === DÉPENSES ===
-    # Dépenses du mois en cours
+    # Dépenses du mois en cours avec optimisation
     monthly_expenses = Expense.objects.filter(
         user=request.user,
         date__month=current_month,
         date__year=current_year
-    )
+    ).select_related('category')  # ← OPTIMISATION
     
     total_monthly_expenses = monthly_expenses.aggregate(
         total=Sum('amount')
@@ -41,17 +41,17 @@ def home_view(request):
         total=Sum('amount')
     ).order_by('-total')[:5]
     
-    # Dernières dépenses
+    # Dernières dépenses avec catégorie pré-chargée
     recent_expenses = Expense.objects.filter(
         user=request.user
-    ).select_related('category').order_by('-date', '-created_at')[:5]
+    ).select_related('category').order_by('-date', '-created_at')[:5]  # ← Déjà optimisé
     
     # === OBJECTIFS PERSONNELS ===
-    # Objectifs actifs
+    # Objectifs actifs avec catégorie pré-chargée
     active_goals = Goal.objects.filter(
         user=request.user,
         status='active'
-    ).order_by('deadline')[:5]
+    ).select_related('category').order_by('deadline')[:5]  # ← OPTIMISATION
     
     total_goals_target = active_goals.aggregate(
         total=Sum('target_amount')
@@ -62,11 +62,11 @@ def home_view(request):
     )['total'] or 0
     
     # === GROUPES ===
-    # Groupes dont l'utilisateur est membre
+    # Groupes dont l'utilisateur est membre avec créateur pré-chargé
     user_groups = Group.objects.filter(
         members=request.user,
         status='active'
-    ).order_by('deadline')[:5]
+    ).select_related('created_by').prefetch_related('members').order_by('deadline')[:5]  # ← OPTIMISATION
     
     # Contributions de l'utilisateur ce mois
     monthly_contributions = GroupContribution.objects.filter(

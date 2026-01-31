@@ -8,6 +8,7 @@ from django.db.models import Sum
 from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters
 from django_ratelimit.decorators import ratelimit
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from decimal import Decimal
 from .forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm
 from .wallet_forms import WalletTransactionForm, GoalAllocationForm
@@ -144,17 +145,33 @@ def wallet_dashboard_view(request):
     """
     wallet, created = Wallet.objects.get_or_create(user=request.user)
     
-    # Récupérer les transactions récentes
-    recent_transactions = WalletTransaction.objects.filter(wallet=wallet).select_related('category', 'expense').order_by('-date')[:10]
+    # Récupérer les transactions récentes avec pagination
+    transactions_queryset = WalletTransaction.objects.filter(
+        wallet=wallet
+    ).select_related('category', 'expense').order_by('-date', '-created_at')
     
-    # Récupérer les objectifs avec leurs allocations
-    goals = Goal.objects.filter(user=request.user, status='active')
+    # Pagination: 20 transactions par page
+    paginator = Paginator(transactions_queryset, 20)
+    page = request.GET.get('page', 1)
+    
+    try:
+        recent_transactions = paginator.page(page)
+    except PageNotAnInteger:
+        recent_transactions = paginator.page(1)
+    except EmptyPage:
+        recent_transactions = paginator.page(paginator.num_pages)
+    
+    # Récupérer les objectifs avec leurs allocations (optimisé)
+    goals = Goal.objects.filter(
+        user=request.user, 
+        status='active'
+    ).select_related('category').prefetch_related('allocations')
+    
     goal_allocations = []
     for goal in goals:
-        allocated = GoalAllocation.objects.filter(
-            wallet=wallet,
-            goal=goal
-        ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
+        allocated = goal.allocations.filter(wallet=wallet).aggregate(
+            total=Sum('amount')
+        )['total'] or Decimal('0.00')
         
         goal_allocations.append({
             'goal': goal,

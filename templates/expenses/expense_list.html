@@ -117,6 +117,70 @@
                 </tbody>
             </table>
         </div>
+        
+        <!-- Pagination -->
+        {% if expenses.has_other_pages %}
+        <nav aria-label="Navigation des pages">
+            <ul class="pagination justify-content-center mt-4">
+                {% if expenses.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if selected_month %}&month={{ selected_month }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">
+                        <i class="bi bi-chevron-bar-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ expenses.previous_page_number }}{% if selected_month %}&month={{ selected_month }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link"><i class="bi bi-chevron-bar-left"></i></span>
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link"><i class="bi bi-chevron-left"></i></span>
+                </li>
+                {% endif %}
+                
+                <!-- Numéros de pages -->
+                {% for num in expenses.paginator.page_range %}
+                    {% if expenses.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% elif num > expenses.number|add:'-3' and num < expenses.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if selected_month %}&month={{ selected_month }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if expenses.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ expenses.next_page_number }}{% if selected_month %}&month={{ selected_month }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ expenses.paginator.num_pages }}{% if selected_month %}&month={{ selected_month }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">
+                        <i class="bi bi-chevron-bar-right"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link"><i class="bi bi-chevron-right"></i></span>
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link"><i class="bi bi-chevron-bar-right"></i></span>
+                </li>
+                {% endif %}
+            </ul>
+            <div class="text-center text-muted small">
+                Page {{ expenses.number }} sur {{ expenses.paginator.num_pages }} ({{ expenses.paginator.count }} dépenses au total)
+            </div>
+        </nav>
+        {% endif %}
+        
         {% else %}
         <div class="text-center my-5">
             <i class="bi bi-inbox display-1 text-muted"></i>

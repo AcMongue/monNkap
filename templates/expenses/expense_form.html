@@ -12,7 +12,7 @@
                 </h4>
             </div>
             <div class="card-body">
-                <form method="post">
+                <form method="post" novalidate data-auto-save>
                     {% csrf_token %}
                     
                     <div class="row">
@@ -53,7 +53,7 @@
                     <hr>
                     
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-gradient-primary">
+                        <button type="submit" class="btn btn-gradient-primary" id="submitBtn">
                             <i class="bi bi-check-circle"></i> Enregistrer
                         </button>
                         <a href="{% url 'expenses:list' %}" class="btn btn-outline-secondary">
@@ -65,4 +65,71 @@
         </div>
     </div>
 </div>
+
+<script>
+// Validation temps réel
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const descriptionInput = document.getElementById('{{ form.description.id_for_label }}');
+    const amountInput = document.getElementById('{{ form.amount.id_for_label }}');
+    const categoryInput = document.getElementById('{{ form.category_name.id_for_label }}');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    function validateField(field, validator, errorMsg) {
+        const feedback = field.parentElement.querySelector('.invalid-feedback') || document.createElement('div');
+        feedback.className = 'invalid-feedback';
+        
+        if (!validator(field.value)) {
+            field.classList.add('is-invalid');
+            field.classList.remove('is-valid');
+            feedback.textContent = errorMsg;
+            if (!field.parentElement.querySelector('.invalid-feedback')) {
+                field.parentElement.appendChild(feedback);
+            }
+            return false;
+        } else if (field.value.trim()) {
+            field.classList.remove('is-invalid');
+            field.classList.add('is-valid');
+            return true;
+        }
+        return true;
+    }
+    
+    // Validation description
+    if (descriptionInput) {
+        descriptionInput.addEventListener('input', function() {
+            validateField(this, 
+                val => val.trim().length >= 3,
+                'La description doit contenir au moins 3 caractères'
+            );
+        });
+    }
+    
+    // Validation montant
+    if (amountInput) {
+        amountInput.addEventListener('input', function() {
+            validateField(this,
+                val => !isNaN(val) && parseFloat(val) > 0,
+                'Le montant doit être supérieur à 0'
+            );
+        });
+    }
+    
+    // Validation catégorie
+    if (categoryInput) {
+        categoryInput.addEventListener('input', function() {
+            validateField(this,
+                val => val.trim().length >= 2,
+                'La catégorie doit contenir au moins 2 caractères'
+            );
+        });
+    }
+    
+    // Spinner sur soumission
+    form.addEventListener('submit', function() {
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enregistrement...';
+        submitBtn.disabled = true;
+    });
+});
+</script>
 {% endblock %}

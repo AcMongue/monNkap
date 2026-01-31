@@ -19,6 +19,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <!-- Custom Design System -->
     <link rel="stylesheet" href="{% static 'css/custom-design.css' %}">
+    <!-- Skeleton Loaders -->
+    <link rel="stylesheet" href="{% static 'css/skeleton.css' %}">>
     
     <!-- Anti-flash : cacher le body jusqu'à l'application du thème -->
     <style>
@@ -2240,6 +2242,9 @@
             });
         });
     </script>
+    
+    <!-- UX Enhancements -->
+    <script src="{% static 'js/ux-enhancements.js' %}"></script>
     
     {% block extra_js %}{% endblock %}
 </body>
