@@ -30,8 +30,8 @@
 </div>
 
 <div class="row">
-    <!-- Dépenses par catégorie -->
-    <div class="col-md-6 mb-4">
+    <!-- Graphique Camembert - Dépenses par catégorie -->
+    <div class="col-lg-6 mb-4">
         <div class="card">
             <div class="card-header bg-white">
                 <h5 class="mb-0">
@@ -40,29 +40,24 @@
             </div>
             <div class="card-body">
                 {% if expenses_by_category %}
-                    {% for category in expenses_by_category %}
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between mb-2">
+                    <canvas id="categoryChart" style="max-height: 350px;"></canvas>
+                    
+                    <!-- Légende détaillée -->
+                    <div class="mt-4">
+                        {% for category in expenses_by_category %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
                             <span>
-                                <i class="bi {{ category.category__icon|default:'bi-tag' }}" style="color: {{ category.category__color|default:'#6c757d' }}"></i>
-                                {{ category.category__name|default:"Non catégorisé" }}
+                                <span class="badge" style="background-color: {{ category.category__color|default:'#6c757d' }};">
+                                    {{ category.category__name|default:"Non catégorisé" }}
+                                </span>
                             </span>
-                            <div>
+                            <span>
                                 <strong class="text-danger">{{ category.total|floatformat:0 }} FCFA</strong>
-                                <span class="badge bg-secondary ms-2">{{ category.count }}</span>
-                            </div>
+                                <span class="text-muted ms-2">({% widthratio category.total total_expenses 100 %}%)</span>
+                            </span>
                         </div>
-                        <div class="progress" style="height: 10px;">
-                            <div class="progress-bar" 
-                                 role="progressbar" 
-                                 style="width: {% widthratio category.total total_expenses 100 %}%; background-color: {{ category.category__color|default:'#6c757d' }}"
-                                 aria-valuenow="{% widthratio category.total total_expenses 100 %}" 
-                                 aria-valuemin="0" 
-                                 aria-valuemax="100"></div>
-                        </div>
-                        <small class="text-muted">{{ category.count }} dépense{{ category.count|pluralize }} • {% widthratio category.total total_expenses 100 %}%</small>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
                 {% else %}
                     <p class="text-muted text-center my-4">Aucune donnée disponible</p>
                 {% endif %}
@@ -70,36 +65,37 @@
         </div>
     </div>
     
-    <!-- Évolution mensuelle -->
-    <div class="col-md-6 mb-4">
+    <!-- Graphique Lignes - Évolution mensuelle -->
+    <div class="col-lg-6 mb-4">
         <div class="card">
             <div class="card-header bg-white">
                 <h5 class="mb-0">
-                    <i class="bi bi-calendar3 text-success"></i> Évolution mensuelle (6 derniers mois)
+                    <i class="bi bi-graph-up text-success"></i> Évolution mensuelle (6 derniers mois)
                 </h5>
             </div>
             <div class="card-body">
                 {% if expenses_by_month %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Mois</th>
-                                <th>Montant</th>
-                                <th>Dépenses</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in expenses_by_month %}
-                            <tr>
-                                <td>{{ item.month|date:"F Y" }}</td>
-                                <td><strong class="text-danger">{{ item.total|floatformat:0 }} FCFA</strong></td>
-                                <td><span class="badge bg-secondary">{{ item.count }}</span></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                    <canvas id="monthChart" style="max-height: 350px;"></canvas>
+                    
+                    <!-- Tableau récapitulatif -->
+                    <div class="table-responsive mt-4">
+                        <table class="table table-hover table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Mois</th>
+                                    <th class="text-end">Montant</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in expenses_by_month %}
+                                <tr>
+                                    <td>{{ item.month|date:"F Y" }}</td>
+                                    <td class="text-end"><strong class="text-danger">{{ item.total|floatformat:0 }} FCFA</strong></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 {% else %}
                     <p class="text-muted text-center my-4">Aucune donnée disponible</p>
                 {% endif %}
@@ -107,4 +103,120 @@
         </div>
     </div>
 </div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Adapter les couleurs selon le thème
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const textColor = isDark ? '#E5E7EB' : '#1F2937';
+    const gridColor = isDark ? '#374151' : '#E5E7EB';
+    
+    // Configuration commune
+    Chart.defaults.color = textColor;
+    Chart.defaults.borderColor = gridColor;
+    
+    {% if expenses_by_category %}
+    // ===== Graphique Camembert - Catégories =====
+    const categoryCtx = document.getElementById('categoryChart');
+    if (categoryCtx) {
+        new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ category_labels_json|safe }},
+                datasets: [{
+                    label: 'Dépenses',
+                    data: {{ category_data_json|safe }},
+                    backgroundColor: {{ category_colors_json|safe }},
+                    borderWidth: 2,
+                    borderColor: isDark ? '#1F2937' : '#FFFFFF'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false  // Légende personnalisée en dessous
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return context.label + ': ' + value.toLocaleString() + ' FCFA (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    {% endif %}
+    
+    {% if expenses_by_month %}
+    // ===== Graphique Lignes - Évolution mensuelle =====
+    const monthCtx = document.getElementById('monthChart');
+    if (monthCtx) {
+        new Chart(monthCtx, {
+            type: 'line',
+            data: {
+                labels: {{ month_labels_json|safe }},
+                datasets: [{
+                    label: 'Dépenses mensuelles',
+                    data: {{ month_data_json|safe }},
+                    borderColor: '#EF4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    pointBackgroundColor: '#EF4444',
+                    pointBorderColor: '#FFFFFF',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Dépenses: ' + context.parsed.y.toLocaleString() + ' FCFA';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString() + ' FCFA';
+                            }
+                        },
+                        grid: {
+                            color: gridColor
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+    {% endif %}
+});
+</script>
 {% endblock %}

@@ -131,12 +131,51 @@
     {% else %}
     <div class="col-12">
         <div class="card">
-            <div class="card-body text-center my-5">
-                <i class="bi bi-bullseye display-1 text-muted"></i>
-                <p class="text-muted mt-3 mb-4">Aucun objectif trouvé</p>
-                <a href="{% url 'goals:create' %}" class="btn btn-gradient-success">
-                    <i class="bi bi-plus-circle"></i> Créer mon premier objectif
-                </a>
+            <div class="card-body">
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-bullseye"></i>
+                    </div>
+                    <h3 class="empty-state-title">Aucun objectif d'épargne</h3>
+                    <p class="empty-state-description">
+                        Définissez vos objectifs financiers et économisez progressivement pour les atteindre
+                    </p>
+                    <div class="empty-state-actions">
+                        <a href="{% url 'goals:create' %}" class="empty-state-cta empty-state-cta-primary">
+                            <i class="bi bi-plus-circle"></i>
+                            <span>Créer un objectif</span>
+                        </a>
+                    </div>
+                    <div class="empty-state-features">
+                        <div class="empty-state-feature">
+                            <div class="empty-state-feature-icon">
+                                <i class="bi bi-piggy-bank-fill"></i>
+                            </div>
+                            <div class="empty-state-feature-text">
+                                <div class="empty-state-feature-title">Suivi automatique</div>
+                                <div class="empty-state-feature-description">Visualisez votre progression en temps réel</div>
+                            </div>
+                        </div>
+                        <div class="empty-state-feature">
+                            <div class="empty-state-feature-icon">
+                                <i class="bi bi-calendar-check"></i>
+                            </div>
+                            <div class="empty-state-feature-text">
+                                <div class="empty-state-feature-title">Date limite</div>
+                                <div class="empty-state-feature-description">Fixez un délai pour rester motivé</div>
+                            </div>
+                        </div>
+                        <div class="empty-state-feature">
+                            <div class="empty-state-feature-icon">
+                                <i class="bi bi-graph-up"></i>
+                            </div>
+                            <div class="empty-state-feature-text">
+                                <div class="empty-state-feature-title">Statistiques</div>
+                                <div class="empty-state-feature-description">Analysez vos habitudes d'épargne</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

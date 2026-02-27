@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Supprimer le budget - MonNkap{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <h1><i class="bi bi-trash me-2"></i> Supprimer le budget</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Attention !</strong> Cette action est irréversible.
+                </div>
+                
+                <p class="mb-4">
+                    Êtes-vous sûr de vouloir supprimer ce budget ?
+                </p>
+                
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        <h5>
+                            {% if budget.category %}
+                                <i class="bi {{ budget.category.icon }}" style="color: {{ budget.category.color }}"></i>
+                                {{ budget.category.name }}
+                            {% else %}
+                                <i class="bi bi-wallet2 text-primary"></i>
+                                Budget global
+                            {% endif %}
+                        </h5>
+                        <p class="mb-1">
+                            <strong>Montant :</strong> {{ budget.amount|floatformat:0 }} FCFA
+                        </p>
+                        <p class="mb-0">
+                            <strong>Période :</strong> {{ budget.month }}/{{ budget.year }}
+                        </p>
+                    </div>
+                </div>
+                
+                <form method="post" class="d-flex gap-2">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-2"></i> Oui, supprimer
+                    </button>
+                    <a href="{% url 'expenses:budget_list' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle me-2"></i> Annuler
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

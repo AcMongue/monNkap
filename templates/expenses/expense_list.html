@@ -10,6 +10,9 @@
             <p>Suivez et analysez vos dépenses quotidiennes</p>
         </div>
         <div>
+            <a href="{% url 'expenses:export_csv' %}?{% if selected_month %}month={{ selected_month }}&{% endif %}{% if selected_year %}year={{ selected_year }}&{% endif %}{% if selected_category %}category={{ selected_category }}{% endif %}" class="btn btn-outline-success">
+                <i class="bi bi-download me-2"></i> Exporter CSV
+            </a>
             <a href="{% url 'expenses:create' %}" class="btn btn-gradient-primary">
                 <i class="bi bi-plus-circle me-2"></i> Nouvelle dépense
             </a>
@@ -20,10 +23,17 @@
     </div>
 </div>
 
-<!-- Filtres -->
+<!-- Filtres et recherche -->
 <div class="card mb-4">
     <div class="card-body">
         <form method="get" class="row g-3">
+            <!-- Recherche par description -->
+            <div class="col-md-12">
+                <label class="form-label"><i class="bi bi-search me-1"></i> Recherche par description</label>
+                <input type="text" name="search" class="form-control" value="{{ search_query }}" placeholder="Ex: restaurant, transport, courses...">
+            </div>
+            
+            <!-- Filtres existants -->
             <div class="col-md-3">
                 <label class="form-label">Mois</label>
                 <select name="month" class="form-select">
@@ -39,7 +49,7 @@
                 <label class="form-label">Année</label>
                 <input type="number" name="year" class="form-control" value="{{ selected_year }}" placeholder="2025">
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label class="form-label">Catégorie</label>
                 <select name="category" class="form-select">
                     <option value="">Toutes les catégories</option>
@@ -50,9 +60,24 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-2">
-                <label class="form-label">&nbsp;</label>
-                <button type="submit" class="btn btn-gradient-primary w-100">Filtrer</button>
+            
+            <!-- Nouveaux filtres de montant -->
+            <div class="col-md-3">
+                <label class="form-label">Montant</label>
+                <div class="input-group">
+                    <input type="number" name="min_amount" class="form-control" value="{{ min_amount }}" placeholder="Min">
+                    <span class="input-group-text">-</span>
+                    <input type="number" name="max_amount" class="form-control" value="{{ max_amount }}" placeholder="Max">
+                </div>
+            </div>
+            
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-gradient-primary">
+                    <i class="bi bi-funnel me-2"></i> Filtrer
+                </button>
+                <a href="{% url 'expenses:list' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle me-2"></i> Réinitialiser
+                </a>
             </div>
         </form>
     </div>
@@ -77,34 +102,34 @@
     <div class="card-body">
         {% if expenses %}
         <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
+            <table class="table table-hover" style="background-color: #FFFFFF !important; color: #111827 !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+                <thead style="background-color: #000000 !important;">
                     <tr>
-                        <th>Date</th>
-                        <th>Description</th>
-                        <th>Catégorie</th>
-                        <th>Montant</th>
-                        <th>Actions</th>
+                        <th style="color: #FFFFFF !important; font-weight: 600; letter-spacing: 0.5px; font-size: 0.875rem;">Date</th>
+                        <th style="color: #FFFFFF !important; font-weight: 600; letter-spacing: 0.5px; font-size: 0.875rem;">Description</th>
+                        <th style="color: #FFFFFF !important; font-weight: 600; letter-spacing: 0.5px; font-size: 0.875rem;">Catégorie</th>
+                        <th style="color: #FFFFFF !important; font-weight: 600; letter-spacing: 0.5px; font-size: 0.875rem;">Montant</th>
+                        <th style="color: #FFFFFF !important; font-weight: 600; letter-spacing: 0.5px; font-size: 0.875rem;">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody style="background-color: #FFFFFF !important;">
                     {% for expense in expenses %}
-                    <tr>
-                        <td>{{ expense.date|date:"d/m/Y" }}</td>
-                        <td>
-                            <strong>{{ expense.description }}</strong>
+                    <tr style="color: #111827 !important; background-color: #FFFFFF !important;">
+                        <td style="color: #111827 !important; background-color: #FFFFFF !important; font-size: 0.9375rem; font-weight: 500;">{{ expense.date|date:"d/m/Y" }}</td>
+                        <td style="color: #111827 !important; background-color: #FFFFFF !important; font-size: 0.9375rem;">
+                            <strong style="color: #000000 !important; font-weight: 600; font-size: 1rem;">{{ expense.description }}</strong>
                             {% if expense.notes %}
-                            <br><small class="text-muted">{{ expense.notes|truncatewords:10 }}</small>
+                            <br><small class="text-muted" style="color: #6B7280 !important; font-size: 0.8125rem; line-height: 1.5;">{{ expense.notes|truncatewords:10 }}</small>
                             {% endif %}
                         </td>
-                        <td>
-                            <span class="badge" style="background-color: {{ expense.category.color|default:'#6c757d' }}">
+                        <td style="color: #111827 !important; background-color: #FFFFFF !important;">
+                            <span class="badge category-badge" style="--badge-color: {{ expense.category.color|default:'#6c757d' }}">
                                 <i class="bi {{ expense.category.icon|default:'bi-tag' }}"></i>
                                 {{ expense.get_category_name }}
                             </span>
                         </td>
-                        <td><strong class="text-danger">{{ expense.amount|floatformat:0 }} FCFA</strong></td>
-                        <td>
+                        <td style="background-color: #FFFFFF !important;"><strong class="text-danger" style="color: #EF4444 !important; font-size: 1rem; font-weight: 700;">{{ expense.amount|floatformat:0 }} FCFA</strong></td>
+                        <td style="background-color: #FFFFFF !important;">
                             <a href="{% url 'expenses:update' expense.pk %}" class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-pencil"></i>
                             </a>
@@ -182,12 +207,20 @@
         {% endif %}
         
         {% else %}
-        <div class="text-center my-5">
-            <i class="bi bi-inbox display-1 text-muted"></i>
-            <p class="text-muted mt-3">Aucune dépense trouvée</p>
-            <a href="{% url 'expenses:create' %}" class="btn btn-gradient-primary">
-                <i class="bi bi-plus-circle"></i> Ajouter une dépense
-            </a>
+        <div class=\"empty-state empty-state-sm\">
+            <div class=\"empty-state-icon\">
+                <i class=\"bi bi-receipt\"></i>
+            </div>
+            <h3 class=\"empty-state-title\">Aucune dépense pour le moment</h3>
+            <p class=\"empty-state-description\">
+                Commencez à suivre vos dépenses pour mieux gérer votre budget
+            </p>
+            <div class=\"empty-state-actions\">
+                <a href=\"{% url 'expenses:create' %}\" class=\"empty-state-cta empty-state-cta-primary\">
+                    <i class=\"bi bi-plus-circle\"></i>
+                    <span>Ajouter une dépense</span>
+                </a>
+            </div>
         </div>
         {% endif %}
     </div>

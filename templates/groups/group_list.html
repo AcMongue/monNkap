@@ -103,12 +103,46 @@
     {% else %}
     <div class="col-12">
         <div class="card">
-            <div class="card-body text-center my-5">
-                <i class="bi bi-people display-1 text-muted"></i>
-                <p class="text-muted mt-3 mb-4">Aucun groupe trouvé</p>
-                <a href="{% url 'groups:create' %}" class="btn btn-gradient-primary">
-                    <i class="bi bi-plus-circle"></i> Créer mon premier groupe
-                </a>
+            <div class="card-body">
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <h3 class="empty-state-title">Aucun groupe financier</h3>
+                    <p class="empty-state-description">
+                        Créez des groupes pour gérer vos finances en famille, entre amis ou avec des collègues
+                    </p>
+                    <div class="empty-state-actions">
+                        <a href="{% url 'groups:create' %}" class="empty-state-cta empty-state-cta-primary">
+                            <i class="bi bi-plus-circle"></i>
+                            <span>Créer un groupe</span>
+                        </a>
+                        <a href="{% url 'groups:join' %}" class="empty-state-cta empty-state-cta-secondary">
+                            <i class="bi bi-box-arrow-in-right"></i>
+                            <span>Rejoindre un groupe</span>
+                        </a>
+                    </div>
+                    <div class="empty-state-features">
+                        <div class="empty-state-feature">
+                            <div class="empty-state-feature-icon">
+                                <i class="bi bi-cash-stack"></i>
+                            </div>
+                            <div class="empty-state-feature-text">
+                                <div class="empty-state-feature-title">Dépenses partagées</div>
+                                <div class="empty-state-feature-description">Divisez équitablement les frais communs</div>
+                            </div>
+                        </div>
+                        <div class="empty-state-feature">
+                            <div class="empty-state-feature-icon">
+                                <i class="bi bi-piggy-bank"></i>
+                            </div>
+                            <div class="empty-state-feature-text">
+                                <div class="empty-state-feature-title">Épargne collective</div>
+                                <div class="empty-state-feature-description">Cotisez ensemble pour des objectifs communs</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

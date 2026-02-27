@@ -1,0 +1,337 @@
+/**
+ * FinTrack - Progress Badges & Motivational Feedback
+ * Gamification et encouragement visuel
+ */
+
+.progress-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    animation: badgePop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes badgePop {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Niveaux de progression */
+.progress-badge-started {
+    background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+    color: #1976D2;
+    border: 1px solid #90CAF9;
+}
+
+.progress-badge-quarter {
+    background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+    color: #F57C00;
+    border: 1px solid #FFCC80;
+}
+
+.progress-badge-half {
+    background: linear-gradient(135deg, #FFF9C4 0%, #FFF59D 100%);
+    color: #F9A825;
+    border: 1px solid #FFF176;
+}
+
+.progress-badge-threequarter {
+    background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+    color: #388E3C;
+    border: 1px solid #A5D6A7;
+}
+
+.progress-badge-almost {
+    background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
+    color: #7B1FA2;
+    border: 1px solid #CE93D8;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.progress-badge-completed {
+    background: linear-gradient(135deg, #00C853 0%, #00E676 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 200, 83, 0.3);
+}
+
+.progress-badge-completed::before {
+    content: '🎉 ';
+}
+
+/* Milestone badges */
+.milestone-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0066FF 0%, #00C853 100%);
+    color: white;
+    font-size: 20px;
+    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+    position: relative;
+    animation: milestoneAppear 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes milestoneAppear {
+    0% {
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+.milestone-badge::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid rgba(0, 102, 255, 0.2);
+    animation: ripple 2s ease-out infinite;
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+/* Streak badge */
+.streak-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #FF6F00 0%, #FF9100 100%);
+    color: white;
+    border-radius: 24px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(255, 111, 0, 0.3);
+}
+
+.streak-badge-icon {
+    font-size: 20px;
+    animation: fireFlicker 1.5s ease-in-out infinite;
+}
+
+@keyframes fireFlicker {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+/* Achievement card */
+.achievement-card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    border: 2px dashed #E0E0E0;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.achievement-card:hover {
+    border-color: #0066FF;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.1);
+}
+
+.achievement-card.unlocked {
+    border-style: solid;
+    border-color: #00C853;
+    background: linear-gradient(135deg, rgba(0, 200, 83, 0.05) 0%, rgba(0, 200, 83, 0.02) 100%);
+}
+
+.achievement-icon {
+    font-size: 48px;
+    margin-bottom: 8px;
+    filter: grayscale(100%);
+    opacity: 0.3;
+    transition: all 0.3s;
+}
+
+.achievement-card.unlocked .achievement-icon {
+    filter: grayscale(0%);
+    opacity: 1;
+    animation: iconPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes iconPop {
+    0% { transform: scale(0) rotate(-180deg); }
+    50% { transform: scale(1.2) rotate(10deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+
+.achievement-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.achievement-description {
+    font-size: 12px;
+    color: #666;
+}
+
+/* Progress ring */
+.progress-ring {
+    position: relative;
+    width: 120px;
+    height: 120px;
+}
+
+.progress-ring-circle {
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+}
+
+.progress-ring-background {
+    stroke: #E0E0E0;
+    fill: none;
+    stroke-width: 8;
+}
+
+.progress-ring-progress {
+    stroke: url(#progressGradient);
+    fill: none;
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s ease;
+}
+
+.progress-ring-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.progress-ring-percentage {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0066FF;
+}
+
+.progress-ring-label {
+    font-size: 11px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Motivational message */
+.motivation-message {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, rgba(0, 102, 255, 0.05) 0%, rgba(0, 200, 83, 0.05) 100%);
+    border-left: 4px solid #0066FF;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #333;
+    animation: slideInLeft 0.4s ease-out;
+}
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.motivation-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+/* Dark mode */
+[data-theme="dark"] .progress-badge-started {
+    background: linear-gradient(135deg, #1E3A5F 0%, #2C5282 100%);
+    color: #90CAF9;
+}
+
+[data-theme="dark"] .achievement-card {
+    background: #2d2d2d;
+    border-color: #444;
+}
+
+[data-theme="dark"] .achievement-card.unlocked {
+    border-color: #00C853;
+    background: linear-gradient(135deg, rgba(0, 200, 83, 0.1) 0%, rgba(0, 200, 83, 0.05) 100%);
+}
+
+[data-theme="dark"] .achievement-title {
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .achievement-description {
+    color: #aaa;
+}
+
+[data-theme="dark"] .motivation-message {
+    background: linear-gradient(135deg, rgba(0, 102, 255, 0.1) 0%, rgba(0, 200, 83, 0.1) 100%);
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .progress-ring-background {
+    stroke: #444;
+}
+
+[data-theme="dark"] .progress-ring-percentage {
+    color: #90CAF9;
+}
+
+[data-theme="dark"] .progress-ring-label {
+    color: #aaa;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .progress-badge {
+        font-size: 11px;
+        padding: 3px 10px;
+    }
+    
+    .milestone-badge {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+    
+    .progress-ring {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .progress-ring-percentage {
+        font-size: 20px;
+    }
+}

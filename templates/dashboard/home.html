@@ -4,10 +4,10 @@
 
 {% block content %}
 <div class="page-header mb-4">
-    <h1>
-        <i class="bi bi-house-door me-2"></i> Tableau de bord
+    <h1 aria-label="Titre de la page">
+        <i class="bi bi-house-door me-2" aria-hidden="true"></i> Tableau de bord
     </h1>
-    <p>Bienvenue, {{ user.profile.get_full_name }} !</p>
+    <p aria-live="polite">Bienvenue, {{ user.profile.get_full_name }} !</p>
 </div>
 
 <!-- Disclaimer reminder -->
@@ -34,16 +34,16 @@
 </div>
 
 <!-- Cartes de statistiques -->
-<div class="row g-4 mb-4">
+<div class="row g-4 mb-4" role="region" aria-label="Statistiques financières">
     <div class="col-md-3">
-        <div class="stat-card stat-danger">
+        <div class="stat-card stat-danger" role="article" aria-labelledby="stat-expenses">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <h6>Dépenses ce mois</h6>
+                    <h6 id="stat-expenses">Dépenses ce mois</h6>
                     <h3 class="mb-0">{{ total_monthly_expenses|floatformat:0 }} FCFA</h3>
                     <small>Ce mois-ci</small>
                 </div>
-                <div class="stat-icon">
+                <div class="stat-icon" aria-hidden="true">
                     <i class="bi bi-credit-card"></i>
                 </div>
             </div>
@@ -51,14 +51,14 @@
     </div>
     
     <div class="col-md-3">
-        <div class="stat-card stat-success">
+        <div class="stat-card stat-success" role="article" aria-labelledby="stat-savings">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <h6>Épargne objectifs</h6>
+                    <h6 id="stat-savings">Épargne objectifs</h6>
                     <h3 class="mb-0">{{ total_goals_saved|floatformat:0 }} FCFA</h3>
                     <small>Économisé</small>
                 </div>
-                <div class="stat-icon">
+                <div class="stat-icon" aria-hidden="true">
                     <i class="bi bi-bullseye"></i>
                 </div>
             </div>
@@ -66,14 +66,14 @@
     </div>
     
     <div class="col-md-3">
-        <div class="stat-card stat-info">
+        <div class="stat-card stat-info" role="article" aria-labelledby="stat-members">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <h6>Membres de groupes</h6>
+                    <h6 id="stat-members">Membres de groupes</h6>
                     <h3 class="mb-0">{{ total_group_members }}</h3>
                     <small>Collaborateurs</small>
                 </div>
-                <div class="stat-icon">
+                <div class="stat-icon" aria-hidden="true">
                     <i class="bi bi-people"></i>
                 </div>
             </div>
@@ -134,7 +134,7 @@
         </div>
     </div>
     
-    <!-- Dépenses par catégorie -->
+    <!-- Dépenses par catégorie avec graphique -->
     <div class="col-md-6 mb-4">
         <div class="card">
             <div class="card-header bg-white">
@@ -144,28 +144,36 @@
             </div>
             <div class="card-body">
                 {% if expenses_by_category %}
-                    {% for category in expenses_by_category %}
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between mb-1">
+                    <canvas id="dashboardCategoryChart" style="max-height: 250px; margin-bottom: 20px;"></canvas>
+                    <div class="mt-3">
+                        {% for category in expenses_by_category %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
                             <span>
-                                <i class="bi {{ category.category__icon|default:'bi-tag' }}" style="color: {{ category.category__color|default:'#6c757d' }}"></i>
-                                {{ category.category__name|default:"Non catégorisé" }}
+                                <span class="badge" style="background-color: {{ category.category__color|default:'#6c757d' }};">
+                                    {{ category.category__name|default:"Non catégorisé" }}
+                                </span>
                             </span>
                             <strong>{{ category.total|floatformat:0 }} FCFA</strong>
                         </div>
-                        <div class="progress" style="height: 8px;">
-                            <div class="progress-bar" 
-                                 role="progressbar" 
-                                 style="width: {% widthratio category.total total_monthly_expenses 100 %}%; background-color: {{ category.category__color|default:'#6c757d' }}"
-                                 aria-valuenow="{% widthratio category.total total_monthly_expenses 100 %}" 
-                                 aria-valuemin="0" 
-                                 aria-valuemax="100"></div>
-                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
                 {% else %}
                     <p class="text-muted text-center my-4">Aucune dépense ce mois</p>
                 {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Évolution des 7 derniers jours -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-graph-up text-danger"></i> Évolution des dépenses (7 jours)
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="dashboardDailyChart" style="max-height: 250px;"></canvas>
             </div>
         </div>
     </div>
@@ -342,4 +350,110 @@
         </div>
     </div>
 </div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Adapter les couleurs selon le thème
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const textColor = isDark ? '#E5E7EB' : '#1F2937';
+    const gridColor = isDark ? '#374151' : '#E5E7EB';
+    
+    Chart.defaults.color = textColor;
+    Chart.defaults.borderColor = gridColor;
+    
+    {% if expenses_by_category %}
+    // ===== Graphique Camembert - Catégories =====
+    const categoryCtx = document.getElementById('dashboardCategoryChart');
+    if (categoryCtx) {
+        new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ dashboard_category_labels_json|safe }},
+                datasets: [{
+                    data: {{ dashboard_category_data_json|safe }},
+                    backgroundColor: {{ dashboard_category_colors_json|safe }},
+                    borderWidth: 2,
+                    borderColor: isDark ? '#1F2937' : '#FFFFFF'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return context.label + ': ' + value.toLocaleString() + ' FCFA (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    {% endif %}
+    
+    // ===== Graphique Barres - 7 derniers jours =====
+    const dailyCtx = document.getElementById('dashboardDailyChart');
+    if (dailyCtx) {
+        new Chart(dailyCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ daily_labels_json|safe }},
+                datasets: [{
+                    label: 'Dépenses quotidiennes',
+                    data: {{ daily_data_json|safe }},
+                    backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                    borderColor: '#EF4444',
+                    borderWidth: 1,
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y.toLocaleString() + ' FCFA';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString() + ' FCFA';
+                            }
+                        },
+                        grid: {
+                            color: gridColor
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

@@ -41,17 +41,43 @@ def home_view(request):
         total=Sum('amount')
     ).order_by('-total')[:5]
     
+    # Préparer les données pour Chart.js (Dashboard)
+    dashboard_category_labels = [cat['category__name'] or 'Non catégorisé' for cat in expenses_by_category]
+    dashboard_category_data = [float(cat['total']) for cat in expenses_by_category]
+    dashboard_category_colors = [cat['category__color'] or '#6c757d' for cat in expenses_by_category]
+    
+    # Dépenses des 7 derniers jours pour graphique d'évolution
+    seven_days_ago = today - timedelta(days=7)
+    daily_expenses = Expense.objects.filter(
+        user=request.user,
+        date__gte=seven_days_ago
+    ).annotate(
+        day=TruncDay('date')
+    ).values('day').annotate(
+        total=Sum('amount')
+    ).order_by('day')
+    
+    # Créer tous les jours avec 0 si pas de dépense
+    daily_labels = []
+    daily_data = []
+    expenses_dict = {item['day']: float(item['total']) for item in daily_expenses}
+    
+    for i in range(7):
+        day = seven_days_ago + timedelta(days=i)
+        daily_labels.append(day.strftime('%d/%m'))
+        daily_data.append(expenses_dict.get(day, 0.0))
+    
     # Dernières dépenses avec catégorie pré-chargée
     recent_expenses = Expense.objects.filter(
         user=request.user
     ).select_related('category').order_by('-date', '-created_at')[:5]  # ← Déjà optimisé
     
     # === OBJECTIFS PERSONNELS ===
-    # Objectifs actifs avec catégorie pré-chargée
+    # Objectifs actifs
     active_goals = Goal.objects.filter(
         user=request.user,
         status='active'
-    ).select_related('category').order_by('deadline')[:5]  # ← OPTIMISATION
+    ).order_by('deadline')[:5]
     
     total_goals_target = active_goals.aggregate(
         total=Sum('target_amount')
@@ -66,7 +92,7 @@ def home_view(request):
     user_groups = Group.objects.filter(
         members=request.user,
         status='active'
-    ).select_related('created_by').prefetch_related('members').order_by('deadline')[:5]  # ← OPTIMISATION
+    ).select_related('creator').prefetch_related('members').order_by('deadline')[:5]  # ← OPTIMISATION
     
     # Contributions de l'utilisateur ce mois
     monthly_contributions = GroupContribution.objects.filter(
@@ -98,6 +124,13 @@ def home_view(request):
         'expenses_by_category': expenses_by_category,
         'recent_expenses': recent_expenses,
         'total_expenses_count': total_expenses_count,
+        
+        # Données JSON pour graphiques
+        'dashboard_category_labels_json': json.dumps(dashboard_category_labels),
+        'dashboard_category_data_json': json.dumps(dashboard_category_data),
+        'dashboard_category_colors_json': json.dumps(dashboard_category_colors),
+        'daily_labels_json': json.dumps(daily_labels),
+        'daily_data_json': json.dumps(daily_data),
         
         # Objectifs
         'active_goals': active_goals,

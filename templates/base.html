@@ -21,6 +21,10 @@
     <link rel="stylesheet" href="{% static 'css/custom-design.css' %}">
     <!-- Skeleton Loaders -->
     <link rel="stylesheet" href="{% static 'css/skeleton.css' %}">>
+    <!-- Loading Spinner -->
+    <link rel="stylesheet" href="{% static 'css/loading-spinner.css' %}">
+    <!-- Page Transitions -->
+    <link rel="stylesheet" href="{% static 'css/page-transitions.css' %}">
     
     <!-- Anti-flash : cacher le body jusqu'à l'application du thème -->
     <style>
@@ -221,14 +225,23 @@
         }
         
         [data-theme="dark"] .table thead th {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
+            background: #2C2C2C !important;
+            color: #E5E7EB !important;
             border-bottom-color: var(--border-color);
         }
         
         [data-theme="dark"] .table tbody td {
-            color: var(--text-primary);
+            color: #F9FAFB !important;
             border-bottom-color: var(--border-color);
+        }
+        
+        [data-theme="dark"] .table tbody td strong {
+            color: #FFFFFF !important;
+        }
+        
+        [data-theme="dark"] .table tbody td small,
+        [data-theme="dark"] .table tbody td .text-muted {
+            color: #D1D5DB !important;
         }
         
         [data-theme="dark"] .table tbody tr:hover {
@@ -1465,13 +1478,18 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'expenses:budget_list' %}">
+                            <i class="bi bi-wallet2"></i> Budgets
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'goals:list' %}">
                             <i class="bi bi-bullseye"></i> Objectifs
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'accounts:wallet' %}">
-                            <i class="bi bi-wallet2"></i> Portefeuille
+                            <i class="bi bi-cash-coin"></i> Portefeuille
                         </a>
                     </li>
                     <li class="nav-item dropdown">
@@ -1577,15 +1595,15 @@
                     
                     <!-- Instructions par plateforme -->
                     <div class="accordion" id="installInstructions">
-                        <!-- Android / Chrome -->
+                        <!-- Android / Chrome / Windows -->
                         <div class="accordion-item border-0 mb-2">
                             <h2 class="accordion-header" id="headingAndroid">
                                 <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAndroid" aria-expanded="false" aria-controls="collapseAndroid">
                                     <i class="bi bi-android2 text-success me-2"></i>
-                                    <strong>Android / Chrome / Edge</strong>
+                                    <strong>Android / Windows / Chrome / Edge</strong>
                                 </button>
                             </h2>
-                            <div id="collapseAndroid" class="accordion-collapse collapse" aria-labelledby="headingAndroid" data-bs-parent="#installInstructions">
+                            <div id="collapseAndroid collapseWindows" class="accordion-collapse collapse" aria-labelledby="headingAndroid" data-bs-parent="#installInstructions">
                                 <div class="accordion-body bg-light">
                                     <ol class="mb-0 ps-3">
                                         <li class="mb-2">Cliquez sur le bouton <span class="badge bg-primary">Installer</span> dans la barre de navigation en haut</li>
@@ -1606,10 +1624,10 @@
                             </h2>
                             <div id="collapseiOS" class="accordion-collapse collapse" aria-labelledby="headingiOS" data-bs-parent="#installInstructions">
                                 <div class="accordion-body bg-light">
-                                    <div class="alert alert-info mb-3">
+                                    <p class="text-muted small mb-3">
                                         <i class="bi bi-info-circle me-1"></i>
-                                        <strong>Important :</strong> Utilisez Safari (pas Chrome ou autre navigateur)
-                                    </div>
+                                        Sur iOS, l'installation PWA nécessite Safari (limitation Apple)
+                                    </p>
                                     <ol class="mb-0 ps-3">
                                         <li class="mb-2">
                                             <strong>Ouvrez le menu Partage</strong>
@@ -1734,17 +1752,14 @@
         </div>
     </div>
     
-    <!-- Messages Flash -->
-    {% if messages %}
-    <div class="container mt-3">
+    <!-- Messages Flash (hidden, utilisés par JS pour les toasts) -->
+    <div id="django-messages" style="display: none;">
+        {% if messages %}
         {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+        <div data-message-type="{{ message.tags }}" data-message-text="{{ message|escapejs }}"></div>
         {% endfor %}
+        {% endif %}
     </div>
-    {% endif %}
     
     <!-- Main Content -->
     <div class="content-wrapper">
@@ -1764,6 +1779,8 @@
     
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Loading Spinner System -->
+    <script src="{% static 'js/loading-spinner.js' %}"></script>
     
     <script>
         // ==================== GESTION DU THÈME (TOGGLE UNIQUEMENT) ====================
@@ -2245,6 +2262,14 @@
     
     <!-- UX Enhancements -->
     <script src="{% static 'js/ux-enhancements.js' %}"></script>
+    
+    <!-- Toast System -->
+    <link rel="stylesheet" href="{% static 'css/toast-system.css' %}">
+    <link rel="stylesheet" href="{% static 'css/empty-states.css' %}">
+    <link rel="stylesheet" href="{% static 'css/progress-badges.css' %}">
+    <script src="{% static 'js/toast-system.js' %}"></script>
+    <script src="{% static 'js/skeleton-loader.js' %}"></script>
+    <script src="{% static 'js/pwa-installer.js' %}"></script>
     
     {% block extra_js %}{% endblock %}
 </body>

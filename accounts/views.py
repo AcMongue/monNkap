@@ -165,7 +165,7 @@ def wallet_dashboard_view(request):
     goals = Goal.objects.filter(
         user=request.user, 
         status='active'
-    ).select_related('category').prefetch_related('allocations')
+    ).prefetch_related('allocations')
     
     goal_allocations = []
     for goal in goals:
